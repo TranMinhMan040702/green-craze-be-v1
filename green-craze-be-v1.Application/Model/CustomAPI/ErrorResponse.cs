@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace green_craze_be_v1.Application.Model.CustomAPI
+{
+    public class ErrorResponse
+    {
+        public int Status { get; set; }
+        public Uri Type { get; set; }
+        public string Title { get; set; }
+        public string Detail { get; set; }
+        public Uri Instance { get; set; }
+        public string Code { get; set; }
+        public string TraceId { get; set; }
+
+        public List<APIViolation> Violations { get; set; }
+    }
+}
