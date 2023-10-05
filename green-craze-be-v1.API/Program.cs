@@ -1,9 +1,10 @@
+using green_craze_be_v1.API.Middlewares;
 using green_craze_be_v1.Application.Common.Mapper;
-using green_craze_be_v1.Application.Common.Middlewares;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Infrastructure.Data.Context;
 using green_craze_be_v1.Infrastructure.Repositories;
 using green_craze_be_v1.Infrastructure.Services;
+using Hellang.Middleware.ProblemDetails;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 
@@ -11,6 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var configuration = builder.Configuration;
+builder.Services.AddProblemDetails(setup =>
+{
+    setup.IncludeExceptionDetails = (ctx, env) =>
+    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
+    || Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Staging";
+});
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDBContext>(options =>
                 options.UseMySQL(configuration.GetConnectionString("AppDBContext")));
@@ -26,6 +33,7 @@ builder.Services
     .AddScoped<IUnitService, UnitService>();
 var app = builder.Build();
 
+app.UseProblemDetails();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

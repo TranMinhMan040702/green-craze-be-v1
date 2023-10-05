@@ -24,10 +24,10 @@ namespace green_craze_be_v1.API.Controllers
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUnit([FromQuery] GetUnitPagingRequest request)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    throw new ValidationException(ModelState.);
-            //}
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var res = await _unitService.GetAllUnit(request);
 
             return Ok(APIResponse<PaginatedResult<UnitDto>>.Create(res, StatusCodes.Status200OK));
@@ -44,6 +44,10 @@ namespace green_craze_be_v1.API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateUnit([FromBody] CreateUnitRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var res = await _unitService.CreateUnit(request);
 
             return Ok(APIResponse<bool>.Create(res, StatusCodes.Status201Created));
@@ -52,6 +56,10 @@ namespace green_craze_be_v1.API.Controllers
         [HttpPut("update")]
         public async Task<IActionResult> UpdateUnit([FromBody] UpdateUnitRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var res = await _unitService.UpdateUnit(request);
 
             return Ok(APIResponse<bool>.Create(res, StatusCodes.Status204NoContent));

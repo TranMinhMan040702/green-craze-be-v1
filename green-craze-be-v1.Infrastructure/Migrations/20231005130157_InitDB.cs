@@ -19,18 +19,18 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 name: "unit",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     name = table.Column<string>(type: "longtext", nullable: false),
                     status = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true)
+                    created_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    created_by = table.Column<string>(type: "longtext", nullable: true),
+                    updated_by = table.Column<string>(type: "longtext", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_unit", x => x.Id);
+                    table.PrimaryKey("PK_unit", x => x.id);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
         }

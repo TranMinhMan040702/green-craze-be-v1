@@ -11,7 +11,7 @@ using green_craze_be_v1.Infrastructure.Data.Context;
 namespace green_craze_be_v1.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20231005110334_InitDB")]
+    [Migration("20231005130157_InitDB")]
     partial class InitDB
     {
         /// <inheritdoc />
@@ -26,13 +26,16 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
+                        .HasColumnType("longtext")
+                        .HasColumnName("created_by");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -44,10 +47,12 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .HasColumnName("status");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext");
+                        .HasColumnType("longtext")
+                        .HasColumnName("updated_by");
 
                     b.HasKey("Id");
 
