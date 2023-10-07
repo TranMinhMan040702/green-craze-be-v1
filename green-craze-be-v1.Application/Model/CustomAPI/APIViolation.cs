@@ -8,7 +8,7 @@ namespace green_craze_be_v1.Application.Model.CustomAPI
 {
     public class APIViolation
     {
-        public string Field;
-        public List<string> Messages;
+        public string Field { get; set; }
+        public List<string> Messages { get; set; }
     }
 }

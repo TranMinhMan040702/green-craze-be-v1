@@ -11,11 +11,12 @@ namespace green_craze_be_v1.Infrastructure.Services
 {
     public class CurrentUserService : ICurrentUserService
     {
-        public string UserId { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public string UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
         public CurrentUserService(IHttpContextAccessor httpContextAccessor)
         {
-            UserId = httpContextAccessor?.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            _httpContextAccessor = httpContextAccessor;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace green_craze_be_v1.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Cannot delete entity", ex);
+                throw new Exception("Cannot delete this entity", ex);
             }
         }
 
@@ -47,7 +47,7 @@ namespace green_craze_be_v1.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Cannot get list", ex);
+                throw new Exception("Cannot get entity list", ex);
             }
         }
 
@@ -55,7 +55,7 @@ namespace green_craze_be_v1.Infrastructure.Repositories
         {
             try
             {
-                return await _entities.FindAsync(id) ?? throw new NotFoundException("Cannot found entity");
+                return await _entities.FindAsync(id) ?? throw new NotFoundException("Cannot find this entity");
             }
             catch (Exception ex)
             {
@@ -76,7 +76,7 @@ namespace green_craze_be_v1.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Cannot insert entity", ex);
+                throw new Exception("Cannot insert this entity", ex);
             }
         }
 
@@ -93,7 +93,7 @@ namespace green_craze_be_v1.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Cannot update entity", ex);
+                throw new Exception("Cannot update this entity", ex);
             }
         }
 

@@ -17,6 +17,45 @@ namespace green_craze_be_v1.Application.Specification.Unit
             {
                 Criteria = x => x.Name == keyword;
             }
+
+            if (query.IsSortAccending)
+            {
+                if (query.ColumnName == nameof(Domain.Entities.Unit.Name))
+                {
+                    AddOrderBy(x => x.Name);
+                }
+                else if (query.ColumnName == nameof(Domain.Entities.Unit.CreatedAt))
+                {
+                    AddOrderBy(x => x.CreatedAt);
+                }
+                else if (query.ColumnName == nameof(Domain.Entities.Unit.UpdatedAt))
+                {
+                    AddOrderBy(x => x.UpdatedAt);
+                }
+                else
+                {
+                    AddOrderBy(x => x.Id);
+                }
+            }
+            else
+            {
+                if (query.ColumnName == nameof(Domain.Entities.Unit.Name))
+                {
+                    AddOrderByDecending(x => x.Name);
+                }
+                else if (query.ColumnName == nameof(Domain.Entities.Unit.CreatedAt))
+                {
+                    AddOrderByDecending(x => x.CreatedAt);
+                }
+                else if (query.ColumnName == nameof(Domain.Entities.Unit.UpdatedAt))
+                {
+                    AddOrderByDecending(x => x.UpdatedAt);
+                }
+                else
+                {
+                    AddOrderByDecending(x => x.Id);
+                }
+            }
             if (!isPaging) return;
             int skip = (query.PageIndex - 1) * query.PageSize;
             int take = query.PageSize;

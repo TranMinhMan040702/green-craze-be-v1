@@ -9,11 +9,11 @@ namespace green_craze_be_v1.Application.Model.CustomAPI
 {
     public class ErrorResponse
     {
-        [JsonPropertyName("status")]
-        public int Status { get; set; }
-
         [JsonPropertyName("type")]
         public Uri Type { get; set; }
+
+        [JsonPropertyName("status")]
+        public int Status { get; set; }
 
         [JsonPropertyName("title")]
         public string Title { get; set; }
@@ -22,7 +22,7 @@ namespace green_craze_be_v1.Application.Model.CustomAPI
         public string Detail { get; set; }
 
         [JsonPropertyName("instance")]
-        public Uri Instance { get; set; }
+        public string Instance { get; set; }
 
         [JsonPropertyName("code")]
         public string Code { get; set; }

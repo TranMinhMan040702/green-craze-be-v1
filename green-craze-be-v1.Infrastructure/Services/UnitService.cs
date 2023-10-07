@@ -12,11 +12,13 @@ namespace green_craze_be_v1.Infrastructure.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IUploadService _uploadService;
 
-        public UnitService(IUnitOfWork unitOfWork, IMapper mapper)
+        public UnitService(IUnitOfWork unitOfWork, IMapper mapper, IUploadService uploadService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _uploadService = uploadService;
         }
 
         public async Task<bool> CreateUnit(CreateUnitRequest request)

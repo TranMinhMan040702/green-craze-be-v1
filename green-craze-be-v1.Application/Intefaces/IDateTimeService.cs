@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Intefaces
 {
-    public interface ICurrentUserService
+    public interface IDateTimeService
     {
-        public string UserId { get; }
+        public DateTime Current { get; }
     }
 }

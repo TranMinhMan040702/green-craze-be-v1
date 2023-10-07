@@ -36,9 +36,10 @@ namespace green_craze_be_v1.API.Middlewares
                     ValidationException => (int)HttpStatusCode.BadRequest,
                     _ => (int)HttpStatusCode.InternalServerError,
                 };
-                
+
                 var problemDetails = _problemDetailsFactory
                     .CreateProblemDetails(context, statusCode: statusCode, detail: error.Message, instance: context.Request.Path);
+
                 string strJson = JsonSerializer.Serialize(problemDetails);
                 context.Response.Headers.Add("Content-Type", "application/json");
                 await context.Response.WriteAsync(strJson);

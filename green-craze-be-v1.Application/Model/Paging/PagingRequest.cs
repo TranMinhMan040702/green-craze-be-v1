@@ -16,8 +16,9 @@ namespace green_craze_be_v1.Application.Model.Paging
             set => _search = value?.ToLower();
         }
 
-        public string Sort { get; set; } = "Desc";
+        public bool IsSortAccending { get; set; } = true;
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 1000;
+        public string ColumnName { get; set; } = "Id";
     }
 }

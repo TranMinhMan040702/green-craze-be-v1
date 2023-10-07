@@ -16,10 +16,12 @@ namespace green_craze_be_v1.Infrastructure.Data.Context
     public class AppDBContext : DbContext
     {
         private readonly ICurrentUserService _currentUserService;
+        private readonly IDateTimeService _dateTimeService;
 
-        public AppDBContext(DbContextOptions options, ICurrentUserService currentUserService) : base(options)
+        public AppDBContext(DbContextOptions options, ICurrentUserService currentUserService, IDateTimeService dateTimeService) : base(options)
         {
             _currentUserService = currentUserService;
+            _dateTimeService = dateTimeService;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,22 +31,31 @@ namespace green_craze_be_v1.Infrastructure.Data.Context
             modelBuilder.ApplyConfiguration(new UnitConfiguration());
         }
 
+        private void SetAuditable<T>(EntityEntry<BaseAuditableEntity<T>> entry)
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedBy = _currentUserService?.UserId ?? "System";
+                    entry.Entity.CreatedAt = _dateTimeService.Current;
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.UpdatedBy = _currentUserService?.UserId ?? "System";
+                    entry.Entity.UpdatedAt = _dateTimeService.Current;
+                    break;
+            }
+        }
+
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             foreach (EntityEntry<BaseAuditableEntity<long>> entry in ChangeTracker.Entries<BaseAuditableEntity<long>>())
             {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.Entity.CreatedBy = _currentUserService?.UserId ?? "System";
-                        entry.Entity.CreatedAt = DateTime.Now;
-                        break;
-
-                    case EntityState.Modified:
-                        entry.Entity.UpdatedBy = _currentUserService?.UserId ?? "System";
-                        entry.Entity.UpdatedAt = DateTime.Now;
-                        break;
-                }
+                SetAuditable(entry);
+            }
+            foreach (EntityEntry<BaseAuditableEntity<string>> entry in ChangeTracker.Entries<BaseAuditableEntity<string>>())
+            {
+                SetAuditable(entry);
             }
             return base.SaveChangesAsync(cancellationToken);
         }
