@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace green_craze_be_v1.Application.Model.Cloudinary
+namespace green_craze_be_v1.Application.Common.Options
 {
     public class CloudinaryOptions
     {

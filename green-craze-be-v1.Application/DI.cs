@@ -8,20 +8,28 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 using AutoMapper;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using green_craze_be_v1.Application.Common.Extensions;
+using green_craze_be_v1.Application.Common.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace green_craze_be_v1.Application
 {
     public static class DI
     {
         [Obsolete]
-        public static void AddApplicationLayer(this IServiceCollection services)
+        public static void AddApplicationLayer(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddMapper();
             services.AddProblemDetailsSetup();
-            services.AddControllers()
+            services.AddControllers(options =>
+                {
+                    options.SuppressAsyncSuffixInActionNames = false;
+                })
                 .ConfigureApiBehaviorOptions(options =>
                 {
                     options.InvalidModelStateResponseFactory = context =>
@@ -54,6 +62,7 @@ namespace green_craze_be_v1.Application
                     v.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
                 });
             services.AddValidators();
+            services.AddJwtAuthentication(configuration);
         }
 
         private static void AddMapper(this IServiceCollection services)
@@ -74,6 +83,42 @@ namespace green_craze_be_v1.Application
                 Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
                 || Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Staging";
             });
+        }
+
+        private static JWTConfigOptions GetJwtConfig(IConfiguration configuration)
+        {
+            return configuration.GetOptions<JWTConfigOptions>("Tokens");
+        }
+
+        public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            var jwtConfig = GetJwtConfig(configuration);
+            byte[] signingKeyBytes = Encoding.UTF8.GetBytes(jwtConfig.SigningKey);
+            services
+                .AddAuthentication(opts =>
+                {
+                    opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    opts.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(opts =>
+                {
+                    opts.RequireHttpsMetadata = false;
+                    opts.SaveToken = true;
+                    opts.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = jwtConfig.Issuer,
+                        ValidateAudience = true,
+                        ValidAudience = jwtConfig.Issuer,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ClockSkew = TimeSpan.Zero,
+                        IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
+                    };
+                });
+
+            services.AddAuthorization();
         }
     }
 }

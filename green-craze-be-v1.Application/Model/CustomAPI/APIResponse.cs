@@ -18,7 +18,7 @@ namespace green_craze_be_v1.Application.Model.CustomAPI
             Status = status;
         }
 
-        public static APIResponse<T> Create(T data, int status)
+        public static APIResponse<T> Initialize(T data, int status)
         {
             return new APIResponse<T>(data, status);
         }

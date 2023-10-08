@@ -10,6 +10,6 @@ namespace green_craze_be_v1.Domain.Entities
     public class Unit : BaseAuditableEntity<long>
     {
         public string Name { get; set; }
-        public bool Status { get; set; }
+        public bool Status { get; set; } = true;
     }
 }

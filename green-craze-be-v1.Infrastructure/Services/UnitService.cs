@@ -21,7 +21,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             _uploadService = uploadService;
         }
 
-        public async Task<bool> CreateUnit(CreateUnitRequest request)
+        public async Task<long> CreateUnit(CreateUnitRequest request)
         {
             try
             {
@@ -30,10 +30,13 @@ namespace green_craze_be_v1.Infrastructure.Services
                 await _unitOfWork.Repository<Unit>().Insert(unit);
 
                 var isSuccess = await _unitOfWork.Save() > 0;
-
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot create entity");
+                }
                 await _unitOfWork.Commit();
 
-                return isSuccess;
+                return unit.Id;
             }
             catch (Exception ex)
             {
@@ -55,7 +58,10 @@ namespace green_craze_be_v1.Infrastructure.Services
                 }
 
                 var isSuccess = await _unitOfWork.Save() > 0;
-
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot update status of entities");
+                }
                 await _unitOfWork.Commit();
 
                 return isSuccess;
@@ -77,7 +83,10 @@ namespace green_craze_be_v1.Infrastructure.Services
                 unit.Status = false;
                 _unitOfWork.Repository<Unit>().Update(unit);
                 var isSuccess = await _unitOfWork.Save() > 0;
-
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot update status of entity");
+                }
                 await _unitOfWork.Commit();
 
                 return isSuccess;
@@ -118,7 +127,10 @@ namespace green_craze_be_v1.Infrastructure.Services
                 unit.Status = request.Status;
                 _unitOfWork.Repository<Unit>().Update(unit);
                 var isSuccess = await _unitOfWork.Save() > 0;
-
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot update entity");
+                }
                 await _unitOfWork.Commit();
 
                 return isSuccess;

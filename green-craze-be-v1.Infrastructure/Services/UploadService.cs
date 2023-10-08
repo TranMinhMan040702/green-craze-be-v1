@@ -1,7 +1,7 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using green_craze_be_v1.Application.Common.Options;
 using green_craze_be_v1.Application.Intefaces;
-using green_craze_be_v1.Application.Model.Cloudinary;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;

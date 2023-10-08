@@ -26,7 +26,7 @@ namespace green_craze_be_v1.API.Controllers
         {
             var res = await _unitService.GetAllUnit(request);
 
-            return Ok(APIResponse<PaginatedResult<UnitDto>>.Create(res, StatusCodes.Status200OK));
+            return Ok(APIResponse<PaginatedResult<UnitDto>>.Initialize(res, StatusCodes.Status200OK));
         }
 
         [HttpGet("{id}")]
@@ -34,15 +34,15 @@ namespace green_craze_be_v1.API.Controllers
         {
             var res = await _unitService.GetUnit(id);
 
-            return Ok(APIResponse<UnitDto>.Create(res, StatusCodes.Status200OK));
+            return Ok(new APIResponse<UnitDto>(res, StatusCodes.Status200OK));
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateUnit([FromBody] CreateUnitRequest request)
         {
-            var res = await _unitService.CreateUnit(request);
-
-            return Ok(APIResponse<bool>.Create(res, StatusCodes.Status201Created));
+            var unitId = await _unitService.CreateUnit(request);
+            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/units/{unitId}";
+            return Created(url, new APIResponse<object>(new { id = unitId}, StatusCodes.Status201Created));
         }
 
         [HttpPut("update")]
@@ -50,7 +50,7 @@ namespace green_craze_be_v1.API.Controllers
         {
             var res = await _unitService.UpdateUnit(request);
 
-            return Ok(APIResponse<bool>.Create(res, StatusCodes.Status204NoContent));
+            return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
 
         [HttpDelete("delete/{id}")]
@@ -58,7 +58,7 @@ namespace green_craze_be_v1.API.Controllers
         {
             var res = await _unitService.DeleteUnit(id);
 
-            return Ok(APIResponse<bool>.Create(res, StatusCodes.Status204NoContent));
+            return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
 
         [HttpDelete("delete/all")]
@@ -66,7 +66,7 @@ namespace green_craze_be_v1.API.Controllers
         {
             var res = await _unitService.DeleteMany(ids);
 
-            return Ok(APIResponse<bool>.Create(res, StatusCodes.Status204NoContent));
+            return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
     }
 }

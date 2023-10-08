@@ -11,7 +11,7 @@ namespace green_craze_be_v1.Application.Intefaces
 {
     public interface IUnitService
     {
-        Task<bool> CreateUnit(CreateUnitRequest request);
+        Task<long> CreateUnit(CreateUnitRequest request);
 
         Task<bool> UpdateUnit(UpdateUnitRequest request);
 
