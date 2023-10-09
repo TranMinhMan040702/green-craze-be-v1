@@ -13,8 +13,8 @@ namespace green_craze_be_v1.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<ProductCategory> builder)
         {
-            builder.HasAlternateKey(x => x.Name);
-            builder.HasAlternateKey(x => x.Slug);
+            builder.HasIndex(u => u.Name).IsUnique();
+            builder.HasIndex(u => u.Slug).IsUnique();
 
             builder.Property(x => x.ParentId).IsRequired(false);
 

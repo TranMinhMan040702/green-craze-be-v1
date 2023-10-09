@@ -68,16 +68,8 @@ namespace green_craze_be_v1.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while executing save operation", ex);
+                throw;
             }
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-                if (disposing)
-                    Context.Dispose();
-            _disposed = true;
         }
     }
 }

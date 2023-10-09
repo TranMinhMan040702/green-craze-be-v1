@@ -21,7 +21,7 @@ namespace green_craze_be_v1.API.Controllers
             _unitService = unitService;
         }
 
-        [HttpGet("all")]
+        [HttpGet]
         public async Task<IActionResult> GetAllUnit([FromQuery] GetUnitPagingRequest request)
         {
             var res = await _unitService.GetAllUnit(request);
@@ -42,7 +42,7 @@ namespace green_craze_be_v1.API.Controllers
         {
             var unitId = await _unitService.CreateUnit(request);
             var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/units/{unitId}";
-            return Created(url, new APIResponse<object>(new { id = unitId}, StatusCodes.Status201Created));
+            return Created(url, new APIResponse<object>(new { id = unitId }, StatusCodes.Status201Created));
         }
 
         [HttpPut("update")]
@@ -61,7 +61,7 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
 
-        [HttpDelete("delete/all")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> DeleteManyUnit([FromQuery] List<long> ids)
         {
             var res = await _unitService.DeleteMany(ids);

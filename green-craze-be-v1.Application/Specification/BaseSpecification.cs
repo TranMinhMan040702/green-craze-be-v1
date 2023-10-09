@@ -42,12 +42,12 @@ namespace green_craze_be_v1.Application.Specification
             OrderBy = orderByExpression;
         }
 
-        public void AddOrderByDecending(Expression<Func<T, object>> orderByDecending)
+        public void AddOrderByDescending(Expression<Func<T, object>> orderByDescending)
         {
-            OrderByDescending = orderByDecending;
+            OrderByDescending = orderByDescending;
         }
 
-        public void ApplyPagging(int take, int skip)
+        public void ApplyPaging(int take, int skip)
         {
             Take = take;
             Skip = skip;

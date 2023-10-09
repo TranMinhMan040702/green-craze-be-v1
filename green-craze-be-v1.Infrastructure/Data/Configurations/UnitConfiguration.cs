@@ -13,7 +13,7 @@ namespace green_craze_be_v1.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Unit> builder)
         {
-            builder.HasAlternateKey(x => x.Name);
+            builder.HasIndex(u => u.Name).IsUnique();
             builder.Property(x => x.Status).IsRequired();
         }
     }

@@ -13,7 +13,7 @@ namespace green_craze_be_v1.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Transaction> builder)
         {
-            builder.HasAlternateKey(x => x.PaypalOrderId);
+            builder.HasIndex(u => u.PaypalOrderId).IsUnique();
             builder.Property(x => x.TotalPay).HasColumnType("DECIMAL").IsRequired();
             builder.Property(x => x.PaymentMethod).IsRequired();
             builder.Property(x => x.PaypalOrderId).IsRequired();

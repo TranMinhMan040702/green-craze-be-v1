@@ -13,7 +13,7 @@ namespace green_craze_be_v1.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
-            builder.HasAlternateKey(x => x.Code);
+            builder.HasIndex(u => u.Code).IsUnique();
             builder.Property(x => x.ShippingCost).HasColumnType("DECIMAL").IsRequired();
             builder.Property(x => x.TotalAmount).HasColumnType("DECIMAL").IsRequired();
             builder.Property(x => x.DeliveryMethod).IsRequired();

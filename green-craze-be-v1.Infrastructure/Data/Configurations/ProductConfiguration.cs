@@ -13,9 +13,9 @@ namespace green_craze_be_v1.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {
-            builder.HasAlternateKey(x => x.Name);
-            builder.HasAlternateKey(x => x.Slug);
-            builder.HasAlternateKey(x => x.Code);
+            builder.HasIndex(u => u.Name).IsUnique();
+            builder.HasIndex(u => u.Slug).IsUnique();
+            builder.HasIndex(u => u.Code).IsUnique();
             builder.Property(x => x.Cost).HasColumnType("DECIMAL").IsRequired();
             builder.Property(x => x.ShortDescription).IsRequired();
             builder.Property(x => x.Description).IsRequired();

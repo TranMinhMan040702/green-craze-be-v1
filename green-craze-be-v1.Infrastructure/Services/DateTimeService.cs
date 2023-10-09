@@ -9,6 +9,6 @@ namespace green_craze_be_v1.Infrastructure.Services
 {
     public class DateTimeService : IDateTimeService
     {
-        public DateTime Current => DateTime.Now;
+        public DateTime Current => DateTime.UtcNow;
     }
 }
