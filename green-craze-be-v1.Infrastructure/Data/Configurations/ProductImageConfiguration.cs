@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Data.Configurations
 {
-    public class UnitConfiguration : IEntityTypeConfiguration<Unit>
+    public class ProductImageConfiguration : IEntityTypeConfiguration<ProductImage>
     {
-        public void Configure(EntityTypeBuilder<Unit> builder)
+        public void Configure(EntityTypeBuilder<ProductImage> builder)
         {
-            builder.HasAlternateKey(x => x.Name);
-            builder.Property(x => x.Status).IsRequired();
+            builder.Property(x => x.Image).IsRequired();
+            builder.Property(x => x.IsDefault).IsRequired();
         }
     }
 }

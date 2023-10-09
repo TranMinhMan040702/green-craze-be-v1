@@ -9,11 +9,19 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Data.Configurations
 {
-    public class UnitConfiguration : IEntityTypeConfiguration<Unit>
+    public class ProductCategoryConfiguration : IEntityTypeConfiguration<ProductCategory>
     {
-        public void Configure(EntityTypeBuilder<Unit> builder)
+        public void Configure(EntityTypeBuilder<ProductCategory> builder)
         {
             builder.HasAlternateKey(x => x.Name);
+            builder.HasAlternateKey(x => x.Slug);
+
+            builder.Property(x => x.ParentId).IsRequired(false);
+
+            builder.Property(x => x.Image).IsRequired();
+
+            builder.Property(x => x.Slug).IsRequired();
+
             builder.Property(x => x.Status).IsRequired();
         }
     }

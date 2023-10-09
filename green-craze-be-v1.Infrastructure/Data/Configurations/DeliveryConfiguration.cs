@@ -9,11 +9,13 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Data.Configurations
 {
-    public class UnitConfiguration : IEntityTypeConfiguration<Unit>
+    public class DeliveryConfiguration : IEntityTypeConfiguration<Delivery>
     {
-        public void Configure(EntityTypeBuilder<Unit> builder)
+        public void Configure(EntityTypeBuilder<Delivery> builder)
         {
             builder.HasAlternateKey(x => x.Name);
+            builder.Property(x => x.Price).HasColumnType("DECIMAL");
+            builder.Property(x => x.Image).IsRequired();
             builder.Property(x => x.Status).IsRequired();
         }
     }

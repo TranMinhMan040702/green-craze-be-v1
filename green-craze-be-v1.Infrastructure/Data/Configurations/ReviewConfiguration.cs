@@ -9,11 +9,13 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Data.Configurations
 {
-    public class UnitConfiguration : IEntityTypeConfiguration<Unit>
+    public class ReviewConfiguration : IEntityTypeConfiguration<Review>
     {
-        public void Configure(EntityTypeBuilder<Unit> builder)
+        public void Configure(EntityTypeBuilder<Review> builder)
         {
-            builder.HasAlternateKey(x => x.Name);
+            builder.Property(x => x.Title).IsRequired();
+            builder.Property(x => x.Content).IsRequired();
+            builder.Property(x => x.Rating).IsRequired();
             builder.Property(x => x.Status).IsRequired();
         }
     }

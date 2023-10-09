@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Data.Configurations
 {
-    public class UnitConfiguration : IEntityTypeConfiguration<Unit>
+    public class StaffConfiguration : IEntityTypeConfiguration<Staff>
     {
-        public void Configure(EntityTypeBuilder<Unit> builder)
+        public void Configure(EntityTypeBuilder<Staff> builder)
         {
-            builder.HasAlternateKey(x => x.Name);
-            builder.Property(x => x.Status).IsRequired();
+            builder.Property(x => x.Type).IsRequired();
+            builder.Property(x => x.Code).IsRequired();
         }
     }
 }
