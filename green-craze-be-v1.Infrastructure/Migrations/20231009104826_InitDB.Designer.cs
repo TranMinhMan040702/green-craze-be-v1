@@ -11,7 +11,7 @@ using green_craze_be_v1.Infrastructure.Data.Context;
 namespace green_craze_be_v1.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20231009101731_InitDB")]
+    [Migration("20231009104826_InitDB")]
     partial class InitDB
     {
         /// <inheritdoc />
@@ -1262,7 +1262,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Staffs");
                 });
@@ -1690,11 +1691,11 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .HasForeignKey("CategoryId");
 
                     b.HasOne("green_craze_be_v1.Domain.Entities.Sale", "Sale")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("SaleId");
 
                     b.HasOne("green_craze_be_v1.Domain.Entities.Unit", "Unit")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("UnitId");
 
                     b.Navigation("Brand");
@@ -1739,8 +1740,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
             modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Staff", b =>
                 {
                     b.HasOne("green_craze_be_v1.Domain.Entities.AppUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                        .WithOne("Staff")
+                        .HasForeignKey("green_craze_be_v1.Domain.Entities.Staff", "UserId");
 
                     b.Navigation("User");
                 });
@@ -1808,6 +1809,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
                     b.Navigation("Reviews");
 
+                    b.Navigation("Staff");
+
                     b.Navigation("UserFollowProducts");
                 });
 
@@ -1874,6 +1877,16 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Navigation("Addresses");
 
                     b.Navigation("Districts");
+                });
+
+            modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Sale", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Unit", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Variant", b =>

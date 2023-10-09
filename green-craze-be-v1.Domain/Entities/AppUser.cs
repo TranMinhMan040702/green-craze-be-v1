@@ -16,6 +16,7 @@ namespace green_craze_be_v1.Domain.Entities
         public string UpdatedBy { get; set; }
 
         public Cart Cart { get; set; }
+        public Staff Staff { get; set; }
         public ICollection<UserFollowProduct> UserFollowProducts { get; set; }
         public ICollection<Review> Reviews { get; set; }
         public ICollection<Notification> Notifications { get; set; }

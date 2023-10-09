@@ -12,5 +12,6 @@ namespace green_craze_be_v1.Domain.Entities
         public string Type { get; set; }
         public string Code { get; set; }
         public AppUser User { get; set; }
+        public string UserId { get; set; }
     }
 }

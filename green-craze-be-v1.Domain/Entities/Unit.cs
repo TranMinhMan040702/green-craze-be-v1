@@ -11,5 +11,6 @@ namespace green_craze_be_v1.Domain.Entities
     {
         public string Name { get; set; }
         public bool Status { get; set; } = true;
+        public ICollection<Product> Products { get; set; }
     }
 }

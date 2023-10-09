@@ -1136,7 +1136,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Staffs_UserId",
                 table: "Staffs",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_OrderId",
