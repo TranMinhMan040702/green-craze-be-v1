@@ -40,10 +40,10 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: true),
                     Description = table.Column<string>(type: "longtext", nullable: false),
                     Image = table.Column<string>(type: "longtext", nullable: false),
-                    Code = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Code = table.Column<string>(type: "varchar(255)", nullable: true),
                     Status = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -53,8 +53,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Brands", x => x.Id);
-                    table.UniqueConstraint("AK_Brands_Code", x => x.Code);
-                    table.UniqueConstraint("AK_Brands_Name", x => x.Name);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -64,7 +62,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: true),
                     Description = table.Column<string>(type: "longtext", nullable: true),
                     Price = table.Column<decimal>(type: "DECIMAL(18,2)", nullable: false),
                     Image = table.Column<string>(type: "longtext", nullable: false),
@@ -77,7 +75,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Deliveries", x => x.Id);
-                    table.UniqueConstraint("AK_Deliveries_Name", x => x.Name);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -87,7 +84,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: true),
                     Note = table.Column<string>(type: "longtext", nullable: false),
                     Status = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -98,7 +95,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OrderCancellationReasons", x => x.Id);
-                    table.UniqueConstraint("AK_OrderCancellationReasons_Name", x => x.Name);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -108,8 +104,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "varchar(255)", nullable: false),
-                    Code = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: true),
+                    Code = table.Column<string>(type: "varchar(255)", nullable: true),
                     Status = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Image = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -120,8 +116,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PaymentMethods", x => x.Id);
-                    table.UniqueConstraint("AK_PaymentMethods_Code", x => x.Code);
-                    table.UniqueConstraint("AK_PaymentMethods_Name", x => x.Name);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -131,7 +125,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: true),
                     Image = table.Column<string>(type: "longtext", nullable: false),
                     ParentId = table.Column<string>(type: "longtext", nullable: true),
                     Slug = table.Column<string>(type: "varchar(255)", nullable: false),
@@ -144,8 +138,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProductCategories", x => x.Id);
-                    table.UniqueConstraint("AK_ProductCategories_Name", x => x.Name);
-                    table.UniqueConstraint("AK_ProductCategories_Slug", x => x.Slug);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -214,7 +206,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: true),
                     Status = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -224,7 +216,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Units", x => x.Id);
-                    table.UniqueConstraint("AK_Units_Name", x => x.Name);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -316,10 +307,10 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false),
-                    Name = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: true),
                     ShortDescription = table.Column<string>(type: "longtext", nullable: false),
                     Description = table.Column<string>(type: "longtext", nullable: false),
-                    Code = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Code = table.Column<string>(type: "varchar(255)", nullable: true),
                     Quantity = table.Column<long>(type: "bigint", nullable: false),
                     Sold = table.Column<long>(type: "bigint", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false),
@@ -338,9 +329,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
-                    table.UniqueConstraint("AK_Products_Code", x => x.Code);
-                    table.UniqueConstraint("AK_Products_Name", x => x.Name);
-                    table.UniqueConstraint("AK_Products_Slug", x => x.Slug);
                     table.ForeignKey(
                         name: "FK_Products_Brands_BrandId",
                         column: x => x.BrandId,
@@ -643,7 +631,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false),
                     Name = table.Column<string>(type: "longtext", nullable: false),
-                    Sku = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Sku = table.Column<string>(type: "varchar(255)", nullable: true),
                     ItemPrice = table.Column<decimal>(type: "DECIMAL(18,2)", nullable: false),
                     PromotionalItemPrice = table.Column<decimal>(type: "DECIMAL(18,2)", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false),
@@ -658,7 +646,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Variants", x => x.Id);
-                    table.UniqueConstraint("AK_Variants_Sku", x => x.Sku);
                     table.ForeignKey(
                         name: "FK_Variants_Products_ProductId",
                         column: x => x.ProductId,
@@ -757,7 +744,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     PaymentStatus = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Note = table.Column<string>(type: "longtext", nullable: true),
                     Status = table.Column<string>(type: "longtext", nullable: false),
-                    Code = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Code = table.Column<string>(type: "varchar(255)", nullable: true),
                     DeliveryMethod = table.Column<string>(type: "longtext", nullable: false),
                     UserId = table.Column<string>(type: "varchar(255)", nullable: true),
                     AddressId = table.Column<long>(type: "bigint", nullable: true),
@@ -770,7 +757,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Orders", x => x.Id);
-                    table.UniqueConstraint("AK_Orders_Code", x => x.Code);
                     table.ForeignKey(
                         name: "FK_Orders_Addresses_AddressId",
                         column: x => x.AddressId,
@@ -869,7 +855,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Transactions", x => x.Id);
-                    table.UniqueConstraint("AK_Transactions_PaypalOrderId", x => x.PaypalOrderId);
                     table.ForeignKey(
                         name: "FK_Transactions_Orders_OrderId",
                         column: x => x.OrderId,
@@ -1007,6 +992,18 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Brands_Code",
+                table: "Brands",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Brands_Name",
+                table: "Brands",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CartItems_CartId",
                 table: "CartItems",
                 column: "CartId");
@@ -1020,6 +1017,12 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 name: "IX_Carts_UserId",
                 table: "Carts",
                 column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Deliveries_Name",
+                table: "Deliveries",
+                column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1058,6 +1061,12 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrderCancellationReasons_Name",
+                table: "OrderCancellationReasons",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
                 table: "OrderItems",
                 column: "OrderId");
@@ -1078,9 +1087,39 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 column: "CancelReasonId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Orders_Code",
+                table: "Orders",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Orders_UserId",
                 table: "Orders",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentMethods_Code",
+                table: "PaymentMethods",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentMethods_Name",
+                table: "PaymentMethods",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductCategories_Name",
+                table: "ProductCategories",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductCategories_Slug",
+                table: "ProductCategories",
+                column: "Slug",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductImages_ProductId",
@@ -1098,9 +1137,27 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Products_Code",
+                table: "Products",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_Name",
+                table: "Products",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_SaleId",
                 table: "Products",
                 column: "SaleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_Slug",
+                table: "Products",
+                column: "Slug",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_UnitId",
@@ -1146,6 +1203,18 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Transactions_PaypalOrderId",
+                table: "Transactions",
+                column: "PaypalOrderId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Units_Name",
+                table: "Units",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserClaims_UserId",
                 table: "UserClaims",
                 column: "UserId");
@@ -1185,6 +1254,12 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 name: "IX_Variants_ProductId",
                 table: "Variants",
                 column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Variants_Sku",
+                table: "Variants",
+                column: "Sku",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Wards_DistrictId",
