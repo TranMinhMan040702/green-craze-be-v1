@@ -2,5 +2,5 @@
 
 namespace green_craze_be_v1.Application.Model.Unit
 {
-    public class GetUnitPagingRequest : PagingRequest { }
+    public class GetBrandPagingRequest : PagingRequest { }
 }

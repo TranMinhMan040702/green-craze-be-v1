@@ -21,51 +21,57 @@ namespace green_craze_be_v1.Infrastructure.Services
             _uploadService = uploadService;
         }
 
+        public async Task<PaginatedResult<UnitDto>> GetListUnit(GetUnitPagingRequest request)
+        {
+            var spec = new UnitSpecification(request, isPaging: true);
+            var countSpec = new UnitSpecification(request);
+            var units = await _unitOfWork.Repository<Unit>().ListAsync(spec);
+            var count = await _unitOfWork.Repository<Unit>().CountAsync(countSpec);
+            var unitDtos = new List<UnitDto>();
+            units.ForEach(x => unitDtos.Add(_mapper.Map<UnitDto>(x)));
+
+            return new PaginatedResult<UnitDto>(unitDtos, request.PageIndex, count, request.PageSize);
+        }
+
+        public async Task<UnitDto> GetUnit(long id)
+        {
+            var unit = await _unitOfWork.Repository<Unit>().GetById(id);
+
+            return _mapper.Map<UnitDto>(unit);
+        }
+
         public async Task<long> CreateUnit(CreateUnitRequest request)
         {
             var unit = _mapper.Map<Unit>(request);
             await _unitOfWork.Repository<Unit>().Insert(unit);
-
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
                 throw new Exception("Cannot create entity");
             }
+
             return unit.Id;
         }
 
-        public async Task<bool> DeleteMany(List<long> ids)
+        public async Task<bool> UpdateUnit(long id, UpdateUnitRequest request)
         {
-            try
-            {
-                await _unitOfWork.CreateTransaction();
-                foreach (var id in ids)
-                {
-                    var unit = await _unitOfWork.Repository<Unit>().GetById(id);
-                    unit.Status = false;
-                    _unitOfWork.Repository<Unit>().Update(unit);
-                }
+            var unit = await _unitOfWork.Repository<Unit>().GetById(id);
+            unit = _mapper.Map<UpdateUnitRequest, Unit>(request, unit);
+            unit.Id = id;
 
-                var isSuccess = await _unitOfWork.Save() > 0;
-                if (!isSuccess)
-                {
-                    throw new Exception("Cannot update status of entities");
-                }
-                await _unitOfWork.Commit();
-
-                return isSuccess;
-            }
-            catch (Exception ex)
+            _unitOfWork.Repository<Unit>().Update(unit);
+            var isSuccess = await _unitOfWork.Save() > 0;
+            if (!isSuccess)
             {
-                await _unitOfWork.Rollback();
-                throw ex;
+                throw new Exception("Cannot update entity");
             }
+
+            return isSuccess;
         }
 
         public async Task<bool> DeleteUnit(long id)
         {
             var unit = await _unitOfWork.Repository<Unit>().GetById(id);
-
             unit.Status = false;
             _unitOfWork.Repository<Unit>().Update(unit);
             var isSuccess = await _unitOfWork.Save() > 0;
@@ -77,38 +83,33 @@ namespace green_craze_be_v1.Infrastructure.Services
             return isSuccess;
         }
 
-        public async Task<PaginatedResult<UnitDto>> GetAllUnit(GetUnitPagingRequest request)
+        public async Task<bool> DeleteListUnit(List<long> ids)
         {
-            var spec = new UnitSpecification(request, isPaging: true);
-            var countSpec = new UnitSpecification(request);
-
-            var units = await _unitOfWork.Repository<Unit>().ListAsync(spec);
-            var count = await _unitOfWork.Repository<Unit>().CountAsync(countSpec);
-            var unitDtos = new List<UnitDto>();
-            units.ForEach(x => unitDtos.Add(_mapper.Map<UnitDto>(x)));
-            return new PaginatedResult<UnitDto>(unitDtos, request.PageIndex, count, request.PageSize);
-        }
-
-        public async Task<UnitDto> GetUnit(long id)
-        {
-            var unit = await _unitOfWork.Repository<Unit>().GetById(id);
-
-            return _mapper.Map<UnitDto>(unit);
-        }
-
-        public async Task<bool> UpdateUnit(UpdateUnitRequest request)
-        {
-            var unit = await _unitOfWork.Repository<Unit>().GetById(request.Id);
-            unit.Name = request.Name;
-            unit.Status = request.Status;
-            _unitOfWork.Repository<Unit>().Update(unit);
-            var isSuccess = await _unitOfWork.Save() > 0;
-            if (!isSuccess)
+            try
             {
-                throw new Exception("Cannot update entity");
-            }
+                await _unitOfWork.CreateTransaction();
 
-            return isSuccess;
+                foreach (var id in ids)
+                {
+                    var unit = await _unitOfWork.Repository<Unit>().GetById(id);
+                    unit.Status = false;
+                    _unitOfWork.Repository<Unit>().Update(unit);
+                }
+                var isSuccess = await _unitOfWork.Save() > 0;
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot update status of entities");
+                }
+
+                await _unitOfWork.Commit();
+
+                return isSuccess;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.Rollback();
+                throw ex;
+            }
         }
     }
 }

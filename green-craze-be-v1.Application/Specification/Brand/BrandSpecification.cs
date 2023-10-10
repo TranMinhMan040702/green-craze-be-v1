@@ -1,10 +1,10 @@
 ﻿using green_craze_be_v1.Application.Model.Unit;
 
-namespace green_craze_be_v1.Application.Specification.Unit
+namespace green_craze_be_v1.Application.Specification.Brand
 {
-    public class UnitSpecification : BaseSpecification<Domain.Entities.Unit>
+    public class BrandSpecification : BaseSpecification<Domain.Entities.Brand>
     {
-        public UnitSpecification(GetUnitPagingRequest query, bool isPaging = false)
+        public BrandSpecification(GetBrandPagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;
 
@@ -14,15 +14,15 @@ namespace green_craze_be_v1.Application.Specification.Unit
             }
             if (query.IsSortAccending)
             {
-                if (query.ColumnName == nameof(Domain.Entities.Unit.Name))
+                if (query.ColumnName == nameof(Domain.Entities.Brand.Name))
                 {
                     AddOrderBy(x => x.Name);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.Unit.CreatedAt))
+                else if (query.ColumnName == nameof(Domain.Entities.Brand.CreatedAt))
                 {
                     AddOrderBy(x => x.CreatedAt);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.Unit.UpdatedAt))
+                else if (query.ColumnName == nameof(Domain.Entities.Brand.UpdatedAt))
                 {
                     AddOrderBy(x => x.UpdatedAt);
                 }
@@ -33,15 +33,15 @@ namespace green_craze_be_v1.Application.Specification.Unit
             }
             else
             {
-                if (query.ColumnName == nameof(Domain.Entities.Unit.Name))
+                if (query.ColumnName == nameof(Domain.Entities.Brand.Name))
                 {
                     AddOrderByDescending(x => x.Name);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.Unit.CreatedAt))
+                else if (query.ColumnName == nameof(Domain.Entities.Brand.CreatedAt))
                 {
                     AddOrderByDescending(x => x.CreatedAt);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.Unit.UpdatedAt))
+                else if (query.ColumnName == nameof(Domain.Entities.Brand.UpdatedAt))
                 {
                     AddOrderByDescending(x => x.UpdatedAt);
                 }
