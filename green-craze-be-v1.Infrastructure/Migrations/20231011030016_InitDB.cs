@@ -4,6 +4,8 @@ using MySql.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace green_craze_be_v1.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -165,6 +167,10 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
                     Name = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "longtext", nullable: true)
@@ -227,7 +233,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     FirstName = table.Column<string>(type: "longtext", nullable: false),
                     LastName = table.Column<string>(type: "longtext", nullable: false),
                     Dob = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    Gender = table.Column<string>(type: "longtext", nullable: false),
+                    Gender = table.Column<string>(type: "longtext", nullable: true),
                     Avatar = table.Column<string>(type: "longtext", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -236,7 +242,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
                     UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
                     NormalizedEmail = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     PasswordHash = table.Column<string>(type: "longtext", nullable: true),
@@ -306,7 +312,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "varchar(255)", nullable: true),
                     ShortDescription = table.Column<string>(type: "longtext", nullable: false),
                     Description = table.Column<string>(type: "longtext", nullable: false),
@@ -435,7 +442,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 name: "Staffs",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Type = table.Column<string>(type: "longtext", nullable: false),
                     Code = table.Column<string>(type: "longtext", nullable: false),
                     UserId = table.Column<string>(type: "varchar(255)", nullable: true),
@@ -574,12 +582,13 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 name: "ProductImages",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Image = table.Column<string>(type: "longtext", nullable: false),
                     Size = table.Column<long>(type: "bigint", nullable: false),
                     ContentType = table.Column<string>(type: "longtext", nullable: true),
                     IsDefault = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    ProductId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    ProductId = table.Column<long>(type: "bigint", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: true),
@@ -603,7 +612,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(type: "varchar(255)", nullable: true),
-                    ProductId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    ProductId = table.Column<long>(type: "bigint", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: true),
@@ -629,7 +638,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 name: "Variants",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     Sku = table.Column<string>(type: "varchar(255)", nullable: true),
                     ItemPrice = table.Column<decimal>(type: "DECIMAL(18,2)", nullable: false),
@@ -637,7 +647,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     Status = table.Column<string>(type: "longtext", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "DECIMAL(18,2)", nullable: false),
-                    ProductId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    ProductId = table.Column<long>(type: "bigint", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: true),
@@ -708,7 +718,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     CartId = table.Column<long>(type: "bigint", nullable: true),
-                    VariantId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    VariantId = table.Column<long>(type: "bigint", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -812,7 +822,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     UnitPrice = table.Column<decimal>(type: "DECIMAL(18,2)", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "DECIMAL(18,2)", nullable: false),
                     OrderId = table.Column<long>(type: "bigint", nullable: true),
-                    VariantId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    VariantId = table.Column<long>(type: "bigint", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: true),
@@ -871,7 +881,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     DocketId = table.Column<long>(type: "bigint", nullable: true),
-                    ProductId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    ProductId = table.Column<long>(type: "bigint", nullable: true),
                     Inventory = table.Column<int>(type: "int", nullable: false),
                     ActualInventory = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -902,7 +912,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     DocketId = table.Column<long>(type: "bigint", nullable: true),
-                    ProductId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    ProductId = table.Column<long>(type: "bigint", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -937,7 +947,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     Image = table.Column<string>(type: "longtext", nullable: true),
                     Reply = table.Column<string>(type: "longtext", nullable: true),
                     Status = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    ProductId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    ProductId = table.Column<long>(type: "bigint", nullable: true),
                     UserId = table.Column<string>(type: "varchar(255)", nullable: true),
                     OrderItemId = table.Column<long>(type: "bigint", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -965,6 +975,16 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         principalColumn: "Id");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "Id", "ConcurrencyStamp", "CreatedAt", "CreatedBy", "Name", "NormalizedName", "UpdatedAt", "UpdatedBy" },
+                values: new object[,]
+                {
+                    { "0a4f58fd-abf8-4bdc-aaab-f2a68f94019a", "17318d14-7c71-4bda-a11a-7aa0c6c6f8ff", new DateTime(2023, 10, 11, 10, 0, 16, 50, DateTimeKind.Local).AddTicks(5934), "System", "ADMIN", "ADMIN", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
+                    { "2cf6ebd7-3040-462e-93b3-756f297bbc93", "8f315eb7-379b-4cf5-bef3-20b80aa64d32", new DateTime(2023, 10, 11, 10, 0, 16, 50, DateTimeKind.Local).AddTicks(5934), "System", "STAFF", "STAFF", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
+                    { "b933250c-4789-4433-ab47-0d63b132d753", "0c30e19a-904e-4a17-929a-e56081416098", new DateTime(2023, 10, 11, 10, 0, 16, 50, DateTimeKind.Local).AddTicks(5934), "System", "USER", "USER", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_DistrictId",

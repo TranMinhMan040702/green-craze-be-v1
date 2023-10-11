@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Domain.Entities
 {
-    public class ProductImage : BaseAuditableEntity<string>
+    public class ProductImage : BaseAuditableEntity<long>
     {
         public string Image { get; set; }
         public long Size { get; set; }

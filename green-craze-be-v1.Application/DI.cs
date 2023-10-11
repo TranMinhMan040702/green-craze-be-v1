@@ -62,7 +62,6 @@ namespace green_craze_be_v1.Application
                     v.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
                 });
             services.AddValidators();
-            services.AddJwtAuthentication(configuration);
         }
 
         private static void AddMapper(this IServiceCollection services)

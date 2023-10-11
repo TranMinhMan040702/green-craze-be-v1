@@ -7,7 +7,7 @@ namespace green_craze_be_v1.Infrastructure.Services
     public class CurrentUserService : ICurrentUserService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public string UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        public string UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "System";
 
         public CurrentUserService(IHttpContextAccessor httpContextAccessor)
         {

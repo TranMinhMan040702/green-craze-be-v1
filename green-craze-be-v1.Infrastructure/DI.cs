@@ -3,16 +3,11 @@ using green_craze_be_v1.Domain.Entities;
 using green_craze_be_v1.Infrastructure.Data.Context;
 using green_craze_be_v1.Infrastructure.Repositories;
 using green_craze_be_v1.Infrastructure.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure
 {
@@ -32,11 +27,30 @@ namespace green_craze_be_v1.Infrastructure
                 .AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         }
 
+        public static WebApplication MigrateDatabase(this WebApplication webApp)
+        {
+            using (var scope = webApp.Services.CreateScope())
+            {
+                using (var appContext = scope.ServiceProvider.GetRequiredService<AppDBContext>())
+                {
+                    try
+                    {
+                        appContext.Database.Migrate();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw;
+                    }
+                }
+            }
+            return webApp;
+        }
+
         public static void AddDbContextSetup(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<AppDBContext>(options =>
                 options.UseMySQL(configuration.GetConnectionString("AppDBContext")));
-            services.AddIdentity<AppUser, IdentityRole>(opts =>
+            services.AddIdentity<AppUser, AppRole>(opts =>
             {
                 opts.Password.RequireNonAlphanumeric = false;
                 opts.Password.RequiredLength = 5;
@@ -57,6 +71,10 @@ namespace green_craze_be_v1.Infrastructure
                 .AddScoped<IUnitService, UnitService>()
                 .AddScoped<IBrandService, BrandService>()
                 .AddScoped<IVariantService, VariantService>();
+                .AddScoped<IJwtService, JwtService>()
+                .AddScoped<IAuthService, AuthService>()
+                .AddScoped<IUserService, UserService>()
+                .AddScoped<IUnitService, UnitService>();
         }
     }
 }

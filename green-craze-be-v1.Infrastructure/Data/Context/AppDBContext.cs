@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Data.Context
 {
-    public class AppDBContext : IdentityDbContext<AppUser>
+    public class AppDBContext : IdentityDbContext<AppUser, AppRole, string>
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IDateTimeService _dateTimeService;

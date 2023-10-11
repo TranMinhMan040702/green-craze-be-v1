@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Domain.Entities
 {
-    public class Product : BaseAuditableEntity<string>
+    public class Product : BaseAuditableEntity<long>
     {
         public string Name { get; set; }
         public string ShortDescription { get; set; }
