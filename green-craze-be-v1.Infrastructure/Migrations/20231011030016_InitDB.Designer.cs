@@ -11,7 +11,7 @@ using green_craze_be_v1.Infrastructure.Data.Context;
 namespace green_craze_be_v1.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20231010022509_InitDB")]
+    [Migration("20231011030016_InitDB")]
     partial class InitDB
     {
         /// <inheritdoc />
@@ -21,32 +21,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
-
-                    b.ToTable("Roles", (string)null);
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
@@ -214,6 +188,76 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.ToTable("Addresses");
                 });
 
+            modelBuilder.Entity("green_craze_be_v1.Domain.Entities.AppRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("Roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "0a4f58fd-abf8-4bdc-aaab-f2a68f94019a",
+                            ConcurrencyStamp = "17318d14-7c71-4bda-a11a-7aa0c6c6f8ff",
+                            CreatedAt = new DateTime(2023, 10, 11, 10, 0, 16, 50, DateTimeKind.Local).AddTicks(5934),
+                            CreatedBy = "System",
+                            Name = "ADMIN",
+                            NormalizedName = "ADMIN",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = "b933250c-4789-4433-ab47-0d63b132d753",
+                            ConcurrencyStamp = "0c30e19a-904e-4a17-929a-e56081416098",
+                            CreatedAt = new DateTime(2023, 10, 11, 10, 0, 16, 50, DateTimeKind.Local).AddTicks(5934),
+                            CreatedBy = "System",
+                            Name = "USER",
+                            NormalizedName = "USER",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = "2cf6ebd7-3040-462e-93b3-756f297bbc93",
+                            ConcurrencyStamp = "8f315eb7-379b-4cf5-bef3-20b80aa64d32",
+                            CreatedAt = new DateTime(2023, 10, 11, 10, 0, 16, 50, DateTimeKind.Local).AddTicks(5934),
+                            CreatedBy = "System",
+                            Name = "STAFF",
+                            NormalizedName = "STAFF",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
+                });
+
             modelBuilder.Entity("green_craze_be_v1.Domain.Entities.AppUser", b =>
                 {
                     b.Property<string>("Id")
@@ -239,6 +283,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
 
@@ -250,7 +295,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Gender")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("LastName")
@@ -477,8 +521,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("VariantId")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long?>("VariantId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -628,8 +672,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<int>("Inventory")
                         .HasColumnType("int");
 
-                    b.Property<string>("ProductId")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long?>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -661,8 +705,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<long?>("DocketId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("ProductId")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long?>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -869,8 +913,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("VariantId")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long?>("VariantId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -925,8 +969,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
             modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Product", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
 
                     b.Property<long?>("BrandId")
                         .HasColumnType("bigint");
@@ -1056,8 +1101,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
             modelBuilder.Entity("green_craze_be_v1.Domain.Entities.ProductImage", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
 
                     b.Property<string>("ContentType")
                         .HasColumnType("longtext");
@@ -1075,8 +1121,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<bool>("IsDefault")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("ProductId")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long?>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("Size")
                         .HasColumnType("bigint");
@@ -1147,8 +1193,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<long?>("OrderItemId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("ProductId")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long?>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -1236,8 +1282,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
             modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Staff", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -1367,8 +1414,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("ProductId")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long?>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -1390,8 +1437,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
             modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Variant", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -1406,8 +1454,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("ProductId")
-                        .HasColumnType("varchar(255)");
+                    b.Property<long?>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("PromotionalItemPrice")
                         .HasColumnType("DECIMAL");
@@ -1479,7 +1527,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("green_craze_be_v1.Domain.Entities.AppRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1506,7 +1554,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("green_craze_be_v1.Domain.Entities.AppRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)

@@ -9,8 +9,8 @@ namespace green_craze_be_v1.Application.Model.CustomAPI
 {
     public class APIResponse<T>
     {
-        public T Data { get; set; }
         public int Status { get; set; }
+        public T Data { get; set; }
 
         public APIResponse(T data, int status)
         {

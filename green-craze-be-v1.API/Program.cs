@@ -22,6 +22,7 @@ builder.Services.AddApplicationLayer(builder.Configuration);
 #pragma warning restore CS0612 // Type or member is obsolete
 builder.Services.AddInfrastructureLayer(builder.Configuration);
 
+builder.Services.AddJwtAuthentication(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(s =>
@@ -65,12 +66,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseProblemDetails();
-app.UseCors();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MigrateDatabase();
 app.Run();
