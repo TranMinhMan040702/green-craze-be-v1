@@ -10,5 +10,6 @@ namespace green_craze_be_v1.Application.Common.Options
     {
         public string Issuer { get; set; }
         public string SigningKey { get; set; }
+        public int Expired { get; set; }
     }
 }

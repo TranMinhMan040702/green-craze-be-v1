@@ -15,7 +15,7 @@ namespace green_craze_be_v1.Infrastructure.Data.Configurations
         {
             builder.Property(x => x.FirstName).IsRequired();
             builder.Property(x => x.LastName).IsRequired();
-            builder.Property(x => x.Gender).IsRequired();
+            builder.Property(x => x.Email).IsRequired();
             builder.Property(x => x.Status).IsRequired();
         }
     }
