@@ -28,7 +28,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetBrandById([FromRoute] long id)
+        public async Task<IActionResult> GetBrand([FromRoute] long id)
         {
             var res = await _brandService.GetBrand(id);
 

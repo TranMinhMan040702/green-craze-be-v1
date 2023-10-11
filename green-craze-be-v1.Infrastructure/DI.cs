@@ -55,7 +55,8 @@ namespace green_craze_be_v1.Infrastructure
                 .AddScoped<IUploadService, UploadService>()
                 .AddScoped<IDateTimeService, DateTimeService>()
                 .AddScoped<IUnitService, UnitService>()
-                .AddScoped<IBrandService, BrandService>();
+                .AddScoped<IBrandService, BrandService>()
+                .AddScoped<IVariantService, VariantService>();
         }
     }
 }
