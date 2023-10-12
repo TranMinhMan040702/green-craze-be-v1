@@ -11,7 +11,7 @@ namespace green_craze_be_v1.Domain.Entities
     {
         public string Name { get; set; }
         public string Image { get; set; }
-        public string ParentId { get; set; }
+        public long? ParentId { get; set; }
         public string Slug { get; set; }
         public bool Status { get; set; } = true;
         public ICollection<Product> Products { get; set; }
