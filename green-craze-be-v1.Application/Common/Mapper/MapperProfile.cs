@@ -2,6 +2,7 @@
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Model.Auth;
 using green_craze_be_v1.Application.Model.Delivery;
+using green_craze_be_v1.Application.Model.OrderCancellationReason;
 using green_craze_be_v1.Application.Model.PaymentMethod;
 using green_craze_be_v1.Application.Model.Unit;
 using green_craze_be_v1.Application.Model.User;
@@ -26,6 +27,10 @@ namespace green_craze_be_v1.Application.Common.Mapper
             CreateMap<PaymentMethod, PaymentMethodDto>();
             CreateMap<CreatePaymentMethodRequest, PaymentMethod>();
             CreateMap<UpdatePaymentMethodRequest, PaymentMethod>();
+
+            CreateMap<OrderCancellationReason, OrderCancellationReasonDto>();
+            CreateMap<CreateOrderCancellationReasonRequest, OrderCancellationReason>();
+            CreateMap<UpdateOrderCancellationReasonRequest, OrderCancellationReason>();
 
             CreateMap<Product, ProductDto>();
             CreateMap<Unit, UnitDto>();

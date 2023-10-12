@@ -1,34 +1,35 @@
-﻿using green_craze_be_v1.Application.Model.Delivery;
+﻿using green_craze_be_v1.Application.Model.OrderCancellationReason;
+using green_craze_be_v1.Application.Model.PaymentMethod;
+using green_craze_be_v1.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
-namespace green_craze_be_v1.Application.Specification.Delivery
+namespace green_craze_be_v1.Application.Specification.OrderCancellationReason
 {
-    public class DeliverySpecification : BaseSpecification<Domain.Entities.Delivery>
+    public class OrderCancellationReasonSpecification : BaseSpecification<Domain.Entities.OrderCancellationReason>
     {
-        public DeliverySpecification(GetDeliveryPagingRequest request, bool isPaging = false)
+        public OrderCancellationReasonSpecification(GetOrderCancellationReasonPagingRequest request, bool isPaging = false)
         {
             var keyword = request.Search;
             if (!string.IsNullOrEmpty(keyword))
             {
                 Criteria = x => x.Name.ToLower().Contains(keyword)
-                || x.Price.ToString().Contains(keyword);
+                || x.Note.ToString().Contains(keyword);
             }
             if (request.IsSortAccending)
             {
-                if (request.ColumnName == nameof(Domain.Entities.Delivery.Name))
+                if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.Name))
                 {
                     AddOrderBy(x => x.Name);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Delivery.Id))
+                else if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.Id))
                 {
                     AddOrderBy(x => x.Id);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Delivery.UpdatedAt))
+                else if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.UpdatedAt))
                 {
                     AddOrderBy(x => x.UpdatedAt);
                 }
@@ -39,15 +40,15 @@ namespace green_craze_be_v1.Application.Specification.Delivery
             }
             else
             {
-                if (request.ColumnName == nameof(Domain.Entities.Delivery.Name))
+                if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.Name))
                 {
                     AddOrderByDescending(x => x.Name);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Delivery.Id))
+                else if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.Id))
                 {
                     AddOrderByDescending(x => x.Id);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Delivery.UpdatedAt))
+                else if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.UpdatedAt))
                 {
                     AddOrderByDescending(x => x.UpdatedAt);
                 }

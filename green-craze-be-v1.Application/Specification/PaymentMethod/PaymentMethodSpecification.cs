@@ -19,15 +19,15 @@ namespace green_craze_be_v1.Application.Specification.PaymentMethod
             }
             if (request.IsSortAccending)
             {
-                if (request.ColumnName == nameof(Domain.Entities.Unit.Name))
+                if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.Name))
                 {
                     AddOrderBy(x => x.Name);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Unit.Id))
+                else if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.Id))
                 {
                     AddOrderBy(x => x.Id);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Unit.UpdatedAt))
+                else if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.UpdatedAt))
                 {
                     AddOrderBy(x => x.UpdatedAt);
                 }
@@ -38,15 +38,15 @@ namespace green_craze_be_v1.Application.Specification.PaymentMethod
             }
             else
             {
-                if (request.ColumnName == nameof(Domain.Entities.Unit.Name))
+                if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.Name))
                 {
                     AddOrderByDescending(x => x.Name);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Unit.Id))
+                else if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.Id))
                 {
                     AddOrderByDescending(x => x.Id);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Unit.UpdatedAt))
+                else if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.UpdatedAt))
                 {
                     AddOrderByDescending(x => x.UpdatedAt);
                 }

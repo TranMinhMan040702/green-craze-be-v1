@@ -112,6 +112,9 @@ namespace green_craze_be_v1.Infrastructure.Services
                 url = delivery.Image;
                 delivery.Image = await _uploadService.UploadFile(request.Image);
             }
+
+            _unitOfWork.Repository<Delivery>().Update(delivery);
+
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {

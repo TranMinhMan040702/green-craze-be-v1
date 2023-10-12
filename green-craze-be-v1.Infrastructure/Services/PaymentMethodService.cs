@@ -112,6 +112,9 @@ namespace green_craze_be_v1.Infrastructure.Services
                 url = paymentMethod.Image;
                 paymentMethod.Image = await _uploadService.UploadFile(request.Image);
             }
+
+            _unitOfWork.Repository<PaymentMethod>().Update(paymentMethod);
+
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
