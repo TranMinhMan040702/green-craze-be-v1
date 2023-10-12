@@ -98,6 +98,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             user.UserName = Regex.Replace(request.Email, "[^A-Za-z0-9 -]", "");
             user.CreatedAt = _dateTimeService.Current;
             user.CreatedBy = "System";
+            user.Cart = new Cart();
             var res = await _userManager.CreateAsync(user, request.Password);
 
             if (res.Succeeded)

@@ -64,6 +64,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 Code = request.Code,
             };
             user.Staff = staff;
+            user.Cart = new Cart();
             var res = await _userManager.CreateAsync(user, request.Password);
 
             if (res.Succeeded)
