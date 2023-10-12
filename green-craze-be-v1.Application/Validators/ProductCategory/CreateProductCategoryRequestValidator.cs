@@ -14,7 +14,6 @@ namespace green_craze_be_v1.Application.Validators.ProductCategory
         {
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Image).NotEmpty();
-            RuleFor(x => x.ParentId).Empty().Null();
             RuleFor(x => x.Slug).NotEmpty();
         }
     }
