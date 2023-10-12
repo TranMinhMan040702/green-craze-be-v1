@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using green_craze_be_v1.Application.Dto;
+using green_craze_be_v1.Application.Model.Address;
 using green_craze_be_v1.Application.Model.Auth;
 using green_craze_be_v1.Application.Model.Unit;
 using green_craze_be_v1.Application.Model.User;
@@ -16,6 +17,13 @@ namespace green_craze_be_v1.Application.Common.Mapper
             CreateMap<UpdateUserRequest, AppUser>().ForMember(des => des.PhoneNumber, act => act.MapFrom(x => x.Phone));
             CreateMap<CreateStaffRequest, AppUser>().ForMember(des => des.PhoneNumber, act => act.MapFrom(x => x.Phone));
             CreateMap<RegisterRequest, AppUser>();
+
+            CreateMap<Address, AddressDto>();
+            CreateMap<Ward, WardDto>();
+            CreateMap<District, DistrictDto>();
+            CreateMap<Province, ProvinceDto>();
+            CreateMap<CreateAddressRequest, Address>();
+            CreateMap<UpdateAddressRequest, Address>();
 
             CreateMap<Product, ProductDto>();
             CreateMap<Unit, UnitDto>();
