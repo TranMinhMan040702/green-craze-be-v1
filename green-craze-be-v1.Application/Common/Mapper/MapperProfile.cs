@@ -5,6 +5,7 @@ using green_craze_be_v1.Application.Model.Auth;
 using green_craze_be_v1.Application.Model.Unit;
 using green_craze_be_v1.Application.Model.User;
 using green_craze_be_v1.Domain.Entities;
+using green_craze_be_v1.Application.Model.ProductCategory;
 
 namespace green_craze_be_v1.Application.Common.Mapper
 {
@@ -27,6 +28,10 @@ namespace green_craze_be_v1.Application.Common.Mapper
             CreateMap<Brand, BrandDto>();
             CreateMap<CreateBrandRequest, Brand>();
             CreateMap<UpdateBrandRequest, Brand>();
+            // ProductCategory
+            CreateMap<ProductCategory, ProductCategoryDto>();
+            CreateMap<CreateProductCategoryRequest, ProductCategory>();
+            CreateMap<UpdateProductCategoryRequest, ProductCategory>();
         }
     }
 }
