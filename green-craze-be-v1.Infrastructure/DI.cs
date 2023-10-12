@@ -73,6 +73,7 @@ namespace green_craze_be_v1.Infrastructure
                 .AddScoped<IUserService, UserService>()
                 .AddScoped<ICartService, CartService>()
                 .AddScoped<IDeliveryService, DeliveryService>()
+                .AddScoped<IPaymentMethodService, PaymentMethodService>()
                 .AddScoped<IUnitService, UnitService>();
         }
     }

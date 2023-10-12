@@ -2,6 +2,7 @@
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Model.Auth;
 using green_craze_be_v1.Application.Model.Delivery;
+using green_craze_be_v1.Application.Model.PaymentMethod;
 using green_craze_be_v1.Application.Model.Unit;
 using green_craze_be_v1.Application.Model.User;
 using green_craze_be_v1.Domain.Entities;
@@ -21,6 +22,10 @@ namespace green_craze_be_v1.Application.Common.Mapper
             CreateMap<Delivery, DeliveryDto>();
             CreateMap<CreateDeliveryRequest, Delivery>();
             CreateMap<UpdateDeliveryRequest, Delivery>();
+
+            CreateMap<PaymentMethod, PaymentMethodDto>();
+            CreateMap<CreatePaymentMethodRequest, PaymentMethod>();
+            CreateMap<UpdatePaymentMethodRequest, PaymentMethod>();
 
             CreateMap<Product, ProductDto>();
             CreateMap<Unit, UnitDto>();

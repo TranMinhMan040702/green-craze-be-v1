@@ -24,6 +24,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<long> CreateDelivery(CreateDeliveryRequest request)
         {
             var delivery = _mapper.Map<Delivery>(request);
+            delivery.Status = true;
             if (request.Image != null)
             {
                 delivery.Image = await _uploadService.UploadFile(request.Image);
@@ -48,7 +49,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot create delivery");
+                throw new Exception("Cannot delete delivery");
             }
 
             return true;
@@ -70,7 +71,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 await _unitOfWork.Commit();
                 if (!isSuccess)
                 {
-                    throw new Exception("Cannot create delivery");
+                    throw new Exception("Cannot delete deliveries");
                 }
 
                 return true;
@@ -104,10 +105,11 @@ namespace green_craze_be_v1.Infrastructure.Services
         {
             var delivery = await _unitOfWork.Repository<Delivery>().GetById(request.Id);
 
-            var url = delivery.Image;
+            var url = "";
             _mapper.Map(request, delivery);
             if (request.Image != null)
             {
+                url = delivery.Image;
                 delivery.Image = await _uploadService.UploadFile(request.Image);
             }
             var isSuccess = await _unitOfWork.Save() > 0;
@@ -115,7 +117,10 @@ namespace green_craze_be_v1.Infrastructure.Services
             {
                 throw new Exception("Cannot update delivery");
             }
-            await _uploadService.DeleteFile(url);
+            if (!string.IsNullOrEmpty(url))
+            {
+                await _uploadService.DeleteFile(url);
+            }
 
             return true;
         }

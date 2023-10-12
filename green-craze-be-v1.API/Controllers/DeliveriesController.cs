@@ -4,6 +4,7 @@ using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Delivery;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Domain.Entities;
+using green_craze_be_v1.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetListDelivery([FromQuery] GetDeliveryPagingRequest request)
         {
             var resp = await _deliveryService.GetListDelivery(request);
@@ -43,7 +45,7 @@ namespace green_craze_be_v1.API.Controllers
         {
             var deliveryId = await _deliveryService.CreateDelivery(request);
 
-            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/units/{deliveryId}";
+            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/deliveries/{deliveryId}";
 
             return Created(url, new APIResponse<object>(new { id = deliveryId }, StatusCodes.Status201Created));
         }
@@ -61,6 +63,14 @@ namespace green_craze_be_v1.API.Controllers
         public async Task<IActionResult> DeleteDelivery([FromRoute] long id)
         {
             var resp = await _deliveryService.DeleteDelivery(id);
+
+            return Ok(new APIResponse<bool>(resp, StatusCodes.Status204NoContent));
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteListDelivery([FromQuery] List<long> ids)
+        {
+            var resp = await _deliveryService.DeleteListDelivery(ids);
 
             return Ok(new APIResponse<bool>(resp, StatusCodes.Status204NoContent));
         }
