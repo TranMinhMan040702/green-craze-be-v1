@@ -6,7 +6,6 @@ using green_craze_be_v1.Application.Model.Address;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Specification.Address;
 using green_craze_be_v1.Domain.Entities;
-using System.ComponentModel.DataAnnotations;
 
 namespace green_craze_be_v1.Infrastructure.Services
 {
@@ -28,19 +27,19 @@ namespace green_craze_be_v1.Infrastructure.Services
                 await _unitOfWork.CreateTransaction();
 
                 var user = await _unitOfWork.Repository<AppUser>().GetById(request.UserId)
-                    ?? throw new NotFoundException("Cannot find this user");
+                    ?? throw new NotFoundException("Cannot find current user");
 
                 var province = await _unitOfWork.Repository<Province>().GetById(request.ProvinceId)
-                    ?? throw new NotFoundException("Cannot find province");
+                    ?? throw new InvalidRequestException("Unexpected provinceId");
 
                 var district = await _unitOfWork.Repository<District>().GetEntityWithSpec(new DistrictSpecification(request.DistrictId))
-                    ?? throw new NotFoundException("Cannot find district");
+                    ?? throw new InvalidRequestException("Unexpected districtId");
 
                 var ward = await _unitOfWork.Repository<Ward>().GetEntityWithSpec(new WardSpecification(request.WardId))
-                    ?? throw new NotFoundException("Cannot find ward");
+                    ?? throw new InvalidRequestException("Unexpected wardId");
 
                 if (ward.District.Id != district.Id || district.Province.Id != province.Id)
-                    throw new ValidationException("Cannot identify this address");
+                    throw new InvalidRequestException("Cannot identify combined address, may be unexpected provinceId, districtId, wardId");
 
                 var address = _mapper.Map<Address>(request);
                 address.Province = province;
@@ -64,7 +63,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 if (!isSuccess)
                 {
-                    throw new Exception("Cannot insert address for user");
+                    throw new Exception("Cannot handle to insert address for user, an error has occured");
                 }
 
                 return address.Id;
@@ -79,9 +78,9 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<bool> DeleteAddress(long id, string userId)
         {
             var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, id))
-                ?? throw new NotFoundException("Cannot find this address");
+                ?? throw new InvalidRequestException("Unexpected addressId");
             if (address.IsDefault)
-                throw new ValidationException("Cannot delete default address, please set another address to default and try again");
+                throw new InvalidRequestException("Cannot handle to delete default address, please set another address to default and try again");
 
             address.Status = false;
 
@@ -91,7 +90,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             if (!isSuccess)
             {
-                throw new Exception("Cannot delete address");
+                throw new Exception("Cannot handle to delete address, an error has occured");
             }
 
             return true;
@@ -100,7 +99,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<AddressDto> GetAddress(long id, string userId)
         {
             var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, id))
-                ?? throw new NotFoundException("Cannot find this address");
+                ?? throw new InvalidRequestException("Unexpected addressId");
 
             return _mapper.Map<AddressDto>(address);
         }
@@ -125,7 +124,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             {
                 await _unitOfWork.CreateTransaction();
                 var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, id))
-                    ?? throw new NotFoundException("Cannot find this address");
+                    ?? throw new InvalidRequestException("Unexpected addressId");
 
                 address.IsDefault = true;
 
@@ -144,7 +143,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 if (!isSuccess)
                 {
-                    throw new Exception("Cannot set default address");
+                    throw new Exception("Cannot handle to set default address, an error has occured");
                 }
 
                 return true;
@@ -163,19 +162,19 @@ namespace green_craze_be_v1.Infrastructure.Services
                 await _unitOfWork.CreateTransaction();
 
                 var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(request.UserId, request.Id))
-                    ?? throw new NotFoundException("Cannot find address of this user");
+                    ?? throw new InvalidRequestException("Unexpected addressId");
 
                 var province = await _unitOfWork.Repository<Province>().GetById(request.ProvinceId)
-                    ?? throw new NotFoundException("Cannot find province");
+                    ?? throw new InvalidRequestException("Unexpected provinceId");
 
                 var district = await _unitOfWork.Repository<District>().GetEntityWithSpec(new DistrictSpecification(request.DistrictId))
-                    ?? throw new NotFoundException("Cannot find district");
+                    ?? throw new InvalidRequestException("Unexpected districtId");
 
                 var ward = await _unitOfWork.Repository<Ward>().GetEntityWithSpec(new WardSpecification(request.WardId))
-                    ?? throw new NotFoundException("Cannot find ward");
+                    ?? throw new InvalidRequestException("Unexpected wardId");
 
                 if (ward.District.Id != district.Id || district.Province.Id != province.Id)
-                    throw new ValidationException("Cannot identify this address");
+                    throw new InvalidRequestException("Cannot identify combined address, may be unexpected provinceId, districtId, wardId");
 
                 _mapper.Map(request, address);
 
@@ -205,7 +204,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 if (!isSuccess)
                 {
-                    throw new Exception("Cannot update address for user");
+                    throw new Exception("Cannot handle to update address for current user, an error has occured");
                 }
 
                 return true;
@@ -220,7 +219,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<List<DistrictDto>> GetListDistrictByProvince(long provinceId)
         {
             var province = await _unitOfWork.Repository<Province>().GetEntityWithSpec(new ProvinceSpecification(provinceId))
-                ?? throw new NotFoundException("Cannot find province");
+                ?? throw new InvalidRequestException("Unexpected provinceId");
 
             var districtDtos = new List<DistrictDto>();
 
@@ -243,7 +242,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<List<WardDto>> GetListWardByDistrict(long districtId)
         {
             var district = await _unitOfWork.Repository<District>().GetEntityWithSpec(new DistrictSpecification(districtId))
-                ?? throw new NotFoundException("Cannot find district");
+                ?? throw new InvalidRequestException("Unexpected districtId");
 
             var wardDtos = new List<WardDto>();
 
