@@ -60,6 +60,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var randomNumber = new byte[64];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
+
             return Convert.ToBase64String(randomNumber);
         }
 
@@ -80,6 +81,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(token, validationParameters, out SecurityToken validatedToken);
             if (validatedToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 return null;
+
             return principal;
         }
     }

@@ -1,18 +1,10 @@
-﻿using AutoMapper;
-using green_craze_be_v1.Application.Common.Exceptions;
+﻿using green_craze_be_v1.Application.Common.Exceptions;
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Cart;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Specification.Cart;
 using green_craze_be_v1.Domain.Entities;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Services
 {
@@ -28,7 +20,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<long> AddVariantItemToCart(AddVariantItemToCartRequest request)
         {
             var cart = await _unitOfWork.Repository<Cart>().GetEntityWithSpec(new CartSpecification(request.UserId))
-                ?? throw new NotFoundException("Cannot find cart of user");
+                ?? throw new NotFoundException("Cannot find cart of current user");
 
             var cartItem = await _unitOfWork.Repository<CartItem>().GetEntityWithSpec(new CartItemSpecification(cart.Id, request.VariantId));
 
@@ -36,7 +28,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             if (cartItem == null)
             {
                 var variant = await _unitOfWork.Repository<Variant>().GetById(request.VariantId)
-                    ?? throw new NotFoundException("Cannot find product variant");
+                    ?? throw new InvalidRequestException("Unexpected variantId");
                 ci.Quantity = request.Quantity;
                 ci.Variant = variant;
                 cart.CartItems.Add(ci);
@@ -50,7 +42,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             var isSuccess = await _unitOfWork.Save() > 0;
 
-            if (!isSuccess) throw new Exception("Cannot add product to cart");
+            if (!isSuccess) throw new Exception("Cannot handle to add product to your cart, an error has occured");
 
             return cartItem == null ? ci.Id : -1;
         }
@@ -58,16 +50,16 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<bool> DeleteCartItem(long cartItemId, string userId)
         {
             var cart = await _unitOfWork.Repository<Cart>().GetEntityWithSpec(new CartSpecification(userId))
-                ?? throw new NotFoundException("Cannot find cart of user");
+                ?? throw new NotFoundException("Cannot find cart of current user");
             var cartItem = cart.CartItems.FirstOrDefault(x => x.Id == cartItemId)
-                ?? throw new NotFoundException("Cannot find cart item");
+                ?? throw new InvalidRequestException("Unexpected cartItemId");
 
             cart.CartItems.Remove(cartItem);
             _unitOfWork.Repository<Cart>().Update(cart);
 
             var isSuccess = await _unitOfWork.Save() > 0;
 
-            if (!isSuccess) throw new Exception("Cannot remove product from cart");
+            if (!isSuccess) throw new Exception("Cannot handle to remove product from your cart, an error has occured");
 
             return true;
         }
@@ -80,36 +72,16 @@ namespace green_craze_be_v1.Infrastructure.Services
             var cartDtos = new List<CartItemDto>();
             cartItems.ForEach(x =>
             {
-                var isPromotion = x.Variant.PromotionalItemPrice != x.Variant.ItemPrice;
-                cartDtos.Add(new CartItemDto()
-                {
-                    Id = x.Id,
-                    CreatedAt = x.CreatedAt,
-                    CreatedBy = x.CreatedBy,
-                    UpdatedAt = x.UpdatedAt,
-                    UpdatedBy = x.UpdatedBy,
-                    Quantity = x.Quantity,
-                    TotalPrice = x.Variant.Quantity * x.Variant.ItemPrice,
-                    TotalPromotionalPrice = x.Variant.Quantity * x.Variant.PromotionalItemPrice,
-                    Sku = x.Variant.Sku,
-                    VariantName = x.Variant.Name,
-                    VariantPrice = x.Variant.ItemPrice,
-                    VariantPromotionalPrice = x.Variant.PromotionalItemPrice,
-                    IsPromotion = isPromotion,
-                    VariantQuantity = x.Variant.Quantity,
-                });
+                cartDtos.Add(GetCartItemById(x));
             });
+
             return new PaginatedResult<CartItemDto>(cartDtos, request.PageIndex, count, request.PageSize);
         }
 
-        public async Task<CartItemDto> GetCartItemById(long cartItemId, string userId)
+        private CartItemDto GetCartItemById(CartItem cartItem)
         {
-            var cart = await _unitOfWork.Repository<Cart>().GetEntityWithSpec(new CartSpecification(userId))
-                ?? throw new NotFoundException("Cannot find cart of user");
-            var cartItem = cart.CartItems.FirstOrDefault(x => x.Id == cartItemId)
-                ?? throw new NotFoundException("Cannot find cart item");
-
             var isPromotion = cartItem.Variant.PromotionalItemPrice != cartItem.Variant.ItemPrice;
+
             return new CartItemDto()
             {
                 Id = cartItem.Id,
@@ -132,12 +104,12 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<bool> UpdateCartItemQuantity(UpdateCartItemQuantityRequest request)
         {
             if (request.Quantity <= 0)
-                throw new ValidationException("Quantity must be positive number");
+                throw new InvalidRequestException("Unexpected quantity, it must be a positive number");
             var cart = await _unitOfWork.Repository<Cart>().GetEntityWithSpec(new CartSpecification(request.UserId))
-                ?? throw new NotFoundException("Cannot find cart of user");
+                ?? throw new NotFoundException("Cannot find cart of current user");
 
             var cartItem = cart.CartItems.FirstOrDefault(x => x.Id == request.CartItemId)
-                ?? throw new NotFoundException("Cannot find cart item");
+                ?? throw new InvalidRequestException("Unexpected cartItemId");
 
             cartItem.Quantity = request.Quantity;
 
@@ -145,7 +117,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             var isSuccess = await _unitOfWork.Save() > 0;
 
-            if (!isSuccess) throw new Exception("Cannot update product quantity");
+            if (!isSuccess) throw new Exception("Cannot handle to update product quantity, an error has occured");
 
             return true;
         }

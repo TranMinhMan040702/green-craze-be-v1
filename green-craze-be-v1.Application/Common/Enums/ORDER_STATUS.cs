@@ -13,5 +13,15 @@ namespace green_craze_be_v1.Application.Common.Enums
         public static string SHIPPED = "SHIPPED";
         public static string DELIVERED = "DELIVERED";
         public static string CANCELLED = "CANCELLED";
+
+        public static List<string> Status = new List<string>()
+        {
+            NOT_PROCESSED,
+            PROCESSING,
+            SHIPPED,
+            DELIVERED,
+            DELIVERED,
+            CANCELLED
+        };
     }
 }

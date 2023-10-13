@@ -41,11 +41,11 @@ namespace green_craze_be_v1.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrderCancellationReason([FromBody] CreateOrderCancellationReasonRequest request)
         {
-            var sd = await _service.CreateOrderCancellationReason(request);
+            var id = await _service.CreateOrderCancellationReason(request);
 
-            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/ordercancellationreasons/{sd}";
+            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/ordercancellationreasons/{id}";
 
-            return Created(url, new APIResponse<object>(new { id = sd }, StatusCodes.Status201Created));
+            return Created(url, new APIResponse<object>(new { id }, StatusCodes.Status201Created));
         }
 
         [HttpPut("{id}")]

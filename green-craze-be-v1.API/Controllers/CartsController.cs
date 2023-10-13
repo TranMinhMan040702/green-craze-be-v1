@@ -60,13 +60,5 @@ namespace green_craze_be_v1.API.Controllers
 
             return Ok(new APIResponse<PaginatedResult<CartItemDto>>(resp, StatusCodes.Status200OK));
         }
-
-        [HttpGet("{cartItemId}")]
-        public async Task<IActionResult> GetCartByUser([FromRoute] long cartItemId)
-        {
-            var resp = await _cartService.GetCartItemById(cartItemId, _currentUserService.UserId);
-
-            return Ok(new APIResponse<CartItemDto>(resp, StatusCodes.Status200OK));
-        }
     }
 }

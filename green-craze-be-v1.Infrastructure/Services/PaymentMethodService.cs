@@ -33,7 +33,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot create paymentMethod");
+                throw new Exception("Cannot handle to create payment method, an error has occured");
             }
 
             return paymentMethod.Id;
@@ -49,7 +49,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot delete paymentMethod");
+                throw new Exception("Cannot handle to delete payment method, an error has occured");
             }
 
             return true;
@@ -71,7 +71,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 await _unitOfWork.Commit();
                 if (!isSuccess)
                 {
-                    throw new Exception("Cannot delete paymentMethods");
+                    throw new Exception("Cannot handle to delete list of payment method, an error has occured");
                 }
 
                 return true;
@@ -104,9 +104,11 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<bool> UpdatePaymentMethod(UpdatePaymentMethodRequest request)
         {
             var paymentMethod = await _unitOfWork.Repository<PaymentMethod>().GetById(request.Id);
-
+            var image = paymentMethod.Image;
             var url = "";
             _mapper.Map(request, paymentMethod);
+            paymentMethod.Image = image;
+
             if (request.Image != null)
             {
                 url = paymentMethod.Image;
@@ -118,7 +120,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot update paymentMethod");
+                throw new Exception("Cannot handle to update payment method, an error has occured");
             }
             if (!string.IsNullOrEmpty(url))
             {

@@ -33,7 +33,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot create delivery");
+                throw new Exception("Cannot handle to create delivery, an error has occured");
             }
 
             return delivery.Id;
@@ -49,7 +49,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot delete delivery");
+                throw new Exception("Cannot handle to delete delivery, an error has occured");
             }
 
             return true;
@@ -71,7 +71,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 await _unitOfWork.Commit();
                 if (!isSuccess)
                 {
-                    throw new Exception("Cannot delete deliveries");
+                    throw new Exception("Cannot handle to delete list of deliveries, an error has occured");
                 }
 
                 return true;
@@ -104,9 +104,10 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<bool> UpdateDelivery(UpdateDeliveryRequest request)
         {
             var delivery = await _unitOfWork.Repository<Delivery>().GetById(request.Id);
-
+            var image = delivery.Image;
             var url = "";
             _mapper.Map(request, delivery);
+            delivery.Image = image;
             if (request.Image != null)
             {
                 url = delivery.Image;
@@ -118,7 +119,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot update delivery");
+                throw new Exception("Cannot handle to update delivery, an error has occured");
             }
             if (!string.IsNullOrEmpty(url))
             {

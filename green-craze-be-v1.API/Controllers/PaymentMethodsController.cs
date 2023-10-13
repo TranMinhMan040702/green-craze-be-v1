@@ -39,7 +39,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePaymentMethod([FromBody] CreatePaymentMethodRequest request)
+        public async Task<IActionResult> CreatePaymentMethod([FromForm] CreatePaymentMethodRequest request)
         {
             var paymentMethodId = await _paymentMethodService.CreatePaymentMethod(request);
 
@@ -49,7 +49,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePaymentMethod([FromRoute] long id, [FromBody] UpdatePaymentMethodRequest request)
+        public async Task<IActionResult> UpdatePaymentMethod([FromRoute] long id, [FromForm] UpdatePaymentMethodRequest request)
         {
             request.Id = id;
             var resp = await _paymentMethodService.UpdatePaymentMethod(request);

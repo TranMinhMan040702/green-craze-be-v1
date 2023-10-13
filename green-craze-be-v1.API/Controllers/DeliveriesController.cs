@@ -41,7 +41,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateDelivery([FromBody] CreateDeliveryRequest request)
+        public async Task<IActionResult> CreateDelivery([FromForm] CreateDeliveryRequest request)
         {
             var deliveryId = await _deliveryService.CreateDelivery(request);
 
@@ -51,7 +51,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDelivery([FromRoute] long id, [FromBody] UpdateDeliveryRequest request)
+        public async Task<IActionResult> UpdateDelivery([FromRoute] long id, [FromForm] UpdateDeliveryRequest request)
         {
             request.Id = id;
             var resp = await _deliveryService.UpdateDelivery(request);

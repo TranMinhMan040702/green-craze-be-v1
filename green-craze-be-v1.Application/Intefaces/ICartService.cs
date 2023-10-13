@@ -18,7 +18,5 @@ namespace green_craze_be_v1.Application.Intefaces
         Task<bool> DeleteCartItem(long cartItemId, string userId);
 
         Task<PaginatedResult<CartItemDto>> GetCartByUser(GetCartPagingRequest request);
-
-        Task<CartItemDto> GetCartItemById(long cartItemId, string userId);
     }
 }

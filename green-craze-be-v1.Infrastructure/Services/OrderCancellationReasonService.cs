@@ -27,7 +27,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot create orderCancellationReason");
+                throw new Exception("Cannot handle to create orderCancellationReason, an error has occured");
             }
 
             return orderCancellationReason.Id;
@@ -43,7 +43,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot delete orderCancellationReason");
+                throw new Exception("Cannot handle to delete orderCancellationReason, an error has occured");
             }
 
             return true;
@@ -65,7 +65,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 await _unitOfWork.Commit();
                 if (!isSuccess)
                 {
-                    throw new Exception("Cannot delete list orderCancellationReason");
+                    throw new Exception("Cannot handle to delete list of orderCancellationReason, an error has occured");
                 }
 
                 return true;
@@ -111,7 +111,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot update orderCancellationReason");
+                throw new Exception("Cannot handle to update orderCancellationReason, an error has occured");
             }
 
             return true;
