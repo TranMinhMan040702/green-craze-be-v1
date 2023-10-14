@@ -44,6 +44,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                     ContentType = image.ContentType
                 };
                 var productImage = _mapper.Map<ProductImage>(productImageDto);
+                productImage.Product = await _unitOfWork.Repository<Product>().GetById(productId);
                 await _unitOfWork.Repository<ProductImage>().Insert(productImage);
             }
            

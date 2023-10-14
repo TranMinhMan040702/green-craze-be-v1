@@ -66,6 +66,13 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<long> CreateProduct(CreateProductRequest request)
         {
             var product = _mapper.Map<Product>(request);
+            product.Category = await _unitOfWork.Repository<ProductCategory>().GetById(request.CategoryId);
+            product.Brand = await _unitOfWork.Repository<Brand>().GetById(request.BrandId);
+            product.Unit = await _unitOfWork.Repository<Unit>().GetById(request.UnitId);
+            if (request.SaleId != null)
+            {
+                product.Sale = await _unitOfWork.Repository<Sale>().GetById(request.SaleId);
+            }
             product.Status = PRODUCT_STATUS.ACTIVE;
             
             List<ProductImage> productImages = new();
@@ -95,6 +102,13 @@ namespace green_craze_be_v1.Infrastructure.Services
             var product = await _unitOfWork.Repository<Product>().GetById(id);
             product = _mapper.Map<UpdateProductRequest, Product>(request, product);
             product.Id = id;
+            product.Category = await _unitOfWork.Repository<ProductCategory>().GetById(request.CategoryId);
+            product.Brand = await _unitOfWork.Repository<Brand>().GetById(request.BrandId);
+            product.Unit = await _unitOfWork.Repository<Unit>().GetById(request.UnitId);
+            if (request.SaleId != null)
+            {
+                product.Sale = await _unitOfWork.Repository<Sale>().GetById(request.SaleId);
+            }
             product.Status = product.Status switch
             {
                 PRODUCT_STATUS.ACTIVE => PRODUCT_STATUS.ACTIVE,
@@ -102,8 +116,8 @@ namespace green_craze_be_v1.Infrastructure.Services
                 PRODUCT_STATUS.SOLD_OUT => PRODUCT_STATUS.SOLD_OUT,
                 _ => throw new InvalidRequestException("Unexpected product status: " + request.Status),
             };
-
             _unitOfWork.Repository<Product>().Update(product);
+
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
@@ -118,6 +132,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var product = await _unitOfWork.Repository<Product>().GetById(id);
             product.Status = PRODUCT_STATUS.INACTIVE;
             _unitOfWork.Repository<Product>().Update(product);
+
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {

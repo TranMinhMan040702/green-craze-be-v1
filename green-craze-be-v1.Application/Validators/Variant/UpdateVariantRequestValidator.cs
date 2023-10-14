@@ -18,7 +18,6 @@ namespace green_craze_be_v1.Application.Validators.Variant
             RuleFor(x => x.Quantity).NotEmpty();
             RuleFor(x => x.ItemPrice).NotEmpty();
             RuleFor(x => x.TotalPrice).NotEmpty();
-            RuleFor(x => x.PromotionalItemPrice).NotEmpty();
             RuleFor(x => x.Status).NotEmpty();
         }
     }

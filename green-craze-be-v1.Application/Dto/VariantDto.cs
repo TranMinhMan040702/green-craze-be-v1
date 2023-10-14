@@ -15,6 +15,6 @@ namespace green_craze_be_v1.Application.Dto
         public decimal ItemPrice { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal? PromotionalItemPrice { get; set; }
-        public bool Status { get; set; }
+        public string Status { get; set; }
     }
 }

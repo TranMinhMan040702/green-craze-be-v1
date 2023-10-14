@@ -5,10 +5,10 @@ namespace green_craze_be_v1.Application.Dto
     public class ProductDto : BaseAuditableDto<long>
     {
         public string Name { get; set; }
-        public long CategoryId { get; set; }
-        public long? SaleId { get; set; }
-        public long BrandId { get; set; }
-        public long UnitId { get; set; }
+        public ProductCategoryDto Category { get; set; }
+        public SaleDto Sale { get; set; }
+        public BrandDto Brand { get; set; }
+        public UnitDto Unit { get; set; }
         public string ShortDescription { get; set; }
         public string Description { get; set; }
         public string Code { get; set; }

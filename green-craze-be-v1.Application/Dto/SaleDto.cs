@@ -15,6 +15,6 @@ namespace green_craze_be_v1.Application.Dto
         public DateTime EndDate { get; set; }
         public double PromotionalPercent { get; set; }
         public string Slug { get; set; }
-        public bool Status { get; set; }
+        public string Status { get; set; }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using green_craze_be_v1.Application.Common.Enums;
+using green_craze_be_v1.Application.Common.Exceptions;
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Paging;
@@ -45,6 +47,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         {
             var sale = _mapper.Map<Sale>(request);
             sale.Image = _uploadService.UploadFile(request.Image).Result;
+            sale.Status = SALE_STATUS.INACTIVE;
             await _unitOfWork.Repository<Sale>().Insert(sale);
 
             var isSuccess = await _unitOfWork.Save() > 0;
@@ -62,6 +65,13 @@ namespace green_craze_be_v1.Infrastructure.Services
             sale = _mapper.Map<UpdateSaleRequest, Sale>(request, sale);
             sale.Id = id;
             sale.Image = _uploadService.UploadFile(request.Image).Result;
+            sale.Status = sale.Status switch
+            {
+                SALE_STATUS.ACTIVE => SALE_STATUS.ACTIVE,
+                SALE_STATUS.INACTIVE => SALE_STATUS.INACTIVE,
+                SALE_STATUS.EXPIRED => SALE_STATUS.EXPIRED,
+                _ => throw new InvalidRequestException("Unexpected sale status: " + request.Status),
+            };
 
             _unitOfWork.Repository<Sale>().Update(sale);
             var isSuccess = await _unitOfWork.Save() > 0;
@@ -76,7 +86,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<bool> DeleteSale(long id)
         {
             var sale = await _unitOfWork.Repository<Sale>().GetById(id);
-            //sale.Status = false;
+            sale.Status = SALE_STATUS.INACTIVE;
             _unitOfWork.Repository<Sale>().Update(sale);
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
@@ -96,7 +106,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 foreach (var id in ids)
                 {
                     var sale = await _unitOfWork.Repository<Sale>().GetById(id);
-                    //sale.Status = false;
+                    sale.Status = SALE_STATUS.INACTIVE;
                     _unitOfWork.Repository<Sale>().Update(sale);
                 }
                 var isSuccess = await _unitOfWork.Save() > 0;

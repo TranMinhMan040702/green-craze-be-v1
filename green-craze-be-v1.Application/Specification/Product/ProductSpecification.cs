@@ -12,6 +12,10 @@ namespace green_craze_be_v1.Application.Specification.Product
         public ProductSpecification()
         {
             AddInclude(x => x.Images);
+            AddInclude(x => x.Category);
+            AddInclude(x => x.Sale);
+            AddInclude(x => x.Brand);
+            AddInclude(x => x.Unit);
         }
 
         public ProductSpecification(GetProductPagingRequest query, bool isPaging = false)
@@ -61,6 +65,10 @@ namespace green_craze_be_v1.Application.Specification.Product
                 }
             }
             AddInclude(x => x.Images);
+            AddInclude(x => x.Category);
+            AddInclude(x => x.Sale);
+            AddInclude(x => x.Brand);
+            AddInclude(x => x.Unit);
             if (!isPaging) return;
             int skip = (query.PageIndex - 1) * query.PageSize;
             int take = query.PageSize;

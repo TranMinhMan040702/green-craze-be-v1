@@ -8,6 +8,7 @@ using green_craze_be_v1.Domain.Entities;
 using green_craze_be_v1.Application.Model.ProductCategory;
 using green_craze_be_v1.Application.Model.Product;
 using green_craze_be_v1.Application.Model.Sale;
+using green_craze_be_v1.Application.Model.Variant;
 
 namespace green_craze_be_v1.Application.Common.Mapper
 {
@@ -41,6 +42,10 @@ namespace green_craze_be_v1.Application.Common.Mapper
             // Product Image
             CreateMap<ProductImage, ProductImageDto>();
             CreateMap<ProductImageDto, ProductImage>();
+            // Product
+            CreateMap<Variant, VariantDto>();
+            CreateMap<CreateVariantRequest, Variant>();
+            CreateMap<UpdateVariantRequest, Variant>();
             // Sale
             CreateMap<Sale, SaleDto>();
             CreateMap<CreateSaleRequest, Sale>();

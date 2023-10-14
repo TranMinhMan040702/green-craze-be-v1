@@ -10,6 +10,11 @@ namespace green_craze_be_v1.Application.Specification.Variant
 {
     public class VariantSpecification : BaseSpecification<Domain.Entities.Variant>
     {
+        public VariantSpecification()
+        {
+            AddInclude(x => x.Product);
+        }
+
         public VariantSpecification(GetVariantPagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;
@@ -59,6 +64,7 @@ namespace green_craze_be_v1.Application.Specification.Variant
             if (!isPaging) return;
             int skip = (query.PageIndex - 1) * query.PageSize;
             int take = query.PageSize;
+            AddInclude(x => x.Product);
             ApplyPaging(take, skip);
         }
     }
