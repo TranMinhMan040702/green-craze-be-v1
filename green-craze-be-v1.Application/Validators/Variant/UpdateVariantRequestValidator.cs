@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using green_craze_be_v1.Application.Common.Enums;
 using green_craze_be_v1.Application.Model.Variant;
 using System;
 using System.Collections.Generic;
@@ -10,15 +11,18 @@ namespace green_craze_be_v1.Application.Validators.Variant
 {
     public class UpdateVariantRequestValidator : AbstractValidator<UpdateVariantRequest>
     {
-       public UpdateVariantRequestValidator() 
-       {
-            RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.ProductId).NotEmpty();
-            RuleFor(x => x.Sku).NotEmpty();
-            RuleFor(x => x.Quantity).NotEmpty();
-            RuleFor(x => x.ItemPrice).NotEmpty();
-            RuleFor(x => x.TotalPrice).NotEmpty();
-            RuleFor(x => x.Status).NotEmpty();
+        public UpdateVariantRequestValidator()
+        {
+            RuleFor(x => x.Name).NotEmpty().NotNull();
+            RuleFor(x => x.ProductId).NotEmpty().NotNull();
+            RuleFor(x => x.Sku).NotEmpty().NotNull();
+            RuleFor(x => x.Quantity).NotEmpty().NotNull();
+            RuleFor(x => x.ItemPrice).NotEmpty().NotNull();
+            RuleFor(x => x.TotalPrice).NotEmpty().NotNull();
+            RuleFor(x => x.Status).NotEmpty().NotNull();
+            RuleFor(x => x.Status)
+                .Must(x => VARIANT_STATUS.Status.Contains(x))
+                .WithMessage("Unexpected variant status");
         }
     }
 }

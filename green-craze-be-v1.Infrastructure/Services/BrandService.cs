@@ -110,10 +110,10 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 return isSuccess;
             }
-            catch (Exception ex)
+            catch
             {
                 await _unitOfWork.Rollback();
-                throw ex;
+                throw;
             }
         }
     }

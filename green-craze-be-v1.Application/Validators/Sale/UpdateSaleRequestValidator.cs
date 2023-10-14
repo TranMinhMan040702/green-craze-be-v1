@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using green_craze_be_v1.Application.Common.Enums;
 using green_craze_be_v1.Application.Model.Sale;
 using System;
 using System.Collections.Generic;
@@ -12,14 +13,17 @@ namespace green_craze_be_v1.Application.Validators.Sale
     {
         public UpdateSaleRequestValidator()
         {
-            RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.Description).NotEmpty();
-            RuleFor(x => x.Image).NotEmpty();
-            RuleFor(x => x.StartDate).NotEmpty();
-            RuleFor(x => x.EndDate).NotEmpty();
-            RuleFor(x => x.PromotionalPercent).NotEmpty();
-            RuleFor(x => x.Slug).NotEmpty();
-            RuleFor(x => x.Status).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().NotNull();
+            RuleFor(x => x.Description).NotEmpty().NotNull();
+            RuleFor(x => x.Image).NotEmpty().NotNull();
+            RuleFor(x => x.StartDate).NotEmpty().NotNull();
+            RuleFor(x => x.EndDate).NotEmpty().NotNull();
+            RuleFor(x => x.PromotionalPercent).NotEmpty().NotNull();
+            RuleFor(x => x.Slug).NotEmpty().NotNull();
+            RuleFor(x => x.Status).NotEmpty().NotNull();
+            RuleFor(x => x.Status)
+                .Must(x => SALE_STATUS.Status.Contains(x))
+                .WithMessage("Unexpected variant status");
         }
     }
 }

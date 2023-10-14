@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using green_craze_be_v1.Application.Common.Enums;
 using green_craze_be_v1.Application.Model.Product;
 using System;
 using System.Collections.Generic;
@@ -12,16 +13,19 @@ namespace green_craze_be_v1.Application.Validators.Product
     {
         public UpdateProductRequestValidator()
         {
-            RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.CategoryId).NotEmpty();
-            RuleFor(x => x.BrandId).NotEmpty();
-            RuleFor(x => x.UnitId).NotEmpty();
-            RuleFor(x => x.ShortDescription).NotEmpty();
-            RuleFor(x => x.Description).NotEmpty();
-            RuleFor(x => x.Code).NotEmpty();
-            RuleFor(x => x.Quantity).NotEmpty();
-            RuleFor(x => x.Slug).NotEmpty();
-            RuleFor(x => x.Status).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().NotNull();
+            RuleFor(x => x.CategoryId).NotEmpty().NotNull();
+            RuleFor(x => x.BrandId).NotEmpty().NotNull();
+            RuleFor(x => x.UnitId).NotEmpty().NotNull();
+            RuleFor(x => x.ShortDescription).NotEmpty().NotNull();
+            RuleFor(x => x.Description).NotEmpty().NotNull();
+            RuleFor(x => x.Code).NotEmpty().NotNull();
+            RuleFor(x => x.Quantity).NotEmpty().NotNull();
+            RuleFor(x => x.Slug).NotEmpty().NotNull();
+            RuleFor(x => x.Status).NotEmpty().NotNull();
+            RuleFor(x => x.Status)
+                .Must(x => PRODUCT_STATUS.Status.Contains(x))
+                .WithMessage("Unexpected variant status");
         }
     }
 }

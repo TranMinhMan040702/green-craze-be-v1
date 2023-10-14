@@ -5,12 +5,14 @@ using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.Review;
 using green_craze_be_v1.Application.Model.Unit;
 using green_craze_be_v1.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ReviewsController : ControllerBase
     {
         private readonly IReviewService _reviewService;
@@ -21,6 +23,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetListReview([FromQuery] GetReviewPagingRequest request)
         {
             var res = await _reviewService.GetListReview(request);
@@ -41,10 +44,12 @@ namespace green_craze_be_v1.API.Controllers
         {
             var reviewId = await _reviewService.CreateReview(request);
             var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/reviews/{reviewId}";
+
             return Created(url, new APIResponse<object>(new { id = reviewId }, StatusCodes.Status201Created));
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> ReplyReview([FromBody] ReplyReviewRequest request, [FromRoute] long id)
         {
             var res = await _reviewService.ReplyReview(id, request);
@@ -53,6 +58,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> DeleteReview([FromRoute] long id)
         {
             var res = await _reviewService.DeleteReview(id);
@@ -61,6 +67,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> DeleteListReview([FromQuery] List<long> ids)
         {
             var res = await _reviewService.DeleteListReview(ids);

@@ -12,7 +12,7 @@ namespace green_craze_be_v1.Application.Validators.ProductImage
     {
         public CreateProdcutImageRequestValidator()
         {
-            RuleFor(x => x.Images).NotEmpty();
+            RuleFor(x => x.Images).NotEmpty().NotNull();
         }
     }
 }

@@ -4,12 +4,14 @@ using green_craze_be_v1.Application.Model.Brand;
 using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.Unit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "ADMIN")]
     public class BrandsController : ControllerBase
     {
         private readonly IBrandService _brandService;
@@ -20,6 +22,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetListBrand([FromQuery] GetBrandPagingRequest request)
         {
             var res = await _brandService.GetListBrand(request);

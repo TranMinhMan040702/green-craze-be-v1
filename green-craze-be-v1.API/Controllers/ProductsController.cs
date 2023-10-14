@@ -4,12 +4,14 @@ using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.Product;
 using green_craze_be_v1.Application.Model.ProductImage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "ADMIN")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -22,6 +24,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetListProduct([FromForm] GetProductPagingRequest request)
         {
             var res = await _productService.GetListProduct(request);
@@ -30,6 +33,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProduct([FromRoute] long id)
         {
             var res = await _productService.GetProduct(id);

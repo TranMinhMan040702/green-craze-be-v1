@@ -225,9 +225,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "d53eb114-a049-4897-92e9-4160ef0d8274",
-                            ConcurrencyStamp = "1a4ef4f2-0b7c-4c92-9686-54b5f27f6a25",
-                            CreatedAt = new DateTime(2023, 10, 12, 18, 38, 7, 608, DateTimeKind.Local).AddTicks(4039),
+                            Id = "5f544b1e-c7e3-4977-b125-cdd2c6d258a2",
+                            ConcurrencyStamp = "80986716-690b-4a2b-845a-aab081a5b9c8",
+                            CreatedAt = new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079),
                             CreatedBy = "System",
                             Name = "ADMIN",
                             NormalizedName = "ADMIN",
@@ -235,9 +235,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = "cccef6f1-092c-4184-b5fc-6768403207d2",
-                            ConcurrencyStamp = "88ae6369-98d6-4fb6-8f73-148d68a53714",
-                            CreatedAt = new DateTime(2023, 10, 12, 18, 38, 7, 608, DateTimeKind.Local).AddTicks(4039),
+                            Id = "5d4d9957-4391-4fcb-9708-1a6e46e320a5",
+                            ConcurrencyStamp = "1ed5008f-b667-44a8-8ccc-c7cd66e7e946",
+                            CreatedAt = new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079),
                             CreatedBy = "System",
                             Name = "USER",
                             NormalizedName = "USER",
@@ -245,9 +245,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = "c10ddacc-53a8-4518-8972-fafd2706e554",
-                            ConcurrencyStamp = "9e258078-52b7-405b-93df-5f67695a0938",
-                            CreatedAt = new DateTime(2023, 10, 12, 18, 38, 7, 608, DateTimeKind.Local).AddTicks(4039),
+                            Id = "a333fe4a-e662-4b9b-8e70-ec80b1dc1932",
+                            ConcurrencyStamp = "664fcf6b-ce67-4b36-94a6-bd255fe36aca",
+                            CreatedAt = new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079),
                             CreatedBy = "System",
                             Name = "STAFF",
                             NormalizedName = "STAFF",
@@ -1454,7 +1454,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<long?>("ProductId")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal>("PromotionalItemPrice")
+                    b.Property<decimal?>("PromotionalItemPrice")
+                        .IsRequired()
                         .HasColumnType("DECIMAL");
 
                     b.Property<int>("Quantity")

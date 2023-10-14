@@ -6,12 +6,14 @@ using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.Sale;
 using green_craze_be_v1.Application.Model.Unit;
 using green_craze_be_v1.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "ADMIN")]
     public class SalesController : ControllerBase
     {
         private readonly ISaleService _saleService;
@@ -22,6 +24,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetListSale([FromQuery] GetSalePagingRequest request)
         {
             var res = await _saleService.GetListSale(request);
@@ -30,6 +33,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetSale([FromRoute] long id)
         {
             var res = await _saleService.GetSale(id);

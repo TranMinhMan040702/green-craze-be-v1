@@ -7,8 +7,8 @@ namespace green_craze_be_v1.Application.Validators.Unit
     {
         public UpdateUnitRequestValidator()
         {
-            RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.Status).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().NotNull();
+            RuleFor(x => x.Status).NotEmpty().NotNull();
         }
     }
 }

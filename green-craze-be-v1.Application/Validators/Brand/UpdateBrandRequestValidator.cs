@@ -7,11 +7,11 @@ namespace green_craze_be_v1.Application.Validators.Brand
     {
         public UpdateBrandRequestValidator()
         {
-            RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.Code).NotEmpty();
-            RuleFor(x => x.Description).NotEmpty();
-            RuleFor(x => x.Image).NotEmpty();
-            RuleFor(x => x.Status).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().NotNull();
+            RuleFor(x => x.Code).NotEmpty().NotNull();
+            RuleFor(x => x.Description).NotEmpty().NotNull();
+            RuleFor(x => x.Image).NotEmpty().NotNull();
+            RuleFor(x => x.Status).NotEmpty().NotNull();
         }
     }
 }

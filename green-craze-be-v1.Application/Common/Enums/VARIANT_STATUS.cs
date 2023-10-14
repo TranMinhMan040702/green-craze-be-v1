@@ -10,5 +10,11 @@ namespace green_craze_be_v1.Application.Common.Enums
     {
         public const string ACTIVE = "ACTIVE";
         public const string INACTIVE = "INACTIVE";
+
+        public static List<string> Status = new()
+        {
+            ACTIVE,
+            INACTIVE
+        };
     }
 }

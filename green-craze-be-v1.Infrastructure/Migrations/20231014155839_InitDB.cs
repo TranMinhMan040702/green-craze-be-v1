@@ -981,9 +981,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "CreatedAt", "CreatedBy", "Name", "NormalizedName", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { "c10ddacc-53a8-4518-8972-fafd2706e554", "9e258078-52b7-405b-93df-5f67695a0938", new DateTime(2023, 10, 12, 18, 38, 7, 608, DateTimeKind.Local).AddTicks(4039), "System", "STAFF", "STAFF", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { "cccef6f1-092c-4184-b5fc-6768403207d2", "88ae6369-98d6-4fb6-8f73-148d68a53714", new DateTime(2023, 10, 12, 18, 38, 7, 608, DateTimeKind.Local).AddTicks(4039), "System", "USER", "USER", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { "d53eb114-a049-4897-92e9-4160ef0d8274", "1a4ef4f2-0b7c-4c92-9686-54b5f27f6a25", new DateTime(2023, 10, 12, 18, 38, 7, 608, DateTimeKind.Local).AddTicks(4039), "System", "ADMIN", "ADMIN", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null }
+                    { "5d4d9957-4391-4fcb-9708-1a6e46e320a5", "1ed5008f-b667-44a8-8ccc-c7cd66e7e946", new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079), "System", "USER", "USER", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
+                    { "5f544b1e-c7e3-4977-b125-cdd2c6d258a2", "80986716-690b-4a2b-845a-aab081a5b9c8", new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079), "System", "ADMIN", "ADMIN", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
+                    { "a333fe4a-e662-4b9b-8e70-ec80b1dc1932", "664fcf6b-ce67-4b36-94a6-bd255fe36aca", new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079), "System", "STAFF", "STAFF", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null }
                 });
 
             migrationBuilder.CreateIndex(

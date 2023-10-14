@@ -91,11 +91,11 @@ namespace green_craze_be_v1.Infrastructure.Services
                 UpdatedBy = cartItem.UpdatedBy,
                 Quantity = cartItem.Quantity,
                 TotalPrice = cartItem.Variant.Quantity * cartItem.Variant.ItemPrice,
-                TotalPromotionalPrice = cartItem.Variant.Quantity * cartItem.Variant.PromotionalItemPrice,
+                TotalPromotionalPrice = isPromotion ? cartItem.Variant.Quantity * cartItem.Variant.PromotionalItemPrice.Value : null,
                 Sku = cartItem.Variant.Sku,
                 VariantName = cartItem.Variant.Name,
                 VariantPrice = cartItem.Variant.ItemPrice,
-                VariantPromotionalPrice = cartItem.Variant.PromotionalItemPrice,
+                VariantPromotionalPrice = isPromotion ? cartItem.Variant.PromotionalItemPrice.Value : null,
                 IsPromotion = isPromotion,
                 VariantQuantity = cartItem.Variant.Quantity,
             };

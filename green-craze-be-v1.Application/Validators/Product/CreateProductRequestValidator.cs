@@ -12,16 +12,16 @@ namespace green_craze_be_v1.Application.Validators.Product
     {
         public CreateProductRequestValidator()
         {
-            RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.CategoryId).NotEmpty();
-            RuleFor(x => x.BrandId).NotEmpty();
-            RuleFor(x => x.UnitId).NotEmpty();
-            RuleFor(x => x.ShortDescription).NotEmpty();
-            RuleFor(x => x.Description).NotEmpty();
-            RuleFor(x => x.Code).NotEmpty();
-            RuleFor(x => x.Quantity).NotEmpty();
-            RuleFor(x => x.Slug).NotEmpty();
-            RuleFor(x => x.ProductImages).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().NotNull();
+            RuleFor(x => x.CategoryId).NotEmpty().NotNull();
+            RuleFor(x => x.BrandId).NotEmpty().NotNull();
+            RuleFor(x => x.UnitId).NotEmpty().NotNull();
+            RuleFor(x => x.ShortDescription).NotEmpty().NotNull();
+            RuleFor(x => x.Description).NotEmpty().NotNull();
+            RuleFor(x => x.Code).NotEmpty().NotNull();
+            RuleFor(x => x.Quantity).NotEmpty().NotNull();
+            RuleFor(x => x.Slug).NotEmpty().NotNull();
+            RuleFor(x => x.ProductImages).NotEmpty().NotNull();
         }
     }
 }

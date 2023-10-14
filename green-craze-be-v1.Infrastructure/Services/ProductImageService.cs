@@ -24,7 +24,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<List<ProductImageDto>> GetListProductImage(long productId)
         {
-            var productImages = 
+            var productImages =
                 await _unitOfWork.Repository<ProductImage>().ListAsync(new ProductImageSpecification(productId));
             var productImageDtos = new List<ProductImageDto>();
             productImages.ForEach(productImage => productImageDtos.Add(_mapper.Map<ProductImageDto>(productImage)));
@@ -47,7 +47,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 productImage.Product = await _unitOfWork.Repository<Product>().GetById(productId);
                 await _unitOfWork.Repository<ProductImage>().Insert(productImage);
             }
-           
+
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
@@ -86,7 +86,6 @@ namespace green_craze_be_v1.Infrastructure.Services
             return isSuccess;
         }
 
-        // Khong xoa duoc list
         public async Task<bool> DeleteListProductImage(List<long> ids)
         {
             try
@@ -103,7 +102,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 {
                     throw new Exception("Cannot update entity");
                 }
-
+                await _unitOfWork.Commit();
                 return isSuccess;
             }
             catch (Exception)

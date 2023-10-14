@@ -12,11 +12,11 @@ namespace green_craze_be_v1.Application.Validators.Review
     {
         public CreateReviewRequestValidator()
         {
-            RuleFor(x => x.UserId).NotEmpty();
-            RuleFor(x => x.ProductId).NotEmpty();
-            RuleFor(x => x.OrderItemId).NotEmpty();
-            RuleFor(x => x.Title).NotEmpty();
-            RuleFor(x => x.Content).NotEmpty();
+            RuleFor(x => x.UserId).NotEmpty().NotNull();
+            RuleFor(x => x.ProductId).NotEmpty().NotNull();
+            RuleFor(x => x.OrderItemId).NotEmpty().NotNull();
+            RuleFor(x => x.Title).NotEmpty().NotNull();
+            RuleFor(x => x.Content).NotEmpty().NotNull();
         }
     }
 }

@@ -1,18 +1,8 @@
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using green_craze_be_v1.API.Middlewares;
 using green_craze_be_v1.Application;
-using green_craze_be_v1.Application.Common.Mapper;
-using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Infrastructure;
-using green_craze_be_v1.Infrastructure.Data.Context;
-using green_craze_be_v1.Infrastructure.Repositories;
-using green_craze_be_v1.Infrastructure.Services;
 using Hellang.Middleware.ProblemDetails;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 

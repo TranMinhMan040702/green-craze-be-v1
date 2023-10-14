@@ -6,12 +6,14 @@ using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.ProductCategory;
 using green_craze_be_v1.Application.Model.Unit;
 using green_craze_be_v1.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
 {
     [Route("api/product-categories")]
     [ApiController]
+    [Authorize(Roles = "ADMIN")]
     public class ProductCategoriesController : ControllerBase
     {
         private readonly IProductCategoryService _productCategoryService;
@@ -22,6 +24,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetListProductCategory([FromQuery] GetProductCategoryPagingRequest request)
         {
             var res = await _productCategoryService.GetListProductCategory(request);

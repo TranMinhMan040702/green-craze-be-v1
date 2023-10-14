@@ -12,8 +12,8 @@ namespace green_craze_be_v1.Application.Validators.UserFollowProduct
     {
         public FollowProductRequestValidator()
         {
-            RuleFor(x => x.UserId).NotEmpty();
-            RuleFor(x => x.ProductId).NotEmpty();
+            RuleFor(x => x.UserId).NotEmpty().NotNull();
+            RuleFor(x => x.ProductId).NotEmpty().NotNull();
         }
     }
 }

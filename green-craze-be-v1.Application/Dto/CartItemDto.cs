@@ -13,9 +13,9 @@ namespace green_craze_be_v1.Application.Dto
         public int VariantQuantity { get; set; }
         public string Sku { get; set; }
         public decimal VariantPrice { get; set; }
-        public decimal VariantPromotionalPrice { get; set; }
+        public decimal? VariantPromotionalPrice { get; set; }
         public decimal TotalPrice { get; set; }
-        public decimal TotalPromotionalPrice { get; set; }
+        public decimal? TotalPromotionalPrice { get; set; }
         public string ProductSlug { get; set; }
         public string ProductUnit { get; set; }
         public string ProductName { get; set; }

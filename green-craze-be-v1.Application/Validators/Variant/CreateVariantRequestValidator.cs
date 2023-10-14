@@ -7,12 +7,12 @@ namespace green_craze_be_v1.Application.Validators.Variant
     {
         public CreateVariantRequestValidator()
         {
-            RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.ProductId).NotEmpty();
-            RuleFor(x => x.Sku).NotEmpty();
-            RuleFor(x => x.Quantity).NotEmpty();
-            RuleFor(x => x.ItemPrice).NotEmpty();
-            RuleFor(x => x.TotalPrice).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().NotNull();
+            RuleFor(x => x.ProductId).NotEmpty().NotNull();
+            RuleFor(x => x.Sku).NotEmpty().NotNull();
+            RuleFor(x => x.Quantity).NotEmpty().NotNull();
+            RuleFor(x => x.ItemPrice).NotEmpty().NotNull();
+            RuleFor(x => x.TotalPrice).NotEmpty().NotNull();
         }
     }
 }

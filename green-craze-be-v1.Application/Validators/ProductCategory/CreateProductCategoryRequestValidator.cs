@@ -12,9 +12,9 @@ namespace green_craze_be_v1.Application.Validators.ProductCategory
     {
         public CreateProductCategoryRequestValidator()
         {
-            RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.Image).NotEmpty();
-            RuleFor(x => x.Slug).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().NotNull();
+            RuleFor(x => x.Image).NotEmpty().NotNull();
+            RuleFor(x => x.Slug).NotEmpty().NotNull();
         }
     }
 }
