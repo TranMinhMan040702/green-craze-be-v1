@@ -71,7 +71,8 @@ namespace green_craze_be_v1.Infrastructure
                 .AddScoped<IJwtService, JwtService>()
                 .AddScoped<IAuthService, AuthService>()
                 .AddScoped<IUserService, UserService>()
-                .AddScoped<IUnitService, UnitService>();
+                .AddScoped<IUnitService, UnitService>()
+                .AddScoped<IReviewService, ReviewService>();
         }
     }
 }

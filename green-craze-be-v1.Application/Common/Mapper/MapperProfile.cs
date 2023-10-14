@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Model.Auth;
+using green_craze_be_v1.Application.Model.Review;
 using green_craze_be_v1.Application.Model.Unit;
 using green_craze_be_v1.Application.Model.User;
 using green_craze_be_v1.Domain.Entities;
@@ -20,6 +21,9 @@ namespace green_craze_be_v1.Application.Common.Mapper
             CreateMap<Product, ProductDto>();
             CreateMap<Unit, UnitDto>();
             CreateMap<CreateUnitRequest, Unit>();
+            // Review
+            CreateMap<Review, ReviewDto>();
+            CreateMap<CreateReviewRequest, Review>();
         }
     }
 }
