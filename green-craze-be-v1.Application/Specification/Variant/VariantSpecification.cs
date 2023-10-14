@@ -15,6 +15,11 @@ namespace green_craze_be_v1.Application.Specification.Variant
             AddInclude(x => x.Product);
         }
 
+        public VariantSpecification(long id) : base(x => x.Id == id)
+        {
+            AddInclude(x => x.Product);
+        }
+
         public VariantSpecification(GetVariantPagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;

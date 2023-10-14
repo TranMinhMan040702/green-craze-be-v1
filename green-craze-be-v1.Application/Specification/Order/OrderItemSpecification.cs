@@ -11,7 +11,6 @@ namespace green_craze_be_v1.Application.Specification.Order
     {
         public OrderItemSpecification(long orderId) : base(x => x.Order.Id == orderId)
         {
-            AddInclude(x => x.Order);
             AddInclude(x => x.Variant);
         }
     }

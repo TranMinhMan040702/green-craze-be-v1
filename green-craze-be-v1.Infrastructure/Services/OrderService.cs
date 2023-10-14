@@ -8,7 +8,9 @@ using green_craze_be_v1.Application.Model.Order;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Specification.Cart;
 using green_craze_be_v1.Application.Specification.Order;
+using green_craze_be_v1.Application.Specification.Product;
 using green_craze_be_v1.Application.Specification.User;
+using green_craze_be_v1.Application.Specification.Variant;
 using green_craze_be_v1.Domain.Entities;
 
 namespace green_craze_be_v1.Infrastructure.Services
@@ -168,10 +170,27 @@ namespace green_craze_be_v1.Infrastructure.Services
         {
             var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(id, userId))
                 ?? throw new InvalidRequestException("Unexpected orderId");
+            var listOrderItem = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
 
             var listItems = new List<OrderItemDto>();
-            foreach (var oi in order.OrderItems)
+            foreach (var oi in listOrderItem)
             {
+                var variant = await _unitOfWork.Repository<Variant>().GetEntityWithSpec(new VariantSpecification(oi.Variant.Id))
+                ?? throw new NotFoundException("Cannot find varaint item");
+
+                var product = await _unitOfWork.Repository<Product>().GetEntityWithSpec(new ProductSpecification(variant.Product.Id))
+                    ?? throw new NotFoundException("Cannot find product of variant item");
+
+                var orderItemDto = _mapper.Map<OrderItemDto>(oi);
+
+                orderItemDto.VariantQuantity = variant.Quantity;
+                orderItemDto.VariantName = variant.Name;
+                orderItemDto.ProductName = product.Name;
+                orderItemDto.ProductSlug = product.Slug;
+                orderItemDto.ProductUnit = product.Unit.Name;
+                orderItemDto.ProductImage = product.Images.FirstOrDefault(x => x.IsDefault)?.Image ?? product.Images.FirstOrDefault()?.Image;
+
+                listItems.Add(orderItemDto);
             }
 
             var orderDto = _mapper.Map<OrderDto>(order);

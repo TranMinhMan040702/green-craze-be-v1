@@ -11,11 +11,13 @@ namespace green_craze_be_v1.Application.Intefaces
 {
     public interface ICartService
     {
-        Task<long> AddVariantItemToCart(AddVariantItemToCartRequest request);
+        Task<bool> AddVariantItemToCart(AddVariantItemToCartRequest request);
 
         Task<bool> UpdateCartItemQuantity(UpdateCartItemQuantityRequest request);
 
         Task<bool> DeleteCartItem(long cartItemId, string userId);
+
+        Task<bool> DeleteListCartItem(List<long> ids, string userId);
 
         Task<PaginatedResult<CartItemDto>> GetCartByUser(GetCartPagingRequest request);
     }

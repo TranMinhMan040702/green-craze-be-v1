@@ -18,6 +18,12 @@ namespace green_craze_be_v1.Application.Specification.Product
             AddInclude(x => x.Unit);
         }
 
+        public ProductSpecification(long id) : base(x => x.Id == id)
+        {
+            AddInclude(x => x.Images);
+            AddInclude(x => x.Unit);
+        }
+
         public ProductSpecification(GetProductPagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;
