@@ -10,5 +10,6 @@ namespace green_craze_be_v1.Application.Intefaces
     public interface IUserFollowProductService
     {
         Task<bool> LikeProduct(FollowProductRequest request);
+        Task<bool> UnLikeProduct(FollowProductRequest request);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.UserFollowProduct;
+using green_craze_be_v1.Application.Specification.UserFollowProduct;
 using green_craze_be_v1.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,22 @@ namespace green_craze_be_v1.Infrastructure.Services
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
             {
-                throw new Exception("Cannot update status of entities");
+                throw new Exception("Cannot save of entities");
+            }
+
+            return isSuccess;
+        }
+
+        public async Task<bool> UnLikeProduct(FollowProductRequest request)
+        {
+            var userFollowProduct = await _unitOfWork.Repository<UserFollowProduct>()
+                .GetEntityWithSpec(new UserFollowProductSpecification(request.UserId, request.ProductId));
+            _unitOfWork.Repository<UserFollowProduct>().Delete(userFollowProduct);
+
+            var isSuccess = await _unitOfWork.Save() > 0;
+            if (!isSuccess)
+            {
+                throw new Exception("Cannot save of entities");
             }
 
             return isSuccess;
