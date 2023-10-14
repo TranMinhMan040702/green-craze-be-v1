@@ -1,8 +1,14 @@
-﻿using green_craze_be_v1.Application.Common.Enums;
+﻿using green_craze_be_v1.Application.Dto;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace green_craze_be_v1.Application.Dto
+namespace green_craze_be_v1.Application.Model.Product
 {
-    public class ProductDto : BaseAuditableDto<long>
+    public class CreateProductRequest
     {
         public string Name { get; set; }
         public long CategoryId { get; set; }
@@ -13,11 +19,8 @@ namespace green_craze_be_v1.Application.Dto
         public string Description { get; set; }
         public string Code { get; set; }
         public int Quantity { get; set; }
-        public int Sold { get; set; }
-        public double Rating { get; set; }
-        public List<ProductImageDto> Images { get; set; }
+        public List<IFormFile> ProductImages { get; set; }
         public string Slug { get; set; }
         public decimal Cost { get; set; }
-        public string Status { get; set; }
     }
 }

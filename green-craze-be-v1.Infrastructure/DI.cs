@@ -75,7 +75,10 @@ namespace green_craze_be_v1.Infrastructure
                 .AddScoped<IAuthService, AuthService>()
                 .AddScoped<IUserService, UserService>()
                 .AddScoped<IUnitService, UnitService>()
-                .AddScoped<IProductCategoryService, ProductCategoryService>();
+                .AddScoped<IProductCategoryService, ProductCategoryService>()
+                .AddScoped<IProductService, ProductService>()
+                .AddScoped<IProductImageService, ProductImageService>()
+                .AddScoped<ISaleService, SaleService>();
         }
     }
 }

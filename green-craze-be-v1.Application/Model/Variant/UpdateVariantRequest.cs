@@ -14,7 +14,7 @@ namespace green_craze_be_v1.Application.Model.Variant
         public int Quantity { get; set; }
         public decimal ItemPrice { get; set; }
         public decimal TotalPrice { get; set; }
-        public decimal PromotionalItemPrice { get; set; }
+        public decimal? PromotionalItemPrice { get; set; }
         public bool Status { get; set; }
     }
 }

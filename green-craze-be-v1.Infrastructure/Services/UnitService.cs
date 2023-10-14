@@ -12,14 +12,12 @@ namespace green_craze_be_v1.Infrastructure.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly IUploadService _uploadService;
 
-        public UnitService(IUnitOfWork unitOfWork, IMapper mapper, IUploadService uploadService)
+        public UnitService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _uploadService = uploadService;
-        }
+        } 
 
         public async Task<PaginatedResult<UnitDto>> GetListUnit(GetUnitPagingRequest request)
         {
@@ -105,10 +103,10 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 return isSuccess;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await _unitOfWork.Rollback();
-                throw ex;
+                throw;
             }
         }
     }

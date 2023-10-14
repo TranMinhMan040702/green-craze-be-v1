@@ -12,11 +12,11 @@ namespace green_craze_be_v1.API.Controllers
 {
     [Route("api/product-categories")]
     [ApiController]
-    public class ProductCategoryController : ControllerBase
+    public class ProductCategoriesController : ControllerBase
     {
         private readonly IProductCategoryService _productCategoryService;
 
-        public ProductCategoryController(IProductCategoryService productCategoryService)
+        public ProductCategoriesController(IProductCategoryService productCategoryService)
         {
             _productCategoryService = productCategoryService;
         }

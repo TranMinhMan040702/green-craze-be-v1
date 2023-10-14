@@ -12,7 +12,7 @@ namespace green_craze_be_v1.Domain.Entities
         public string Name { get; set; }
         public string Sku { get; set; }
         public decimal ItemPrice { get; set; }
-        public decimal PromotionalItemPrice { get; set; }
+        public decimal? PromotionalItemPrice { get; set; }
         public string Status { get; set; }
         public int Quantity { get; set; }
         public decimal TotalPrice { get; set; }
