@@ -3,10 +3,7 @@ using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.Unit;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace green_craze_be_v1.API.Controllers
 {
@@ -22,38 +19,39 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUnit([FromQuery] GetUnitPagingRequest request)
+        public async Task<IActionResult> GetListUnit([FromQuery] GetUnitPagingRequest request)
         {
-            var res = await _unitService.GetAllUnit(request);
+            var res = await _unitService.GetListUnit(request);
 
             return Ok(APIResponse<PaginatedResult<UnitDto>>.Initialize(res, StatusCodes.Status200OK));
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUnitById([FromRoute] long id)
+        public async Task<IActionResult> GetUnit([FromRoute] long id)
         {
             var res = await _unitService.GetUnit(id);
 
             return Ok(new APIResponse<UnitDto>(res, StatusCodes.Status200OK));
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateUnit([FromBody] CreateUnitRequest request)
         {
             var unitId = await _unitService.CreateUnit(request);
             var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/units/{unitId}";
+
             return Created(url, new APIResponse<object>(new { id = unitId }, StatusCodes.Status201Created));
         }
 
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateUnit([FromBody] UpdateUnitRequest request)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUnit([FromRoute] long id, [FromBody] UpdateUnitRequest request)
         {
-            var res = await _unitService.UpdateUnit(request);
+            var res = await _unitService.UpdateUnit(id, request);
 
             return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUnit([FromRoute] long id)
         {
             var res = await _unitService.DeleteUnit(id);
@@ -61,10 +59,10 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteManyUnit([FromQuery] List<long> ids)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteListUnit([FromQuery] List<long> ids)
         {
-            var res = await _unitService.DeleteMany(ids);
+            var res = await _unitService.DeleteListUnit(ids);
 
             return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }

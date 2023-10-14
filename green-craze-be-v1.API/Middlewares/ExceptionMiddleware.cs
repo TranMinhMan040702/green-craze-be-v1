@@ -1,12 +1,8 @@
 ﻿using green_craze_be_v1.Application.Common.Exceptions;
+using Hellang.Middleware.ProblemDetails;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using green_craze_be_v1.Application.Model.CustomAPI;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using System.Text.Json;
-using Hellang.Middleware.ProblemDetails;
-using System.Net.Http;
 
 namespace green_craze_be_v1.API.Middlewares
 {
