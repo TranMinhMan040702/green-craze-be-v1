@@ -8,7 +8,6 @@ using green_craze_be_v1.Application.Model.User;
 using green_craze_be_v1.Application.Specification.User;
 using green_craze_be_v1.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace green_craze_be_v1.Infrastructure.Services
@@ -35,14 +34,14 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<bool> ChangePassword(ChangePasswordRequest request)
         {
             var user = await _userManager.FindByIdAsync(request.UserId)
-                ?? throw new NotFoundException("Cannot find this user");
+                ?? throw new InvalidRequestException("Unexpected userId");
 
             if (request.NewPassword != request.ConfirmPassword)
-                throw new ValidationException("Confirm password does not match");
+                throw new InvalidRequestException("Confirm password does not match");
 
             var res = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
             if (!res.Succeeded)
-                throw new ValidationException("Cannot change your password, your OldPassword may be incorrect");
+                throw new InvalidRequestException("Cannot change your password, your OldPassword may be incorrect");
 
             return true;
         }
@@ -64,6 +63,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 Code = request.Code,
             };
             user.Staff = staff;
+            user.Cart = new Cart();
             var res = await _userManager.CreateAsync(user, request.Password);
 
             if (res.Succeeded)
@@ -126,7 +126,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<UserDto> GetUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId)
-                ?? throw new NotFoundException("Cannot find this user");
+                ?? throw new InvalidRequestException("Unexpected userId");
             var userRoles = (await _userManager.GetRolesAsync(user)).ToList();
             var userDto = _mapper.Map<UserDto>(user);
             userDto.Roles = userRoles;
@@ -137,13 +137,13 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<bool> ToggleUserStatus(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId)
-                ?? throw new NotFoundException("Cannot find this user");
+                ?? throw new InvalidRequestException("Unexpected userId");
             user.Status = user.Status == 1 ? 0 : 1;
             user.UpdatedAt = _dateTimeService.Current;
             user.UpdatedBy = _currentUserService.UserId;
             var res = await _userManager.UpdateAsync(user);
             if (!res.Succeeded)
-                throw new Exception("Cannot toggle status of user");
+                throw new Exception("Cannot handle to toggle status of user, an error has occured");
 
             return true;
         }
@@ -151,7 +151,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<bool> UpdateStaff(UpdateStaffRequest request)
         {
             var staff = await _unitOfWork.Repository<Domain.Entities.Staff>().GetEntityWithSpec(new StaffSpecification(request.Id))
-                ?? throw new NotFoundException("Cannot find this staff");
+                ?? throw new InvalidRequestException("Unexpedted staffId");
 
             await UpdateProperty(request, staff.User);
             staff.Type = request.Type;
@@ -165,7 +165,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             _unitOfWork.Repository<Domain.Entities.Staff>().Update(staff);
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
-                throw new Exception("Cannot update staff information");
+                throw new Exception("Cannot handle to update staff, an error has occured");
 
             return true;
         }
@@ -189,14 +189,14 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<bool> UpdateUser(UpdateUserRequest request)
         {
             var user = await _userManager.FindByIdAsync(request.UserId)
-                ?? throw new NotFoundException("Cannot find this user");
+                ?? throw new NotFoundException("Cannot find current user");
             await UpdateProperty(request, user);
 
             user.UpdatedAt = _dateTimeService.Current;
             user.UpdatedBy = _currentUserService.UserId;
             var res = await _userManager.UpdateAsync(user);
             if (!res.Succeeded)
-                throw new ValidationException("Cannot update of user");
+                throw new Exception("Cannot handle to update of user, an error has occured");
 
             return true;
         }
@@ -204,7 +204,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<StaffDto> GetStaff(long staffId)
         {
             var staff = await _unitOfWork.Repository<Domain.Entities.Staff>().GetEntityWithSpec(new StaffSpecification(staffId))
-                ?? throw new NotFoundException("Cannot find this staff");
+                ?? throw new InvalidRequestException("Unexpected staffId");
 
             var staffRoles = (await _userManager.GetRolesAsync(staff.User)).ToList();
             var staffDto = _mapper.Map<StaffDto>(staff);
@@ -218,13 +218,13 @@ namespace green_craze_be_v1.Infrastructure.Services
             foreach (var userId in userIds)
             {
                 var user = await _userManager.FindByIdAsync(userId)
-                    ?? throw new NotFoundException("Cannot find this user");
+                    ?? throw new InvalidRequestException("Unexpected userId");
                 user.Status = 0;
                 user.UpdatedAt = _dateTimeService.Current;
                 user.UpdatedBy = _currentUserService.UserId;
                 var res = await _userManager.UpdateAsync(user);
                 if (!res.Succeeded)
-                    throw new Exception("Cannot toggle status of user");
+                    throw new Exception("Cannot handle to toggle status of user, an error has occured");
             }
 
             return true;

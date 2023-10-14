@@ -13,5 +13,12 @@ namespace green_craze_be_v1.Infrastructure.Services
         {
             _httpContextAccessor = httpContextAccessor;
         }
+
+        public bool IsInRole(string role)
+        {
+            var userRoles = _httpContextAccessor.HttpContext?.User.FindAll(ClaimTypes.Role);
+
+            return userRoles.FirstOrDefault(x => x.Value == role) != null;
+        }
     }
 }

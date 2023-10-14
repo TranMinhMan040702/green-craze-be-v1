@@ -3,5 +3,7 @@
     public interface ICurrentUserService
     {
         public string UserId { get; }
+
+        bool IsInRole(string role);
     }
 }

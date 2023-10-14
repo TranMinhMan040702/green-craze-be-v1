@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Common.Extensions
 {
-    public static class Extension
+    public static class StringUtil
     {
         public static string RemoveAccents(this string text)
         {
@@ -34,6 +34,13 @@ namespace green_craze_be_v1.Application.Common.Extensions
             output = Regex.Replace(output, @"\s", "-");
 
             return output;
+        }
+
+        public static string GenerateUniqueCode()
+        {
+            var guid = Guid.NewGuid().ToString();
+
+            return guid.Replace("-", String.Empty).ToUpper();
         }
     }
 }

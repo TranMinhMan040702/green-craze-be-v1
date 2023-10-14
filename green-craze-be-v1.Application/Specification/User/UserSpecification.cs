@@ -65,5 +65,11 @@ namespace green_craze_be_v1.Application.Specification.User
             int take = request.PageSize;
             ApplyPaging(take, skip);
         }
+
+        public UserSpecification(string userId) : base(x => x.Id == userId)
+        {
+            AddInclude(x => x.Addresses);
+            AddInclude(x => x.Cart);
+        }
     }
 }
