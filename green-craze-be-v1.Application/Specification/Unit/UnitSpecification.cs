@@ -10,21 +10,17 @@ namespace green_craze_be_v1.Application.Specification.Unit
 
             if (!string.IsNullOrEmpty(keyword))
             {
-                Criteria = x => x.Name == keyword;
+                Criteria = x => x.Name.ToLower().Contains(keyword);
             }
             if (query.IsSortAccending)
             {
-                if (query.ColumnName == nameof(Domain.Entities.Unit.Name))
+                if (query.ColumnName == nameof(Domain.Entities.Unit.Name).ToLower())
                 {
                     AddOrderBy(x => x.Name);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.Unit.CreatedAt))
+                else if (query.ColumnName == nameof(Domain.Entities.Unit.Status).ToLower())
                 {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (query.ColumnName == nameof(Domain.Entities.Unit.UpdatedAt))
-                {
-                    AddOrderBy(x => x.UpdatedAt);
+                    AddOrderBy(x => x.Status);
                 }
                 else
                 {
@@ -33,17 +29,13 @@ namespace green_craze_be_v1.Application.Specification.Unit
             }
             else
             {
-                if (query.ColumnName == nameof(Domain.Entities.Unit.Name))
+                if (query.ColumnName == nameof(Domain.Entities.Unit.Name).ToLower())
                 {
                     AddOrderByDescending(x => x.Name);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.Unit.CreatedAt))
+                else if (query.ColumnName == nameof(Domain.Entities.Unit.Status).ToLower())
                 {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (query.ColumnName == nameof(Domain.Entities.Unit.UpdatedAt))
-                {
-                    AddOrderByDescending(x => x.UpdatedAt);
+                    AddOrderByDescending(x => x.Status);
                 }
                 else
                 {
