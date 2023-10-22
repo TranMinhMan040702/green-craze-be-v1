@@ -21,20 +21,24 @@ namespace green_craze_be_v1.Application.Specification.User
                 Criteria = x => x.Staff == null;
             }
             AddInclude(x => x.Staff);
-            var columnName = request.ColumnName;
+            var columnName = request.ColumnName.ToLower();
             if (request.IsSortAccending)
             {
-                if (columnName == nameof(Domain.Entities.AppUser.Email))
+                if (columnName == nameof(Domain.Entities.AppUser.Email).ToLower())
                 {
                     AddOrderBy(x => x.Email);
                 }
-                else if (columnName == nameof(Domain.Entities.AppUser.CreatedAt))
+                else if (columnName == nameof(Domain.Entities.AppUser.CreatedAt).ToLower())
                 {
                     AddOrderBy(x => x.CreatedAt);
                 }
-                else if (columnName == nameof(Domain.Entities.AppUser.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.AppUser.FirstName).ToLower())
                 {
-                    AddOrderBy(x => x.UpdatedAt);
+                    AddOrderBy(x => x.FirstName);
+                }
+                else if (columnName == nameof(Domain.Entities.AppUser.LastName).ToLower())
+                {
+                    AddOrderBy(x => x.LastName);
                 }
                 else
                 {
@@ -43,17 +47,21 @@ namespace green_craze_be_v1.Application.Specification.User
             }
             else
             {
-                if (columnName == nameof(Domain.Entities.AppUser.Email))
+                if (columnName == nameof(Domain.Entities.AppUser.Email).ToLower())
                 {
                     AddOrderByDescending(x => x.Email);
                 }
-                else if (columnName == nameof(Domain.Entities.AppUser.CreatedAt))
+                else if (columnName == nameof(Domain.Entities.AppUser.CreatedAt).ToLower())
                 {
                     AddOrderByDescending(x => x.CreatedAt);
                 }
-                else if (columnName == nameof(Domain.Entities.AppUser.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.AppUser.FirstName).ToLower())
                 {
-                    AddOrderByDescending(x => x.UpdatedAt);
+                    AddOrderByDescending(x => x.FirstName);
+                }
+                else if (columnName == nameof(Domain.Entities.AppUser.LastName).ToLower())
+                {
+                    AddOrderByDescending(x => x.LastName);
                 }
                 else
                 {

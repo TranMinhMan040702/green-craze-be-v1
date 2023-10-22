@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using green_craze_be_v1.Application.Model.Address;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +17,8 @@ namespace green_craze_be_v1.Application.Model.User
         public string LastName { get; set; }
         public DateTime Dob { get; set; }
         public string Gender { get; set; }
-        public IFormFile Avatar { get; set; }
         public string Type { get; set; }
-        public string Code { get; set; }
         public int Status { get; set; }
+        public CreateAddressRequest Address { get; set; }
     }
 }

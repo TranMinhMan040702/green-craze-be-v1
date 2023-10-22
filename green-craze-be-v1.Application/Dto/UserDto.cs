@@ -12,11 +12,12 @@ namespace green_craze_be_v1.Application.Dto
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
-        public DateTime Dob { get; set; }
+        public DateTime? Dob { get; set; }
         public string Gender { get; set; }
         public string Avatar { get; set; }
         public int Status { get; set; }
 
         public List<string> Roles { get; set; } = new List<string>();
+        public List<AddressDto> Addresses { get; set; }
     }
 }

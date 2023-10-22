@@ -17,44 +17,45 @@ namespace green_craze_be_v1.Application.Specification.OrderCancellationReason
             if (!string.IsNullOrEmpty(keyword))
             {
                 Criteria = x => x.Name.ToLower().Contains(keyword)
-                || x.Note.ToString().Contains(keyword);
+                || x.Note.ToLower().Contains(keyword);
             }
+            var columnName = request.ColumnName.ToLower();
             if (request.IsSortAccending)
             {
-                if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.Name))
+                if (columnName == nameof(Domain.Entities.OrderCancellationReason.Name).ToLower())
                 {
                     AddOrderBy(x => x.Name);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.Id))
+                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.CreatedAt).ToLower())
                 {
-                    AddOrderBy(x => x.Id);
+                    AddOrderBy(x => x.CreatedAt);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.Status).ToLower())
                 {
-                    AddOrderBy(x => x.UpdatedAt);
+                    AddOrderBy(x => x.Status);
                 }
                 else
                 {
-                    AddOrderBy(x => x.CreatedAt);
+                    AddOrderBy(x => x.Id);
                 }
             }
             else
             {
-                if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.Name))
+                if (columnName == nameof(Domain.Entities.OrderCancellationReason.Name).ToLower())
                 {
                     AddOrderByDescending(x => x.Name);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.Id))
+                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.CreatedAt).ToLower())
                 {
-                    AddOrderByDescending(x => x.Id);
+                    AddOrderByDescending(x => x.CreatedAt);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.OrderCancellationReason.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.Status).ToLower())
                 {
-                    AddOrderByDescending(x => x.UpdatedAt);
+                    AddOrderByDescending(x => x.Status);
                 }
                 else
                 {
-                    AddOrderByDescending(x => x.CreatedAt);
+                    AddOrderByDescending(x => x.Id);
                 }
             }
             if (!isPaging) return;

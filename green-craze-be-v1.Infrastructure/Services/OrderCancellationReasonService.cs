@@ -23,6 +23,11 @@ namespace green_craze_be_v1.Infrastructure.Services
         {
             var orderCancellationReason = _mapper.Map<OrderCancellationReason>(request);
             orderCancellationReason.Status = true;
+            if(orderCancellationReason.Note == null)
+            {
+                orderCancellationReason.Note = string.Empty;
+            }
+
             await _unitOfWork.Repository<OrderCancellationReason>().Insert(orderCancellationReason);
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)

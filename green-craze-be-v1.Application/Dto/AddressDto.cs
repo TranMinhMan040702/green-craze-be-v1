@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Dto
 {
-    public class AddressDto
+    public class AddressDto : BaseAuditableDto<long>
     {
         public string Receiver { get; set; }
         public string Phone { get; set; }
