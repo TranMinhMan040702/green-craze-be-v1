@@ -86,6 +86,7 @@ namespace green_craze_be_v1.Infrastructure
                 .AddScoped<ISaleService, SaleService>()
                 .AddScoped<IAddressService, AddressService>()
                 .AddScoped<IUnitService, UnitService>()
+                .AddScoped<ITransactionService, TransactionService>()
                 .AddScoped<IRoleService, RoleService>();
         }
     }
