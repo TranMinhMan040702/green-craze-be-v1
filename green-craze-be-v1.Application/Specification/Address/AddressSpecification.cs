@@ -13,6 +13,9 @@ namespace green_craze_be_v1.Application.Specification.Address
         public AddressSpecification(string userId) : base(x => x.User.Id == userId)
         {
             AddInclude(x => x.User);
+            AddInclude(x => x.Province);
+            AddInclude(x => x.District);
+            AddInclude(x => x.Ward);
         }
 
         public AddressSpecification(GetAddressPagingRequest request, bool isPaging = false)
@@ -43,6 +46,9 @@ namespace green_craze_be_v1.Application.Specification.Address
             : base(x => x.User.Id == userId && x.IsDefault == isDefault)
         {
             AddInclude(x => x.User);
+            AddInclude(x => x.Province);
+            AddInclude(x => x.District);
+            AddInclude(x => x.Ward);
         }
     }
 }

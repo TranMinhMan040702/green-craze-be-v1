@@ -14,5 +14,6 @@ namespace green_craze_be_v1.Application.Dto
         public decimal TotalPay { get; set; }
         public string PaypalOrderId { get; set; }
         public string PaypalOrderStatus { get; set; }
+        public string OrderCode { get; set; }
     }
 }

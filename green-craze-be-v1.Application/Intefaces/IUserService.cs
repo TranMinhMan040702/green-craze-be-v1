@@ -27,7 +27,11 @@ namespace green_craze_be_v1.Application.Intefaces
 
         Task<bool> ToggleUserStatus(string userId);
 
+        Task<bool> ToggleStaffStatus(long staffId);
+
         Task<bool> DisableListUserStatus(List<string> userIds);
+
+        Task<bool> DisableListStaffStatus(List<long> staffIds);
 
         Task<bool> ChangePassword(ChangePasswordRequest request);
     }

@@ -12,7 +12,6 @@ namespace green_craze_be_v1.Application.Model.Address
         [JsonIgnore]
         public string UserId { get; set; }
 
-        [JsonIgnore]
         public long Id { get; set; }
 
         public string Receiver { get; set; }

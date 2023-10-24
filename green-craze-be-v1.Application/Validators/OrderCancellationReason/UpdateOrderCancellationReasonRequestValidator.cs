@@ -13,7 +13,7 @@ namespace green_craze_be_v1.Application.Validators.OrderCancellationReason
         public UpdateOrderCancellationReasonRequestValidator()
         {
             RuleFor(x => x.Name).NotEmpty().NotNull();
-            RuleFor(x => x.Status).NotEmpty().NotNull();
+            RuleFor(x => x.Status).NotNull();
         }
     }
 }

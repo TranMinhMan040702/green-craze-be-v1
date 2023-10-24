@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using green_craze_be_v1.Application.Common.Enums;
 using green_craze_be_v1.Application.Common.Exceptions;
+using green_craze_be_v1.Application.Common.Extensions;
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.User;
+using green_craze_be_v1.Application.Specification.Address;
 using green_craze_be_v1.Application.Specification.User;
 using green_craze_be_v1.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -17,11 +19,13 @@ namespace green_craze_be_v1.Infrastructure.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IUploadService _uploadService;
+        private readonly IAddressService _addressService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDateTimeService _dateTimeService;
         private readonly ICurrentUserService _currentUserService;
 
-        public UserService(UserManager<AppUser> userManager, IMapper mapper, IUploadService uploadService, IUnitOfWork unitOfWork, IDateTimeService dateTimeService, ICurrentUserService currentUserService)
+        public UserService(UserManager<AppUser> userManager, IMapper mapper, IUploadService uploadService,
+            IUnitOfWork unitOfWork, IDateTimeService dateTimeService, ICurrentUserService currentUserService, IAddressService addressService)
         {
             _userManager = userManager;
             _mapper = mapper;
@@ -29,6 +33,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             _unitOfWork = unitOfWork;
             _dateTimeService = dateTimeService;
             _currentUserService = currentUserService;
+            _addressService = addressService;
         }
 
         public async Task<bool> ChangePassword(ChangePasswordRequest request)
@@ -52,15 +57,11 @@ namespace green_craze_be_v1.Infrastructure.Services
             user.UserName = Regex.Replace(request.Email, "[^A-Za-z0-9 -]", "");
             user.CreatedAt = _dateTimeService.Current;
             user.CreatedBy = _currentUserService.UserId;
-            if (request.Avatar != null)
-            {
-                var url = await _uploadService.UploadFile(request.Avatar);
-                user.Avatar = url;
-            }
+
             var staff = new Staff()
             {
-                Type = request.Type,
-                Code = request.Code,
+                Type = request.Type.ToUpper(),
+                Code = StringUtil.GenerateUniqueCode(),
             };
             user.Staff = staff;
             user.Cart = new Cart();
@@ -74,6 +75,11 @@ namespace green_craze_be_v1.Infrastructure.Services
                        USER_ROLE.USER
                     };
                 await _userManager.AddToRolesAsync(user, roles);
+
+                var address = request.Address;
+                address.UserId = user.Id;
+
+                await _addressService.CreateAddress(address);
 
                 return user.Id;
             }
@@ -125,11 +131,18 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<UserDto> GetUser(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId)
+            var user = await _unitOfWork.Repository<Domain.Entities.AppUser>().GetEntityWithSpec(new UserSpecification(userId))
                 ?? throw new InvalidRequestException("Unexpected userId");
             var userRoles = (await _userManager.GetRolesAsync(user)).ToList();
+            var userAddresss = await _unitOfWork.Repository<Address>().ListAsync(new AddressSpecification(userId));
+            var addressDtos = new List<AddressDto>();
+
+            userAddresss.ForEach(x => addressDtos.Add(_mapper.Map<AddressDto>(x)));
+
             var userDto = _mapper.Map<UserDto>(user);
+
             userDto.Roles = userRoles;
+            userDto.Addresses = new List<AddressDto>(addressDtos);
 
             return userDto;
         }
@@ -155,14 +168,18 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             await UpdateProperty(request, staff.User);
             staff.Type = request.Type;
-            staff.Code = request.Code;
+
             staff.UpdatedAt = _dateTimeService.Current;
             staff.UpdatedBy = _currentUserService.UserId;
             if (!string.IsNullOrEmpty(request.Password))
             {
                 staff.User.PasswordHash = _userManager.PasswordHasher.HashPassword(staff.User, request.Password);
             }
+            request.Address.UserId = staff.User.Id;
+            await _addressService.UpdateAddress(request.Address);
+
             _unitOfWork.Repository<Domain.Entities.Staff>().Update(staff);
+
             var isSuccess = await _unitOfWork.Save() > 0;
             if (!isSuccess)
                 throw new Exception("Cannot handle to update staff, an error has occured");
@@ -206,10 +223,11 @@ namespace green_craze_be_v1.Infrastructure.Services
             var staff = await _unitOfWork.Repository<Domain.Entities.Staff>().GetEntityWithSpec(new StaffSpecification(staffId))
                 ?? throw new InvalidRequestException("Unexpected staffId");
 
-            var staffRoles = (await _userManager.GetRolesAsync(staff.User)).ToList();
             var staffDto = _mapper.Map<StaffDto>(staff);
-            staffDto.User.Roles = staffRoles;
 
+            var user = await GetUser(staffDto.User.Id);
+
+            staffDto.User = user;
             return staffDto;
         }
 
@@ -226,6 +244,52 @@ namespace green_craze_be_v1.Infrastructure.Services
                 if (!res.Succeeded)
                     throw new Exception("Cannot handle to toggle status of user, an error has occured");
             }
+
+            return true;
+        }
+
+        public async Task<bool> ToggleStaffStatus(long staffId)
+        {
+            var staff = await _unitOfWork.Repository<Domain.Entities.Staff>().GetEntityWithSpec(new StaffSpecification(staffId))
+                ?? throw new InvalidRequestException("Unexpected staffId");
+
+            await ToggleUserStatus(staff.UserId);
+            staff.UpdatedAt = _dateTimeService.Current;
+            staff.UpdatedBy = _currentUserService.UserId;
+            _unitOfWork.Repository<Domain.Entities.Staff>().Update(staff);
+            var isSuccess = await _unitOfWork.Save() > 0;
+
+            if (!isSuccess)
+                throw new Exception("Cannot handle to toggle status of staff, an error has occured");
+
+            return true;
+        }
+
+        public async Task<bool> DisableListStaffStatus(List<long> staffIds)
+        {
+            List<string> userIds = new List<string>();
+            foreach (var staffId in staffIds)
+            {
+                var staff = await _unitOfWork.Repository<Domain.Entities.Staff>().GetEntityWithSpec(new StaffSpecification(staffId))
+                    ?? throw new InvalidRequestException("Unexpected staffId");
+                userIds.Add(staff.UserId);
+            }
+
+            await DisableListUserStatus(userIds);
+
+            foreach (var staffId in staffIds)
+            {
+                var staff = await _unitOfWork.Repository<Domain.Entities.Staff>().GetEntityWithSpec(new StaffSpecification(staffId))
+                    ?? throw new InvalidRequestException("Unexpected staffId");
+                staff.UpdatedAt = _dateTimeService.Current;
+                staff.UpdatedBy = _currentUserService.UserId;
+                _unitOfWork.Repository<Domain.Entities.Staff>().Update(staff);
+            }
+
+            var isSuccess = await _unitOfWork.Save() > 0;
+
+            if (!isSuccess)
+                throw new Exception("Cannot handle to toggle status of staff, an error has occured");
 
             return true;
         }

@@ -15,44 +15,53 @@ namespace green_craze_be_v1.Application.Specification.PaymentMethod
             if (!string.IsNullOrEmpty(keyword))
             {
                 Criteria = x => x.Name.ToLower().Contains(keyword)
-                || x.Code.ToString().Contains(keyword);
+                || x.Code.ToLower().Contains(keyword);
             }
+            var columnName = request.ColumnName.ToLower();
             if (request.IsSortAccending)
             {
-                if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.Name))
+                if (columnName == nameof(Domain.Entities.PaymentMethod.Name).ToLower())
                 {
                     AddOrderBy(x => x.Name);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.Id))
+                else if (columnName == nameof(Domain.Entities.PaymentMethod.Code).ToLower())
                 {
-                    AddOrderBy(x => x.Id);
+                    AddOrderBy(x => x.Code);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.PaymentMethod.CreatedAt).ToLower())
                 {
-                    AddOrderBy(x => x.UpdatedAt);
+                    AddOrderBy(x => x.CreatedAt);
+                }
+                else if (columnName == nameof(Domain.Entities.PaymentMethod.Status).ToLower())
+                {
+                    AddOrderBy(x => x.Status);
                 }
                 else
                 {
-                    AddOrderBy(x => x.CreatedAt);
+                    AddOrderBy(x => x.Id);
                 }
             }
             else
             {
-                if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.Name))
+                if (columnName == nameof(Domain.Entities.PaymentMethod.Name).ToLower())
                 {
                     AddOrderByDescending(x => x.Name);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.Id))
+                else if (columnName == nameof(Domain.Entities.PaymentMethod.Code).ToLower())
                 {
-                    AddOrderByDescending(x => x.Id);
+                    AddOrderByDescending(x => x.Code);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.PaymentMethod.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.PaymentMethod.CreatedAt).ToLower())
                 {
-                    AddOrderByDescending(x => x.UpdatedAt);
+                    AddOrderByDescending(x => x.CreatedAt);
+                }
+                else if (columnName == nameof(Domain.Entities.PaymentMethod.Status).ToLower())
+                {
+                    AddOrderByDescending(x => x.Status);
                 }
                 else
                 {
-                    AddOrderByDescending(x => x.CreatedAt);
+                    AddOrderByDescending(x => x.Id);
                 }
             }
             if (!isPaging) return;

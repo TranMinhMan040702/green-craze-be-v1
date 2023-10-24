@@ -21,6 +21,8 @@ namespace green_craze_be_v1.Application.Common.Mapper
     {
         public MapperProfile()
         {
+            CreateMap<AppRole, RoleDto>();
+
             CreateMap<AppUser, UserDto>().ForMember(des => des.Phone, act => act.MapFrom(x => x.PhoneNumber));
             CreateMap<Staff, StaffDto>();
             CreateMap<UpdateUserRequest, AppUser>().ForMember(des => des.PhoneNumber, act => act.MapFrom(x => x.Phone));

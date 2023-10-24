@@ -18,42 +18,59 @@ namespace green_craze_be_v1.Application.Specification.Delivery
                 Criteria = x => x.Name.ToLower().Contains(keyword)
                 || x.Price.ToString().Contains(keyword);
             }
+            var columnName = request.ColumnName.ToLower();
             if (request.IsSortAccending)
             {
-                if (request.ColumnName == nameof(Domain.Entities.Delivery.Name))
+                if (columnName == nameof(Domain.Entities.Delivery.Name).ToLower())
                 {
                     AddOrderBy(x => x.Name);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Delivery.Id))
+                else if (columnName == nameof(Domain.Entities.Delivery.Id).ToLower())
                 {
                     AddOrderBy(x => x.Id);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Delivery.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.Delivery.Price).ToLower())
                 {
-                    AddOrderBy(x => x.UpdatedAt);
+                    AddOrderBy(x => x.Price);
+                }
+                else if (columnName == nameof(Domain.Entities.Delivery.Status).ToLower())
+                {
+                    AddOrderBy(x => x.Status);
+                }
+                else if (columnName == nameof(Domain.Entities.Delivery.CreatedAt).ToLower())
+                {
+                    AddOrderBy(x => x.CreatedAt);
                 }
                 else
                 {
-                    AddOrderBy(x => x.CreatedAt);
+                    AddOrderBy(x => x.Id);
                 }
             }
             else
             {
-                if (request.ColumnName == nameof(Domain.Entities.Delivery.Name))
+                if (columnName == nameof(Domain.Entities.Delivery.Name).ToLower())
                 {
                     AddOrderByDescending(x => x.Name);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Delivery.Id))
+                else if (columnName == nameof(Domain.Entities.Delivery.Id).ToLower())
                 {
                     AddOrderByDescending(x => x.Id);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Delivery.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.Delivery.Price).ToLower())
                 {
-                    AddOrderByDescending(x => x.UpdatedAt);
+                    AddOrderByDescending(x => x.Price);
+                }
+                else if (columnName == nameof(Domain.Entities.Delivery.Status).ToLower())
+                {
+                    AddOrderByDescending(x => x.Status);
+                }
+                else if (columnName == nameof(Domain.Entities.Delivery.CreatedAt).ToLower())
+                {
+                    AddOrderByDescending(x => x.CreatedAt);
                 }
                 else
                 {
-                    AddOrderByDescending(x => x.CreatedAt);
+                    AddOrderByDescending(x => x.Id);
                 }
             }
             if (!isPaging) return;

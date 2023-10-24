@@ -31,7 +31,7 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(new APIResponse<bool>(res, StatusCodes.Status200OK));
         }
 
-        [HttpPut("toggle/{userId}")]
+        [HttpDelete("{userId}")]
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> ToggleUserStatus([FromRoute] string userId)
         {
@@ -40,11 +40,11 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(new APIResponse<bool>(res, StatusCodes.Status200OK));
         }
 
-        [HttpPut("disable-list")]
+        [HttpDelete]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> DisableListUsersStatus([FromQuery] List<string> userIds)
+        public async Task<IActionResult> DisableListUsersStatus([FromQuery] List<string> ids)
         {
-            var res = await _userService.DisableListUserStatus(userIds);
+            var res = await _userService.DisableListUserStatus(ids);
 
             return Ok(new APIResponse<bool>(res, StatusCodes.Status200OK));
         }
