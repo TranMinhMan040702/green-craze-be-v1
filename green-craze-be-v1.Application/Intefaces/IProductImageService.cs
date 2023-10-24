@@ -12,8 +12,10 @@ namespace green_craze_be_v1.Application.Intefaces
     public interface IProductImageService
     {
         Task<List<ProductImageDto>> GetListProductImage(long productId);
-        Task CreateProductImage(List<IFormFile> images, long productId);
-        Task<bool> UpdateProductImage(IFormFile image, long id);
+        Task<ProductImageDto> GetProductImage(long id);
+        Task<long> CreateProductImage(CreateProductImageRequest request);
+        Task<bool> UpdateProductImage(long id, UpdateProductImageRequest request);
+        Task<bool> SetDefaultProductImage(long id, long productId);
         Task<bool> DeleteListProductImage(List<long> ids);
         Task<bool> DeleteProductImage(long id);
     }

@@ -19,7 +19,6 @@ namespace green_craze_be_v1.Application.Validators.Product
             RuleFor(x => x.ShortDescription).NotEmpty().NotNull();
             RuleFor(x => x.Description).NotEmpty().NotNull();
             RuleFor(x => x.Code).NotEmpty().NotNull();
-            RuleFor(x => x.Quantity).NotEmpty().NotNull();
             RuleFor(x => x.Slug).NotEmpty().NotNull();
             RuleFor(x => x.ProductImages).NotEmpty().NotNull();
         }

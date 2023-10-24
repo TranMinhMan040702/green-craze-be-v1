@@ -6,10 +6,12 @@ using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.Product;
 using green_craze_be_v1.Application.Model.ProductCategory;
+using green_craze_be_v1.Application.Model.Variant;
 using green_craze_be_v1.Application.Specification.Product;
 using green_craze_be_v1.Application.Specification.Unit;
 using green_craze_be_v1.Domain.Entities;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.Ocsp;
 using Org.BouncyCastle.Crypto;
 using System;
@@ -56,8 +58,10 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<ProductDto> GetProduct(long id)
         {
-            var spec = new ProductSpecification();
-            var product = await _unitOfWork.Repository<Product>().GetEntityWithSpec(spec);
+            var spec = new ProductSpecification(id);
+            var product = await _unitOfWork.Repository<Product>().GetEntityWithSpec(spec)
+                ?? throw new NotFoundException("Cannot find current product");
+
             var productDto = _mapper.Map<ProductDto>(product);
 
             return productDto;
@@ -66,14 +70,25 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<long> CreateProduct(CreateProductRequest request)
         {
             var product = _mapper.Map<Product>(request);
-            product.Category = await _unitOfWork.Repository<ProductCategory>().GetById(request.CategoryId);
-            product.Brand = await _unitOfWork.Repository<Brand>().GetById(request.BrandId);
-            product.Unit = await _unitOfWork.Repository<Unit>().GetById(request.UnitId);
+            product.Category = await _unitOfWork.Repository<ProductCategory>().GetById(request.CategoryId)
+                ?? throw new NotFoundException("Cannot find current product category");
+
+            product.Brand = await _unitOfWork.Repository<Brand>().GetById(request.BrandId)
+                ?? throw new NotFoundException("Cannot find current brand");
+
+            product.Unit = await _unitOfWork.Repository<Unit>().GetById(request.UnitId) 
+                ?? throw new NotFoundException("Cannot find current unit");
+
+            product.Quantity = 0;
+            product.Sold = 0;
+            product.Rating = 5;
+
             if (request.SaleId != null)
             {
-                product.Sale = await _unitOfWork.Repository<Sale>().GetById(request.SaleId);
+                product.Sale = await _unitOfWork.Repository<Sale>().GetById(request.SaleId) 
+                    ?? throw new NotFoundException("Cannot find current sale");
             }
-            product.Status = PRODUCT_STATUS.ACTIVE;
+            product.Status = PRODUCT_STATUS.INACTIVE;
             
             List<ProductImage> productImages = new();
             foreach (IFormFile image in request.ProductImages)
@@ -86,7 +101,18 @@ namespace green_craze_be_v1.Infrastructure.Services
                 };
                 productImages.Add(productImage);
             }
+            productImages[0].IsDefault = true;
             product.Images = productImages;
+
+            List<Variant> variants = new();
+            foreach (string v in request.Variants)
+            {
+                var variant = _mapper.Map<Variant>(JObject.Parse(v).ToObject<CreateVariantRequest>());
+                variant.Status = VARIANT_STATUS.ACTIVE;
+                variants.Add(variant);
+            }
+            product.Variants = variants;
+
             await _unitOfWork.Repository<Product>().Insert(product);
 
             var isSuccess = await _unitOfWork.Save() > 0;
@@ -94,21 +120,33 @@ namespace green_craze_be_v1.Infrastructure.Services
             {
                 throw new Exception("Cannot create entity");
             }
+
             return product.Id;
         }
 
         public async Task<bool> UpdateProduct(long id, UpdateProductRequest request)
         {
-            var product = await _unitOfWork.Repository<Product>().GetById(id);
+            var product = await _unitOfWork.Repository<Product>().GetById(id)
+                ?? throw new NotFoundException("Cannot find current product");
+
             product = _mapper.Map<UpdateProductRequest, Product>(request, product);
             product.Id = id;
-            product.Category = await _unitOfWork.Repository<ProductCategory>().GetById(request.CategoryId);
-            product.Brand = await _unitOfWork.Repository<Brand>().GetById(request.BrandId);
-            product.Unit = await _unitOfWork.Repository<Unit>().GetById(request.UnitId);
+
+            product.Category = await _unitOfWork.Repository<ProductCategory>().GetById(request.CategoryId) 
+                ?? throw new NotFoundException("Cannot find current product category");
+
+            product.Brand = await _unitOfWork.Repository<Brand>().GetById(request.BrandId) 
+                ?? throw new NotFoundException("Cannot find current product brand");
+
+            product.Unit = await _unitOfWork.Repository<Unit>().GetById(request.UnitId)
+                ?? throw new NotFoundException("Cannot find current unit");
+
             if (request.SaleId != null)
             {
-                product.Sale = await _unitOfWork.Repository<Sale>().GetById(request.SaleId);
+                product.Sale = await _unitOfWork.Repository<Sale>().GetById(request.SaleId) 
+                    ?? throw new NotFoundException("Cannot find current sale");
             }
+
             product.Status = product.Status switch
             {
                 PRODUCT_STATUS.ACTIVE => PRODUCT_STATUS.ACTIVE,
@@ -129,7 +167,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> DeleteProduct(long id)
         {
-            var product = await _unitOfWork.Repository<Product>().GetById(id);
+            var product = await _unitOfWork.Repository<Product>().GetById(id) 
+                ?? throw new NotFoundException("Cannot find current product");
+
             product.Status = PRODUCT_STATUS.INACTIVE;
             _unitOfWork.Repository<Product>().Update(product);
 
@@ -150,7 +190,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 foreach (var id in ids)
                 {
-                    var product = await _unitOfWork.Repository<Product>().GetById(id);
+                    var product = await _unitOfWork.Repository<Product>().GetById(id) 
+                        ?? throw new NotFoundException("Cannot find current product");
+
                     product.Status = PRODUCT_STATUS.INACTIVE;
                     _unitOfWork.Repository<Product>().Update(product);
                 }

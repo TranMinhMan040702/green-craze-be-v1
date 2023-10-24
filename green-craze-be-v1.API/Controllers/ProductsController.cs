@@ -16,11 +16,13 @@ namespace green_craze_be_v1.API.Controllers
     {
         private readonly IProductService _productService;
         private readonly IProductImageService _productImageService;
+        private readonly IVariantService _variantService;
 
-        public ProductsController(IProductImageService productImageService, IProductService productService)
+        public ProductsController(IProductImageService productImageService, IProductService productService, IVariantService variantService)
         {
             _productImageService = productImageService;
             _productService = productService;
+            _variantService = variantService;
         }
 
         [HttpGet]
@@ -74,33 +76,48 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
 
-        [HttpGet("{productId}/images")]
-        public async Task<IActionResult> GetListProductImage([FromRoute] long productId)
+        [HttpGet("images")]
+        public async Task<IActionResult> GetListProductImage([FromQuery] long productId)
         {
             var res = await _productImageService.GetListProductImage(productId);
 
             return Ok(APIResponse<List<ProductImageDto>>.Initialize(res, StatusCodes.Status200OK));
         }
 
-        [HttpPost("{productId}/images")]
-        public async Task<IActionResult> CreateProductImage
-            ([FromForm] List<IFormFile> images, [FromRoute] long productId)
+        [HttpGet("images/{id}")]
+        public async Task<IActionResult> GetProductImage([FromRoute] long id)
         {
-            await _productImageService.CreateProductImage(images, productId);
-            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/products/{productId}/images";
+            var res = await _productImageService.GetProductImage(id);
 
-            return Created(url, new APIResponse<object>(new { id = productId }, StatusCodes.Status201Created));
+            return Ok(APIResponse<ProductImageDto>.Initialize(res, StatusCodes.Status200OK));
         }
 
-        [HttpPut("{productId}/images/{id}")]
-        public async Task<IActionResult> UpdateProductImage([FromRoute] long id, [FromForm] IFormFile image)
+        [HttpPost("images")]
+        public async Task<IActionResult> CreateProductImage([FromForm] CreateProductImageRequest request)
         {
-            var res = await _productImageService.UpdateProductImage(image, id);
+            var resp = await _productImageService.CreateProductImage(request);
+            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/products/images";
+
+            return Created(url, new APIResponse<object>(new { id = resp }, StatusCodes.Status201Created));
+        }
+
+        [HttpPut("images/{id}")]
+        public async Task<IActionResult> UpdateProductImage([FromRoute] long id, [FromForm] UpdateProductImageRequest request)
+        {
+            var res = await _productImageService.UpdateProductImage(id, request);
 
             return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
 
-        [HttpDelete("{productId}/images/{id}")]
+        [HttpPatch("images/{id}")]
+        public async Task<IActionResult> SetDefaultProductImage([FromRoute] long id, [FromForm] long productId)
+        {
+            var res = await _productImageService.SetDefaultProductImage(id, productId);
+
+            return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
+        }
+
+        [HttpDelete("images/{id}")]
         public async Task<IActionResult> DeleteProductImage([FromRoute] long id)
         {
             var res = await _productImageService.DeleteProductImage(id);
@@ -108,7 +125,7 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
 
-        [HttpDelete("{productId}/images")]
+        [HttpDelete("images")]
         public async Task<IActionResult> DeleteListProductImage([FromQuery] List<long> ids)
         {
             var res = await _productImageService.DeleteListProductImage(ids);

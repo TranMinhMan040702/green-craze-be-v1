@@ -25,5 +25,8 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\green-craze-be-v1.Domain\green-craze-be-v1.Domain.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Common\Constant\" />
+	</ItemGroup>
 
 </Project>

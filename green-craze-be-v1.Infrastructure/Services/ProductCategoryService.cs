@@ -1,17 +1,11 @@
 ﻿using AutoMapper;
+using green_craze_be_v1.Application.Common.Exceptions;
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
-using green_craze_be_v1.Application.Model.Brand;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.ProductCategory;
-using green_craze_be_v1.Application.Specification.Brand;
 using green_craze_be_v1.Application.Specification.ProductCategory;
 using green_craze_be_v1.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Services
 {
@@ -26,6 +20,44 @@ namespace green_craze_be_v1.Infrastructure.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _uploadService = uploadService;
+        }
+
+        public async Task<PaginatedResult<ProductCategoryDto>> GetListProductCategory(GetProductCategoryPagingRequest request)
+        {
+            var spec = new ProductCategorySpecification(request, isPaging: true);
+            var countSpec = new ProductCategorySpecification(request);
+
+            var productCategories = await _unitOfWork.Repository<ProductCategory>().ListAsync(spec);
+            var count = await _unitOfWork.Repository<ProductCategory>().CountAsync(countSpec);
+            var productCategoryDtos = new List<ProductCategoryDto>();
+            productCategories.ForEach(async x =>
+            {
+                var productCategoryDto = _mapper.Map<ProductCategoryDto>(x);
+                if (x.ParentId != null)
+                {
+                    var parentCategory = await _unitOfWork.Repository<ProductCategory>().GetById(x.ParentId);
+                    productCategoryDto.ParentName = parentCategory.Name;
+                }
+                productCategoryDtos.Add(productCategoryDto);
+            });
+
+            return new PaginatedResult<ProductCategoryDto>(productCategoryDtos, request.PageIndex, count, request.PageSize);
+        }
+
+        public async Task<ProductCategoryDto> GetProductCategory(long id)
+        {
+            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id) 
+                ?? throw new NotFoundException("Cannot find current product category");
+
+            var productCategoryDto = _mapper.Map<ProductCategoryDto>(productCategory);
+            if (productCategory.ParentId != null)
+            {
+                var parentCategory = await _unitOfWork.Repository<ProductCategory>().GetById(productCategory.ParentId)
+                    ?? throw new NotFoundException("Cannot find current product category");
+
+                productCategoryDto.ParentName = parentCategory.Name;
+            }
+            return productCategoryDto;
         }
 
         public async Task<long> CreateProductCategory(CreateProductCategoryRequest request)
@@ -43,6 +75,45 @@ namespace green_craze_be_v1.Infrastructure.Services
             return productCategory.Id;
         }
 
+        public async Task<bool> UpdateProductCategory(long id, UpdateProductCategoryRequest request)
+        {
+            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id) 
+                ?? throw new NotFoundException("Cannot find current product category");
+
+            productCategory = _mapper.Map<UpdateProductCategoryRequest, ProductCategory>(request, productCategory);
+            productCategory.Id = id;
+
+            if (request.Image != null)
+            {
+                productCategory.Image = _uploadService.UploadFile(request.Image).Result;
+            }
+
+            _unitOfWork.Repository<ProductCategory>().Update(productCategory);
+            var isSuccess = await _unitOfWork.Save() > 0;
+            if (!isSuccess)
+            {
+                throw new Exception("Cannot update entity");
+            }
+
+            return isSuccess;
+        }
+
+        public async Task<bool> DeleteProductCategory(long id)
+        {
+            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id) 
+                ?? throw new NotFoundException("Cannot find current product category");
+
+            productCategory.Status = false;
+            _unitOfWork.Repository<ProductCategory>().Update(productCategory);
+            var isSuccess = await _unitOfWork.Save() > 0;
+            if (!isSuccess)
+            {
+                throw new Exception("Cannot update status of entity");
+            }
+
+            return isSuccess;
+        }
+
         public async Task<bool> DeleteListProductCategory(List<long> ids)
         {
             try
@@ -51,7 +122,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 foreach (var id in ids)
                 {
-                    var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id);
+                    var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id) 
+                        ?? throw new NotFoundException("Cannot find current product category");
+
                     productCategory.Status = false;
                     _unitOfWork.Repository<ProductCategory>().Update(productCategory);
                 }
@@ -65,62 +138,11 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 return isSuccess;
             }
-            catch (Exception ex)
+            catch
             {
                 await _unitOfWork.Rollback();
-                throw ex;
+                throw;
             }
-        }
-
-        public async Task<bool> DeleteProductCategory(long id)
-        {
-            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id);
-            productCategory.Status = false;
-            _unitOfWork.Repository<ProductCategory>().Update(productCategory);
-            var isSuccess = await _unitOfWork.Save() > 0;
-            if (!isSuccess)
-            {
-                throw new Exception("Cannot update status of entity");
-            }
-
-            return isSuccess;
-        }
-
-        public async Task<PaginatedResult<ProductCategoryDto>> GetListProductCategory(GetProductCategoryPagingRequest request)
-        {
-            var spec = new ProductCategorySpecification(request, isPaging: true);
-            var countSpec = new ProductCategorySpecification(request);
-
-            var productCategories = await _unitOfWork.Repository<ProductCategory>().ListAsync(spec);
-            var count = await _unitOfWork.Repository<ProductCategory>().CountAsync(countSpec);
-            var productCategoryDtos = new List<ProductCategoryDto>();
-            productCategories.ForEach(x => productCategoryDtos.Add(_mapper.Map<ProductCategoryDto>(x)));
-
-            return new PaginatedResult<ProductCategoryDto>(productCategoryDtos, request.PageIndex, count, request.PageSize);
-        }
-
-        public async Task<ProductCategoryDto> GetProductCategory(long id)
-        {
-            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id);
-
-            return _mapper.Map<ProductCategoryDto>(productCategory);
-        }
-
-        public async Task<bool> UpdateProductCategory(long id, UpdateProductCategoryRequest request)
-        {
-            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id);
-            productCategory = _mapper.Map<UpdateProductCategoryRequest, ProductCategory>(request, productCategory);
-            productCategory.Id = id;
-            productCategory.Image = _uploadService.UploadFile(request.Image).Result;
-
-            _unitOfWork.Repository<ProductCategory>().Update(productCategory);
-            var isSuccess = await _unitOfWork.Save() > 0;
-            if (!isSuccess)
-            {
-                throw new Exception("Cannot update entity");
-            }
-
-            return isSuccess;
         }
     }
 }

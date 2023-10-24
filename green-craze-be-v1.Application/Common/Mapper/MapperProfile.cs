@@ -59,22 +59,23 @@ namespace green_craze_be_v1.Application.Common.Mapper
             // Brand
             CreateMap<Brand, BrandDto>();
             CreateMap<CreateBrandRequest, Brand>();
-            CreateMap<UpdateBrandRequest, Brand>();
+            CreateMap<UpdateBrandRequest, Brand>().ForMember(dest => dest.Image, act => act.Ignore());
             // ProductCategory
             CreateMap<ProductCategory, ProductCategoryDto>();
             CreateMap<CreateProductCategoryRequest, ProductCategory>();
-            CreateMap<UpdateProductCategoryRequest, ProductCategory>();
+            CreateMap<UpdateProductCategoryRequest, ProductCategory>().ForMember(dest => dest.Image, act => act.Ignore());
             // Product
             CreateMap<Product, ProductDto>();
-            CreateMap<CreateProductRequest, Product>();
+            CreateMap<CreateProductRequest, Product>().ForMember(dest => dest.Variants, act => act.Ignore());
             CreateMap<UpdateProductRequest, Product>();
             // Product Image
             CreateMap<ProductImage, ProductImageDto>();
             CreateMap<ProductImageDto, ProductImage>();
-            // Product
+            // Variant
             CreateMap<Variant, VariantDto>();
             CreateMap<CreateVariantRequest, Variant>();
             CreateMap<UpdateVariantRequest, Variant>();
+            CreateMap<string, Variant>().ConstructUsing(str => new Variant { });
             // Sale
             CreateMap<Sale, SaleDto>();
             CreateMap<CreateSaleRequest, Sale>();

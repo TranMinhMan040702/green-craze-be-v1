@@ -1,4 +1,5 @@
 ﻿using green_craze_be_v1.Application.Dto;
+using green_craze_be_v1.Application.Model.Variant;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -18,9 +19,9 @@ namespace green_craze_be_v1.Application.Model.Product
         public string ShortDescription { get; set; }
         public string Description { get; set; }
         public string Code { get; set; }
-        public int Quantity { get; set; }
-        public List<IFormFile> ProductImages { get; set; }
         public string Slug { get; set; }
         public decimal Cost { get; set; }
+        public List<IFormFile> ProductImages { get; set; }
+        public List<string> Variants { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using green_craze_be_v1.Application.Common.Exceptions;
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Brand;
@@ -37,7 +38,8 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<BrandDto> GetBrand(long id)
         {
-            var brand = await _unitOfWork.Repository<Brand>().GetById(id);
+            var brand = await _unitOfWork.Repository<Brand>().GetById(id)
+                 ?? throw new NotFoundException("Cannot find current brand");
 
             return _mapper.Map<BrandDto>(brand);
         }
@@ -59,10 +61,14 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> UpdateBrand(long id, UpdateBrandRequest request)
         {
-            var brand = await _unitOfWork.Repository<Brand>().GetById(id);
+            var brand = await _unitOfWork.Repository<Brand>().GetById(id)
+                ?? throw new NotFoundException("Cannot find current brand");
+
             brand = _mapper.Map<UpdateBrandRequest, Brand>(request, brand);
             brand.Id = id;
-            brand.Image = _uploadService.UploadFile(request.Image).Result;
+            if (request.Image != null) {
+                brand.Image = _uploadService.UploadFile(request.Image).Result;
+            }
 
             _unitOfWork.Repository<Brand>().Update(brand);
             var isSuccess = await _unitOfWork.Save() > 0;
@@ -76,7 +82,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> DeleteBrand(long id)
         {
-            var brand = await _unitOfWork.Repository<Brand>().GetById(id);
+            var brand = await _unitOfWork.Repository<Brand>().GetById(id)
+                ?? throw new NotFoundException("Cannot find current brand");
+
             brand.Status = false;
             _unitOfWork.Repository<Brand>().Update(brand);
             var isSuccess = await _unitOfWork.Save() > 0;
@@ -96,7 +104,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 foreach (var id in ids)
                 {
-                    var brand = await _unitOfWork.Repository<Brand>().GetById(id);
+                    var brand = await _unitOfWork.Repository<Brand>().GetById(id) 
+                        ?? throw new NotFoundException("Cannot find current brand");
+
                     brand.Status = false;
                     _unitOfWork.Repository<Brand>().Update(brand);
                 }

@@ -9,12 +9,10 @@ namespace green_craze_be_v1.Application.Model.Variant
     public class UpdateVariantRequest
     {
         public string Name { get; set; }
-        public long ProductId { get; set; }
         public string Sku { get; set; }
         public int Quantity { get; set; }
         public decimal ItemPrice { get; set; }
         public decimal TotalPrice { get; set; }
-        public decimal? PromotionalItemPrice { get; set; }
         public string Status { get; set; }
     }
 }

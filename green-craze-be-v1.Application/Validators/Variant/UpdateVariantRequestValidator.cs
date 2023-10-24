@@ -14,7 +14,6 @@ namespace green_craze_be_v1.Application.Validators.Variant
         public UpdateVariantRequestValidator()
         {
             RuleFor(x => x.Name).NotEmpty().NotNull();
-            RuleFor(x => x.ProductId).NotEmpty().NotNull();
             RuleFor(x => x.Sku).NotEmpty().NotNull();
             RuleFor(x => x.Quantity).NotEmpty().NotNull();
             RuleFor(x => x.ItemPrice).NotEmpty().NotNull();

@@ -17,6 +17,8 @@ namespace green_craze_be_v1.Application.Intefaces
 
         Task<VariantDto> GetVariant(long id);
 
+        Task<List<VariantDto>> GetListVariantByProductId(long productId);
+
         Task<long> CreateVariant(CreateVariantRequest request);
 
         Task<bool> UpdateVariant(long id, UpdateVariantRequest request);

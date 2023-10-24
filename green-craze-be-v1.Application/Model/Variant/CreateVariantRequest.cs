@@ -9,7 +9,7 @@ namespace green_craze_be_v1.Application.Model.Variant
     public class CreateVariantRequest
     {
         public string Name { get; set; }
-        public long ProductId { get; set; }
+        public long? ProductId { get; set; }
         public string Sku { get; set; }
         public int Quantity { get; set; }
         public decimal ItemPrice { get; set; }

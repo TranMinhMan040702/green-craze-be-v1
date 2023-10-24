@@ -12,5 +12,6 @@ namespace green_craze_be_v1.Application.Dto
         public long ProductId { get; set; }
         public double Size { get; set; }
         public string ContentType { get; set; }
+        public bool IsDefault { get; set; }
     }
 }

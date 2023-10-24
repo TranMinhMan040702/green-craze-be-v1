@@ -9,6 +9,7 @@ namespace green_craze_be_v1.Application.Model.ProductImage
 {
     public class CreateProductImageRequest
     {
-        public List<IFormFile> Images {  get; set; }
+        public IFormFile Image {  get; set; }
+        public long ProductId { get; set; }
     }
 }

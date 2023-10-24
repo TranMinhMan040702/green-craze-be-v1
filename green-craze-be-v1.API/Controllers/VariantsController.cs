@@ -22,12 +22,20 @@ namespace green_craze_be_v1.API.Controllers
             _variantService = variantService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetListVariant([FromQuery] GetVariantPagingRequest request)
-        {
-            var res = await _variantService.GetListVariant(request);
+        //[HttpGet]
+        //public async Task<IActionResult> GetListVariant([FromQuery] GetVariantPagingRequest request)
+        //{
+        //    var res = await _variantService.GetListVariant(request);
 
-            return Ok(APIResponse<PaginatedResult<VariantDto>>.Initialize(res, StatusCodes.Status200OK));
+        //    return Ok(APIResponse<PaginatedResult<VariantDto>>.Initialize(res, StatusCodes.Status200OK));
+        //}
+
+        [HttpGet]
+        public async Task<IActionResult> GetListVariant([FromQuery] long productId)
+        {
+            var res = await _variantService.GetListVariantByProductId(productId);
+
+            return Ok(APIResponse<List<VariantDto>>.Initialize(res, StatusCodes.Status200OK));
         }
 
         [HttpGet("{id}")]

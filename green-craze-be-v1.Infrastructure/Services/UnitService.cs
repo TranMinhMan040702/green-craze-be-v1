@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using green_craze_be_v1.Application.Common.Exceptions;
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Paging;
@@ -33,7 +34,8 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<UnitDto> GetUnit(long id)
         {
-            var unit = await _unitOfWork.Repository<Unit>().GetById(id);
+            var unit = await _unitOfWork.Repository<Unit>().GetById(id)
+                ?? throw new NotFoundException("Cannot find current unit");
 
             return _mapper.Map<UnitDto>(unit);
         }
@@ -53,7 +55,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> UpdateUnit(long id, UpdateUnitRequest request)
         {
-            var unit = await _unitOfWork.Repository<Unit>().GetById(id);
+            var unit = await _unitOfWork.Repository<Unit>().GetById(id)
+                ?? throw new NotFoundException("Cannot find current unit");
+
             unit = _mapper.Map<UpdateUnitRequest, Unit>(request, unit);
             unit.Id = id;
 
@@ -69,7 +73,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> DeleteUnit(long id)
         {
-            var unit = await _unitOfWork.Repository<Unit>().GetById(id);
+            var unit = await _unitOfWork.Repository<Unit>().GetById(id) 
+                ?? throw new NotFoundException("Cannot find current unit");
+
             unit.Status = false;
             _unitOfWork.Repository<Unit>().Update(unit);
             var isSuccess = await _unitOfWork.Save() > 0;
@@ -89,7 +95,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 foreach (var id in ids)
                 {
-                    var unit = await _unitOfWork.Repository<Unit>().GetById(id);
+                    var unit = await _unitOfWork.Repository<Unit>().GetById(id) 
+                        ?? throw new NotFoundException("Cannot find current unit");
+
                     unit.Status = false;
                     _unitOfWork.Repository<Unit>().Update(unit);
                 }
