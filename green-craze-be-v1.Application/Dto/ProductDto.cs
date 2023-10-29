@@ -12,8 +12,9 @@ namespace green_craze_be_v1.Application.Dto
         public string ShortDescription { get; set; }
         public string Description { get; set; }
         public string Code { get; set; }
-        public int Quantity { get; set; }
-        public int Sold { get; set; }
+        public long Quantity { get; set; }
+        public long ActualInventory {  get; set; }
+        public long Sold { get; set; }
         public double Rating { get; set; }
         public List<ProductImageDto> Images { get; set; }
         public List<VariantDto> Variants { get; set; }

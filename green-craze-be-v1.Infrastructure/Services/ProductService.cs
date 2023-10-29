@@ -80,6 +80,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 ?? throw new NotFoundException("Cannot find current unit");
 
             product.Quantity = 0;
+            product.ActualInventory = 0;
             product.Sold = 0;
             product.Rating = 5;
 

@@ -15,7 +15,6 @@ namespace green_craze_be_v1.Domain.Entities
         public string Anchor { get; set; }
         public string Image { get; set; }
         public bool Status { get; set; }
-
         public AppUser User { get; set; }
     }
 }

@@ -14,6 +14,7 @@ namespace green_craze_be_v1.Domain.Entities
         public string Description { get; set; }
         public string Code { get; set; }
         public long? Quantity { get; set; }
+        public long? ActualInventory {  get; set; }
         public long? Sold { get; set; }
         public string Status { get; set; }
         public string Slug { get; set; }
@@ -27,7 +28,6 @@ namespace green_craze_be_v1.Domain.Entities
         public ICollection<Review> Reviews { get; set; }
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
         public ICollection<Variant> Variants { get; set; } = new List<Variant>();
-        public ICollection<DocketProduct> DocketProducts { get; set; }
-        public ICollection<DocketCountProduct> DocketCountProducts { get; set; }
+        public ICollection<Docket> Dockets { get; set; } = new List<Docket>();
     }
 }

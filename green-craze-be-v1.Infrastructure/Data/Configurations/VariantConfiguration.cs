@@ -16,7 +16,7 @@ namespace green_craze_be_v1.Infrastructure.Data.Configurations
         {
             builder.HasIndex(u => u.Sku).IsUnique();
             builder.Property(x => x.ItemPrice).HasColumnType("DECIMAL").IsRequired();
-            builder.Property(x => x.PromotionalItemPrice).HasColumnType("DECIMAL").IsRequired();
+            builder.Property(x => x.PromotionalItemPrice).HasColumnType("DECIMAL");
             builder.Property(x => x.Name).IsRequired();
             builder.Property(x => x.Quantity).IsRequired();
             builder.Property(x => x.TotalPrice).HasColumnType("DECIMAL").IsRequired();

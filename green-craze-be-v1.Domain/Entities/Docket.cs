@@ -12,9 +12,8 @@ namespace green_craze_be_v1.Domain.Entities
         public string Type { get; set; }
         public string Code { get; set; }
         public string Note { get; set; }
-        public string Status { get; set; }
+        public long Quantity { get; set; }
         public Order Order { get; set; }
-        public ICollection<DocketProduct> DocketProducts { get; set; }
-        public ICollection<DocketCountProduct> DocketCountProducts { get; set; }
+        public Product Product { get; set; }
     }
 }

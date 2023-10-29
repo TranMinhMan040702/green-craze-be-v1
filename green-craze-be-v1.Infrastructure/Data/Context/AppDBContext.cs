@@ -77,8 +77,6 @@ namespace green_craze_be_v1.Infrastructure.Data.Context
         public DbSet<Delivery> Deliveries { get; set; }
         public DbSet<District> Districts { get; set; }
         public DbSet<Docket> Dockets { get; set; }
-        public DbSet<DocketProduct> DocketProducts { get; set; }
-        public DbSet<DocketCountProduct> DocketCountProducts { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderCancellationReason> OrderCancellationReasons { get; set; }
