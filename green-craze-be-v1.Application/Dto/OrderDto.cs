@@ -1,4 +1,5 @@
-﻿using System;
+﻿using green_craze_be_v1.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,8 +18,10 @@ namespace green_craze_be_v1.Application.Dto
         public string Status { get; set; }
         public string Code { get; set; }
         public string DeliveryMethod { get; set; }
+        public UserDto User { get; set; }
+        public AddressDto Address { get; set; }
         public TransactionDto Transaction { get; set; }
-        public OrderCancellationReasonDto OrderCancellationReason { get; set; }
+        public OrderCancellationReasonDto CancelReason { get; set; }
         public List<OrderItemDto> Items { get; set; }
     }
 }

@@ -16,17 +16,18 @@ namespace green_craze_be_v1.API.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
-        private readonly ICurrentUserService _currentService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public OrdersController(IOrderService orderService, ICurrentUserService currentService)
+        public OrdersController(IOrderService orderService, ICurrentUserService currentUserService)
         {
             _orderService = orderService;
-            _currentService = currentService;
+            _currentUserService = currentUserService;
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
+            request.UserId = _currentUserService.UserId;
             var id = await _orderService.CreateOrder(request);
 
             var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/orders/{id}";
@@ -47,7 +48,7 @@ namespace green_craze_be_v1.API.Controllers
         [HttpGet("me/list")]
         public async Task<IActionResult> GetListUserOrder([FromQuery] GetOrderPagingRequest request)
         {
-            request.UserId = _currentService.UserId;
+            request.UserId = _currentUserService.UserId;
             var orders = await _orderService.GetListUserOrder(request);
 
             return Ok(new APIResponse<PaginatedResult<OrderDto>>(orders, StatusCodes.Status200OK));
@@ -56,7 +57,15 @@ namespace green_craze_be_v1.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrder([FromRoute] long id)
         {
-            var order = await _orderService.GetOrder(id, _currentService.UserId);
+            var order = await _orderService.GetOrder(id, _currentUserService.UserId);
+
+            return Ok(new APIResponse<OrderDto>(order, StatusCodes.Status200OK));
+        }
+
+        [HttpGet("detail/{code}")]
+        public async Task<IActionResult> GetOrderByCode([FromRoute] string code)
+        {
+            var order = await _orderService.GetOrderByCode(code, _currentUserService.UserId);
 
             return Ok(new APIResponse<OrderDto>(order, StatusCodes.Status200OK));
         }
@@ -65,7 +74,7 @@ namespace green_craze_be_v1.API.Controllers
         public async Task<IActionResult> UpdateOrder([FromRoute] long id, [FromBody] UpdateOrderRequest request)
         {
             request.OrderId = id;
-            request.UserId = _currentService.UserId;
+            request.UserId = _currentUserService.UserId;
 
             var isSuccess = await _orderService.UpdateOrder(request);
 

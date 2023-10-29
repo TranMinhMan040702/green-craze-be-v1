@@ -16,8 +16,6 @@ namespace green_craze_be_v1.Infrastructure.Data.Configurations
             builder.HasIndex(u => u.PaypalOrderId).IsUnique();
             builder.Property(x => x.TotalPay).HasColumnType("DECIMAL").IsRequired();
             builder.Property(x => x.PaymentMethod).IsRequired();
-            builder.Property(x => x.PaypalOrderId).IsRequired();
-            builder.Property(x => x.PaypalOrderStatus).IsRequired();
         }
     }
 }

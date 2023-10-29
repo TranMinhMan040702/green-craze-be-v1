@@ -13,6 +13,21 @@ namespace green_craze_be_v1.Application.Specification.Order
         {
             AddInclude(x => x.User);
             AddInclude(x => x.Address);
+            AddInclude(x => x.Address.Ward);
+            AddInclude(x => x.Address.District);
+            AddInclude(x => x.Address.Province);
+            AddInclude(x => x.Transaction);
+            AddInclude(x => x.CancelReason);
+            AddInclude(x => x.OrderItems);
+        }
+
+        public OrderSpecification(string code, string userId) : base(x => x.Code == code && x.User.Id == userId)
+        {
+            AddInclude(x => x.User);
+            AddInclude(x => x.Address);
+            AddInclude(x => x.Address.Ward);
+            AddInclude(x => x.Address.District);
+            AddInclude(x => x.Address.Province);
             AddInclude(x => x.Transaction);
             AddInclude(x => x.CancelReason);
             AddInclude(x => x.OrderItems);
@@ -21,41 +36,93 @@ namespace green_craze_be_v1.Application.Specification.Order
         public OrderSpecification(GetOrderPagingRequest request, bool isPaging = false)
         {
             AddInclude(x => x.User);
+            AddInclude(x => x.Address);
+            AddInclude(x => x.Address.Ward);
+            AddInclude(x => x.Address.District);
+            AddInclude(x => x.Address.Province);
+            AddInclude(x => x.Transaction);
+            AddInclude(x => x.CancelReason);
+            AddInclude(x => x.OrderItems);
             var keyword = request.Search;
             if (!string.IsNullOrEmpty(request.UserId))
             {
                 if (!string.IsNullOrEmpty(keyword))
                 {
-                    Criteria = x => x.User.Id == request.UserId &&
-                        x.Code.ToLower().Contains(keyword)
-                        || x.Note.ToString().Contains(keyword);
+                    if (!string.IsNullOrEmpty(request.OrderStatus))
+                    {
+                        Criteria = x => x.User.Id == request.UserId &&
+                            x.Code.ToLower().Contains(keyword) && x.Status == request.OrderStatus;
+                    }
+                    else
+                    {
+                        Criteria = x => x.User.Id == request.UserId &&
+                            x.Code.ToLower().Contains(keyword);
+                    }
                 }
                 else
                 {
-                    Criteria = x => x.User.Id == request.UserId;
+                    if (!string.IsNullOrEmpty(request.OrderStatus))
+                    {
+                        Criteria = x => x.User.Id == request.UserId && x.Status == request.OrderStatus;
+                    }
+                    else
+                    {
+                        Criteria = x => x.User.Id == request.UserId;
+                    }
                 }
             }
             else
             {
                 if (!string.IsNullOrEmpty(keyword))
                 {
-                    Criteria = x => x.Code.ToLower().Contains(keyword)
-                        || x.Note.ToString().Contains(keyword);
+                    if (!string.IsNullOrEmpty(request.OrderStatus))
+                    {
+                        Criteria = x => x.Code.ToLower().Contains(keyword)
+                            && x.Status == request.OrderStatus;
+                    }
+                    else
+                    {
+                        Criteria = x => x.Code.ToLower().Contains(keyword);
+                    }
                 }
                 else
                 {
-                    Criteria = x => true;
+                    if (!string.IsNullOrEmpty(request.OrderStatus))
+                    {
+                        Criteria = x => x.Status == request.OrderStatus;
+                    }
+                    else
+                    {
+                        Criteria = x => true;
+                    }
                 }
             }
+            var column = request.ColumnName.ToLower();
             if (request.IsSortAccending)
             {
-                if (request.ColumnName == nameof(Domain.Entities.Order.Id))
+                if (column == nameof(Domain.Entities.Order.Id).ToLower())
                 {
                     AddOrderBy(x => x.Id);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Order.UpdatedAt))
+                else if (column == nameof(Domain.Entities.Order.Code).ToLower())
                 {
-                    AddOrderBy(x => x.UpdatedAt);
+                    AddOrderBy(x => x.Code);
+                }
+                else if (column == nameof(Domain.Entities.Order.Transaction.PaymentMethod).ToLower())
+                {
+                    AddOrderBy(x => x.Transaction.PaymentMethod);
+                }
+                else if (column == nameof(Domain.Entities.Order.PaymentStatus).ToLower())
+                {
+                    AddOrderBy(x => x.PaymentStatus);
+                }
+                else if (column == nameof(Domain.Entities.Order.TotalAmount).ToLower())
+                {
+                    AddOrderBy(x => x.TotalAmount);
+                }
+                else if (column == nameof(Domain.Entities.Order.Status).ToLower())
+                {
+                    AddOrderBy(x => x.Status);
                 }
                 else
                 {
@@ -64,13 +131,29 @@ namespace green_craze_be_v1.Application.Specification.Order
             }
             else
             {
-                if (request.ColumnName == nameof(Domain.Entities.Order.Id))
+                if (column == nameof(Domain.Entities.Order.Id).ToLower())
                 {
                     AddOrderByDescending(x => x.Id);
                 }
-                else if (request.ColumnName == nameof(Domain.Entities.Order.UpdatedAt))
+                else if (column == nameof(Domain.Entities.Order.CreatedAt).ToLower())
                 {
-                    AddOrderByDescending(x => x.UpdatedAt);
+                    AddOrderByDescending(x => x.CreatedAt);
+                }
+                else if (column == nameof(Domain.Entities.Order.Transaction.PaymentMethod).ToLower())
+                {
+                    AddOrderByDescending(x => x.Transaction.PaymentMethod);
+                }
+                else if (column == nameof(Domain.Entities.Order.PaymentStatus).ToLower())
+                {
+                    AddOrderByDescending(x => x.PaymentStatus);
+                }
+                else if (column == nameof(Domain.Entities.Order.TotalAmount).ToLower())
+                {
+                    AddOrderByDescending(x => x.TotalAmount);
+                }
+                else if (column == nameof(Domain.Entities.Order.Status).ToLower())
+                {
+                    AddOrderByDescending(x => x.Status);
                 }
                 else
                 {

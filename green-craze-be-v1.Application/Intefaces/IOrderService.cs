@@ -17,6 +17,8 @@ namespace green_craze_be_v1.Application.Intefaces
 
         Task<OrderDto> GetOrder(long id, string userId);
 
+        Task<OrderDto> GetOrderByCode(string code, string userId);
+
         Task<PaginatedResult<OrderDto>> GetListOrder(GetOrderPagingRequest request);
 
         Task<PaginatedResult<OrderDto>> GetListUserOrder(GetOrderPagingRequest request);

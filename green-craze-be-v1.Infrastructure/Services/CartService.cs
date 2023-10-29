@@ -14,12 +14,14 @@ namespace green_craze_be_v1.Infrastructure.Services
     public class CartService : ICartService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
 
-        public CartService(IUnitOfWork unitOfWork, IMapper mapper)
+        public CartService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<bool> AddVariantItemToCart(AddVariantItemToCartRequest request)
@@ -93,6 +95,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             var cartItemDto = _mapper.Map<CartItemDto>(cartItem);
 
+            cartItemDto.VariantId = variant.Id;
             cartItemDto.Quantity = cartItem.Quantity;
             cartItemDto.TotalPrice = variant.Quantity * variant.ItemPrice;
             cartItemDto.TotalPromotionalPrice = isPromotion ? variant.Quantity * variant.PromotionalItemPrice.Value : null;
@@ -149,6 +152,20 @@ namespace green_craze_be_v1.Infrastructure.Services
             if (!isSuccess) throw new Exception("Cannot handle to remove list of product from your cart, an error has occured");
 
             return true;
+        }
+
+        public async Task<List<CartItemDto>> GetCartItemByIds(List<long> ids)
+        {
+            var res = new List<CartItemDto>();
+            foreach (var id in ids)
+            {
+                var cartItem = await _unitOfWork.Repository<CartItem>().GetEntityWithSpec(new CartItemSpecification(id, _currentUserService.UserId))
+                    ?? throw new NotFoundException("Cannot find cart item");
+
+                res.Add(await GetCartItemDto(cartItem));
+            }
+
+            return res;
         }
     }
 }

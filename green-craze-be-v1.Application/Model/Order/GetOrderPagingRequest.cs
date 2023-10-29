@@ -12,5 +12,7 @@ namespace green_craze_be_v1.Application.Model.Order
     {
         [JsonIgnore]
         public string UserId { get; set; }
+
+        public string OrderStatus { get; set; }
     }
 }

@@ -28,7 +28,15 @@ namespace green_craze_be_v1.Application.Specification.Product
             AddInclude(x => x.Unit);
             AddInclude(x => x.Variants);
         }
-
+        public ProductSpecification(string slug) : base(x => x.Slug == slug)
+        {
+            AddInclude(x => x.Images);
+            AddInclude(x => x.Category);
+            AddInclude(x => x.Sale);
+            AddInclude(x => x.Brand);
+            AddInclude(x => x.Unit);
+            AddInclude(x => x.Variants);
+        }
         public ProductSpecification(GetProductPagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;

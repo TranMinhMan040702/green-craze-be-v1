@@ -66,5 +66,13 @@ namespace green_craze_be_v1.API.Controllers
 
             return Ok(new APIResponse<PaginatedResult<CartItemDto>>(resp, StatusCodes.Status200OK));
         }
+
+        [HttpGet("list-ids")]
+        public async Task<IActionResult> GetCartItemByIds([FromQuery] List<long> ids)
+        {
+            var resp = await _cartService.GetCartItemByIds(ids);
+
+            return Ok(new APIResponse<List<CartItemDto>>(resp, StatusCodes.Status200OK));
+        }
     }
 }

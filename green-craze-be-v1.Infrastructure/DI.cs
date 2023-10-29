@@ -78,6 +78,7 @@ namespace green_craze_be_v1.Infrastructure
                 .AddScoped<IDeliveryService, DeliveryService>()
                 .AddScoped<IPaymentMethodService, PaymentMethodService>()
                 .AddScoped<IOrderCancellationReasonService, OrderCancellationReasonService>()
+                .AddScoped<IUserFollowProductService, UserFollowProductService>()
                 .AddScoped<IOrderService, OrderService>()
                 .AddScoped<IUnitService, UnitService>()
                 .AddScoped<IProductCategoryService, ProductCategoryService>()

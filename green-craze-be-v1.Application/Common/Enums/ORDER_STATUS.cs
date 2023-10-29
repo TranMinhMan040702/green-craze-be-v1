@@ -20,7 +20,6 @@ namespace green_craze_be_v1.Application.Common.Enums
             PROCESSING,
             SHIPPED,
             DELIVERED,
-            DELIVERED,
             CANCELLED
         };
     }

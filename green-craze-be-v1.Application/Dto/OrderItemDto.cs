@@ -11,6 +11,7 @@ namespace green_craze_be_v1.Application.Dto
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice { get; set; }
+        public string Sku { get; set; }
         public string ProductSlug { get; set; }
         public string ProductUnit { get; set; }
         public string ProductImage { get; set; }

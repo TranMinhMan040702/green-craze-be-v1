@@ -41,6 +41,10 @@ namespace green_craze_be_v1.Application.Specification.Transaction
                 {
                     AddOrderBy(x => x.TotalPay);
                 }
+                else if (columnName == nameof(Domain.Entities.Transaction.Order.Code).ToLower())
+                {
+                    AddOrderBy(x => x.Order.Code);
+                }
                 else
                 {
                     AddOrderBy(x => x.Id);
@@ -68,9 +72,13 @@ namespace green_craze_be_v1.Application.Specification.Transaction
                 {
                     AddOrderByDescending(x => x.TotalPay);
                 }
+                else if (columnName == nameof(Domain.Entities.Transaction.Order.Code).ToLower())
+                {
+                    AddOrderByDescending(x => x.Order.Code);
+                }
                 else
                 {
-                    AddOrderBy(x => x.Id);
+                    AddOrderByDescending(x => x.Id);
                 }
             }
             if (!isPaging) return;
