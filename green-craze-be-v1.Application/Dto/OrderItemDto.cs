@@ -16,6 +16,6 @@ namespace green_craze_be_v1.Application.Dto
         public string ProductImage { get; set; }
         public string ProductName { get; set; }
         public string VariantName { get; set; }
-        public int VariantQuantity { get; set; }
+        public long VariantQuantity { get; set; }
     }
 }
