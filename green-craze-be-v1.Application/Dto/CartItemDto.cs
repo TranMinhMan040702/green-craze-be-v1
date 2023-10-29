@@ -11,7 +11,7 @@ namespace green_craze_be_v1.Application.Dto
         public int Quantity { get; set; }
         public long VariantId { get; set; }
         public string VariantName { get; set; }
-        public int VariantQuantity { get; set; }
+        public long VariantQuantity { get; set; }
         public string Sku { get; set; }
         public decimal VariantPrice { get; set; }
         public decimal? VariantPromotionalPrice { get; set; }

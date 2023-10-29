@@ -11,8 +11,8 @@ using green_craze_be_v1.Infrastructure.Data.Context;
 namespace green_craze_be_v1.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20231014155839_InitDB")]
-    partial class InitDB
+    [Migration("20231029023427_FixDb")]
+    partial class FixDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -211,7 +211,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("UpdatedBy")
@@ -228,33 +228,30 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5f544b1e-c7e3-4977-b125-cdd2c6d258a2",
-                            ConcurrencyStamp = "80986716-690b-4a2b-845a-aab081a5b9c8",
-                            CreatedAt = new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079),
+                            Id = "5d1633fd-34bc-42c3-91a8-21befdc2e148",
+                            ConcurrencyStamp = "83de4b8f-7d55-41ce-8bf5-f167eff06b1d",
+                            CreatedAt = new DateTime(2023, 10, 29, 9, 34, 26, 816, DateTimeKind.Local).AddTicks(2571),
                             CreatedBy = "System",
                             Name = "ADMIN",
-                            NormalizedName = "ADMIN",
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "5d4d9957-4391-4fcb-9708-1a6e46e320a5",
-                            ConcurrencyStamp = "1ed5008f-b667-44a8-8ccc-c7cd66e7e946",
-                            CreatedAt = new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079),
+                            Id = "724d872c-89ca-47ae-a25c-6de48604210b",
+                            ConcurrencyStamp = "22504c33-2925-48f1-965d-761da767cade",
+                            CreatedAt = new DateTime(2023, 10, 29, 9, 34, 26, 816, DateTimeKind.Local).AddTicks(2571),
                             CreatedBy = "System",
                             Name = "USER",
-                            NormalizedName = "USER",
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "a333fe4a-e662-4b9b-8e70-ec80b1dc1932",
-                            ConcurrencyStamp = "664fcf6b-ce67-4b36-94a6-bd255fe36aca",
-                            CreatedAt = new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079),
+                            Id = "a6f7805f-6a33-4012-add5-b7de13005edb",
+                            ConcurrencyStamp = "18328461-43d5-41b9-9653-78cc950ef2e3",
+                            CreatedAt = new DateTime(2023, 10, 29, 9, 34, 26, 816, DateTimeKind.Local).AddTicks(2571),
                             CreatedBy = "System",
                             Name = "STAFF",
-                            NormalizedName = "STAFF",
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            NormalizedName = "STAFF"
                         });
                 });
 
@@ -333,7 +330,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("UpdatedBy")
@@ -618,7 +615,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Code")
-                        .HasColumnType("longtext");
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -632,10 +630,14 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<long?>("OrderId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Status")
-                        .HasColumnType("longtext");
+                    b.Property<long?>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Quantity")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -645,85 +647,15 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.HasIndex("OrderId");
 
+                    b.HasIndex("ProductId");
+
                     b.ToTable("Dockets");
-                });
-
-            modelBuilder.Entity("green_craze_be_v1.Domain.Entities.DocketCountProduct", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("ActualInventory")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<long?>("DocketId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Inventory")
-                        .HasColumnType("int");
-
-                    b.Property<long?>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DocketId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("DocketCountProducts");
-                });
-
-            modelBuilder.Entity("green_craze_be_v1.Domain.Entities.DocketProduct", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<long?>("DocketId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DocketId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("DocketProducts");
                 });
 
             modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Notification", b =>
@@ -973,6 +905,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("ActualInventory")
+                        .HasColumnType("bigint");
+
                     b.Property<long?>("BrandId")
                         .HasColumnType("bigint");
 
@@ -998,10 +933,12 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<long>("Quantity")
+                    b.Property<long?>("Quantity")
+                        .IsRequired()
                         .HasColumnType("bigint");
 
-                    b.Property<double>("Rating")
+                    b.Property<double?>("Rating")
+                        .IsRequired()
                         .HasColumnType("double");
 
                     b.Property<long?>("SaleId")
@@ -1015,7 +952,8 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<long>("Sold")
+                    b.Property<long?>("Sold")
+                        .IsRequired()
                         .HasColumnType("bigint");
 
                     b.Property<string>("Status")
@@ -1343,11 +1281,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("PaypalOrderId")
-                        .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("PaypalOrderStatus")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<decimal>("TotalPay")
@@ -1458,11 +1394,10 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<decimal?>("PromotionalItemPrice")
-                        .IsRequired()
                         .HasColumnType("DECIMAL");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                    b.Property<long>("Quantity")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Sku")
                         .HasColumnType("varchar(255)");
@@ -1654,35 +1589,11 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         .WithMany("Dockets")
                         .HasForeignKey("OrderId");
 
+                    b.HasOne("green_craze_be_v1.Domain.Entities.Product", "Product")
+                        .WithMany("Dockets")
+                        .HasForeignKey("ProductId");
+
                     b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("green_craze_be_v1.Domain.Entities.DocketCountProduct", b =>
-                {
-                    b.HasOne("green_craze_be_v1.Domain.Entities.Docket", "Docket")
-                        .WithMany("DocketCountProducts")
-                        .HasForeignKey("DocketId");
-
-                    b.HasOne("green_craze_be_v1.Domain.Entities.Product", "Product")
-                        .WithMany("DocketCountProducts")
-                        .HasForeignKey("ProductId");
-
-                    b.Navigation("Docket");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("green_craze_be_v1.Domain.Entities.DocketProduct", b =>
-                {
-                    b.HasOne("green_craze_be_v1.Domain.Entities.Docket", "Docket")
-                        .WithMany("DocketProducts")
-                        .HasForeignKey("DocketId");
-
-                    b.HasOne("green_craze_be_v1.Domain.Entities.Product", "Product")
-                        .WithMany("DocketProducts")
-                        .HasForeignKey("ProductId");
-
-                    b.Navigation("Docket");
 
                     b.Navigation("Product");
                 });
@@ -1883,13 +1794,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.Navigation("Wards");
                 });
 
-            modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Docket", b =>
-                {
-                    b.Navigation("DocketCountProducts");
-
-                    b.Navigation("DocketProducts");
-                });
-
             modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Order", b =>
                 {
                     b.Navigation("Dockets");
@@ -1906,9 +1810,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
             modelBuilder.Entity("green_craze_be_v1.Domain.Entities.Product", b =>
                 {
-                    b.Navigation("DocketCountProducts");
-
-                    b.Navigation("DocketProducts");
+                    b.Navigation("Dockets");
 
                     b.Navigation("Images");
 

@@ -84,6 +84,8 @@ namespace green_craze_be_v1.Application.Common.Mapper
             CreateMap<Sale, SaleDto>();
             CreateMap<CreateSaleRequest, Sale>();
             CreateMap<UpdateSaleRequest, Sale>();
+            // Inventory
+            CreateMap<Docket, DocketDto>();
         }
     }
 }

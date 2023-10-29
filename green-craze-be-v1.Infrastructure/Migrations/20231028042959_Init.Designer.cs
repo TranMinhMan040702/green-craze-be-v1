@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using green_craze_be_v1.Infrastructure.Data.Context;
 
@@ -10,9 +11,11 @@ using green_craze_be_v1.Infrastructure.Data.Context;
 namespace green_craze_be_v1.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20231028042959_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -225,27 +228,27 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5d1633fd-34bc-42c3-91a8-21befdc2e148",
-                            ConcurrencyStamp = "83de4b8f-7d55-41ce-8bf5-f167eff06b1d",
-                            CreatedAt = new DateTime(2023, 10, 29, 9, 34, 26, 816, DateTimeKind.Local).AddTicks(2571),
+                            Id = "fcb73747-4a36-4e57-9884-e0c25cf38615",
+                            ConcurrencyStamp = "857b6441-524e-493b-b8e4-e884b1e11327",
+                            CreatedAt = new DateTime(2023, 10, 28, 11, 29, 59, 814, DateTimeKind.Local).AddTicks(2098),
                             CreatedBy = "System",
                             Name = "ADMIN",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "724d872c-89ca-47ae-a25c-6de48604210b",
-                            ConcurrencyStamp = "22504c33-2925-48f1-965d-761da767cade",
-                            CreatedAt = new DateTime(2023, 10, 29, 9, 34, 26, 816, DateTimeKind.Local).AddTicks(2571),
+                            Id = "f754f820-b8c1-4d85-b944-be646359eec1",
+                            ConcurrencyStamp = "67136d79-b4b5-4ded-b7d0-e0e4b58e741a",
+                            CreatedAt = new DateTime(2023, 10, 28, 11, 29, 59, 814, DateTimeKind.Local).AddTicks(2098),
                             CreatedBy = "System",
                             Name = "USER",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "a6f7805f-6a33-4012-add5-b7de13005edb",
-                            ConcurrencyStamp = "18328461-43d5-41b9-9653-78cc950ef2e3",
-                            CreatedAt = new DateTime(2023, 10, 29, 9, 34, 26, 816, DateTimeKind.Local).AddTicks(2571),
+                            Id = "bc104b77-9fe1-4e5a-a506-20fcbc43d077",
+                            ConcurrencyStamp = "13e00ad9-d071-4874-8634-76d5397ec768",
+                            CreatedAt = new DateTime(2023, 10, 28, 11, 29, 59, 814, DateTimeKind.Local).AddTicks(2098),
                             CreatedBy = "System",
                             Name = "STAFF",
                             NormalizedName = "STAFF"
@@ -632,6 +635,10 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
                     b.Property<long>("Quantity")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Type")
                         .IsRequired()

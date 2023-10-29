@@ -14,7 +14,7 @@ namespace green_craze_be_v1.Domain.Entities
         public decimal ItemPrice { get; set; }
         public decimal? PromotionalItemPrice { get; set; }
         public string Status { get; set; }
-        public int Quantity { get; set; }
+        public long Quantity { get; set; }
         public decimal TotalPrice { get; set; }
         public Product Product { get; set; }
         public ICollection<OrderItem> OrderItems { get; set; }

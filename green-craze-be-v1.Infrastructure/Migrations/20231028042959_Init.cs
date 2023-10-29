@@ -9,7 +9,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace green_craze_be_v1.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitDB : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -168,7 +168,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: true),
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
                     Name = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
@@ -319,6 +319,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     Description = table.Column<string>(type: "longtext", nullable: false),
                     Code = table.Column<string>(type: "varchar(255)", nullable: true),
                     Quantity = table.Column<long>(type: "bigint", nullable: false),
+                    ActualInventory = table.Column<long>(type: "bigint", nullable: true),
                     Sold = table.Column<long>(type: "bigint", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false),
                     Slug = table.Column<string>(type: "varchar(255)", nullable: false),
@@ -645,7 +646,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                     ItemPrice = table.Column<decimal>(type: "DECIMAL(18,2)", nullable: false),
                     PromotionalItemPrice = table.Column<decimal>(type: "DECIMAL(18,2)", nullable: true),
                     Status = table.Column<string>(type: "longtext", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<long>(type: "bigint", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "DECIMAL(18,2)", nullable: false),
                     ProductId = table.Column<long>(type: "bigint", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -791,11 +792,13 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Type = table.Column<string>(type: "longtext", nullable: true),
-                    Code = table.Column<string>(type: "longtext", nullable: true),
+                    Type = table.Column<string>(type: "longtext", nullable: false),
+                    Code = table.Column<string>(type: "varchar(255)", nullable: false),
                     Note = table.Column<string>(type: "longtext", nullable: true),
-                    Status = table.Column<string>(type: "longtext", nullable: true),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    Quantity = table.Column<long>(type: "bigint", nullable: false),
                     OrderId = table.Column<long>(type: "bigint", nullable: true),
+                    ProductId = table.Column<long>(type: "bigint", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: true),
@@ -808,6 +811,11 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                         name: "FK_Dockets_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Dockets_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
                         principalColumn: "Id");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
@@ -875,67 +883,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "DocketCountProducts",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    DocketId = table.Column<long>(type: "bigint", nullable: true),
-                    ProductId = table.Column<long>(type: "bigint", nullable: true),
-                    Inventory = table.Column<int>(type: "int", nullable: false),
-                    ActualInventory = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DocketCountProducts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DocketCountProducts_Dockets_DocketId",
-                        column: x => x.DocketId,
-                        principalTable: "Dockets",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_DocketCountProducts_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id");
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "DocketProducts",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    DocketId = table.Column<long>(type: "bigint", nullable: true),
-                    ProductId = table.Column<long>(type: "bigint", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DocketProducts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DocketProducts_Dockets_DocketId",
-                        column: x => x.DocketId,
-                        principalTable: "Dockets",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_DocketProducts_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id");
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Reviews",
                 columns: table => new
                 {
@@ -981,9 +928,9 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "CreatedAt", "CreatedBy", "Name", "NormalizedName", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { "5d4d9957-4391-4fcb-9708-1a6e46e320a5", "1ed5008f-b667-44a8-8ccc-c7cd66e7e946", new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079), "System", "USER", "USER", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { "5f544b1e-c7e3-4977-b125-cdd2c6d258a2", "80986716-690b-4a2b-845a-aab081a5b9c8", new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079), "System", "ADMIN", "ADMIN", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { "a333fe4a-e662-4b9b-8e70-ec80b1dc1932", "664fcf6b-ce67-4b36-94a6-bd255fe36aca", new DateTime(2023, 10, 14, 22, 58, 39, 649, DateTimeKind.Local).AddTicks(7079), "System", "STAFF", "STAFF", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null }
+                    { "bc104b77-9fe1-4e5a-a506-20fcbc43d077", "13e00ad9-d071-4874-8634-76d5397ec768", new DateTime(2023, 10, 28, 11, 29, 59, 814, DateTimeKind.Local).AddTicks(2098), "System", "STAFF", "STAFF", null, null },
+                    { "f754f820-b8c1-4d85-b944-be646359eec1", "67136d79-b4b5-4ded-b7d0-e0e4b58e741a", new DateTime(2023, 10, 28, 11, 29, 59, 814, DateTimeKind.Local).AddTicks(2098), "System", "USER", "USER", null, null },
+                    { "fcb73747-4a36-4e57-9884-e0c25cf38615", "857b6441-524e-493b-b8e4-e884b1e11327", new DateTime(2023, 10, 28, 11, 29, 59, 814, DateTimeKind.Local).AddTicks(2098), "System", "ADMIN", "ADMIN", null, null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -1051,29 +998,20 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 column: "ProvinceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DocketCountProducts_DocketId",
-                table: "DocketCountProducts",
-                column: "DocketId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DocketCountProducts_ProductId",
-                table: "DocketCountProducts",
-                column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DocketProducts_DocketId",
-                table: "DocketProducts",
-                column: "DocketId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DocketProducts_ProductId",
-                table: "DocketProducts",
-                column: "ProductId");
+                name: "IX_Dockets_Code",
+                table: "Dockets",
+                column: "Code",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Dockets_OrderId",
                 table: "Dockets",
                 column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Dockets_ProductId",
+                table: "Dockets",
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_UserId",
@@ -1303,10 +1241,7 @@ namespace green_craze_be_v1.Infrastructure.Migrations
                 name: "Deliveries");
 
             migrationBuilder.DropTable(
-                name: "DocketCountProducts");
-
-            migrationBuilder.DropTable(
-                name: "DocketProducts");
+                name: "Dockets");
 
             migrationBuilder.DropTable(
                 name: "Notifications");
@@ -1346,9 +1281,6 @@ namespace green_craze_be_v1.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Carts");
-
-            migrationBuilder.DropTable(
-                name: "Dockets");
 
             migrationBuilder.DropTable(
                 name: "OrderItems");
