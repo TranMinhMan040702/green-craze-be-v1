@@ -8,13 +8,6 @@ using green_craze_be_v1.Application.Model.Inventory;
 using green_craze_be_v1.Application.Specification.Docket;
 using green_craze_be_v1.Application.Specification.Product;
 using green_craze_be_v1.Domain.Entities;
-using green_craze_be_v1.Infrastructure.Repositories;
-using Org.BouncyCastle.Crypto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Services
 {

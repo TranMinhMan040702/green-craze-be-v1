@@ -21,6 +21,7 @@ namespace green_craze_be_v1.Application.Specification.Cart
         {
             AddInclude(x => x.Cart);
             AddInclude(x => x.Variant);
+            AddInclude(x => x.Variant.Product);
         }
 
         public CartItemSpecification(GetCartPagingRequest request, bool isPaging = false)

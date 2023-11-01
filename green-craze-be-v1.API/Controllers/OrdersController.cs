@@ -28,11 +28,11 @@ namespace green_craze_be_v1.API.Controllers
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
             request.UserId = _currentUserService.UserId;
-            var id = await _orderService.CreateOrder(request);
+            var code = await _orderService.CreateOrder(request);
 
-            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/orders/{id}";
+            var url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/orders/detail/{code}";
 
-            return Created(url, new APIResponse<object>(new { id }, StatusCodes.Status201Created));
+            return Created(url, new APIResponse<object>(new { code }, StatusCodes.Status201Created));
         }
 
         [HttpGet]
@@ -77,6 +77,17 @@ namespace green_craze_be_v1.API.Controllers
             request.UserId = _currentUserService.UserId;
 
             var isSuccess = await _orderService.UpdateOrder(request);
+
+            return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
+        }
+
+        [HttpPut("paypal/{id}")]
+        public async Task<IActionResult> CompletePaypalOrder([FromRoute] long id, [FromBody] CompletePaypalOrderRequest request)
+        {
+            request.OrderId = id;
+            request.UserId = _currentUserService.UserId;
+
+            var isSuccess = await _orderService.CompletePaypalOrder(request);
 
             return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
         }

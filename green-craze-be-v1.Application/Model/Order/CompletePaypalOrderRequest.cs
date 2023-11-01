@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Model.Order
 {
-    public class CreateOrderRequest
+    public class CompletePaypalOrderRequest
     {
         [JsonIgnore]
         public string UserId { get; set; }
 
-        public string Note { get; set; }
-        public long PaymentMethodId { get; set; }
-        public long DeliveryId { get; set; }
+        [JsonIgnore]
+        public long OrderId { get; set; }
 
-        public List<CreateOrderItemRequest> Items { get; set; }
+        public string PaypalOrderId { get; set; } = null;
+        public string PaypalOrderStatus { get; set; } = null;
     }
 }

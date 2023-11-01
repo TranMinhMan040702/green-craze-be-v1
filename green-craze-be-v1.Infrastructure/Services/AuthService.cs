@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Google.Apis.Auth;
 using green_craze_be_v1.Application.Common.Enums;
 using green_craze_be_v1.Application.Common.Exceptions;
 using green_craze_be_v1.Application.Dto;
@@ -7,6 +8,8 @@ using green_craze_be_v1.Application.Model.Auth;
 using green_craze_be_v1.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Text.RegularExpressions;
 
 namespace green_craze_be_v1.Infrastructure.Services
@@ -35,6 +38,28 @@ namespace green_craze_be_v1.Infrastructure.Services
             _currentUserService = currentUserService;
         }
 
+        private async Task<AuthDto> GenerateAuthCredential(AppUser user)
+        {
+            string accessToken = await _jwtService.CreateJWT(user.Id);
+            string refreshToken = _jwtService.CreateRefreshToken();
+            DateTime refreshTokenExpiredTime = DateTime.Now.AddDays(7);
+            user.AppUserTokens.Add(new AppUserToken()
+            {
+                Token = refreshToken,
+                ExpiredAt = refreshTokenExpiredTime,
+                Type = TOKEN_TYPE.REFRESH_TOKEN,
+                CreatedAt = _dateTimeService.Current,
+                CreatedBy = "System"
+            });
+            user.UpdatedAt = _dateTimeService.Current;
+            user.UpdatedBy = _currentUserService.UserId;
+            var isSuccess = await _userManager.UpdateAsync(user);
+            if (!isSuccess.Succeeded)
+                throw new Exception("Cannot login, please contact administrator");
+
+            return new AuthDto { AccessToken = accessToken, RefreshToken = refreshToken };
+        }
+
         public async Task<AuthDto> Authenticate(LoginRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email)
@@ -51,23 +76,52 @@ namespace green_craze_be_v1.Infrastructure.Services
             //if (!user.EmailConfirmed)
             //    throw new ForbiddenAccessException("Your account hasn't been confirmed");
 
-            string accessToken = await _jwtService.CreateJWT(user.Id);
-            string refreshToken = _jwtService.CreateRefreshToken();
-            DateTime refreshTokenExpiredTime = DateTime.Now.AddDays(7);
-            user.AppUserTokens.Add(new AppUserToken()
+            return await GenerateAuthCredential(user);
+        }
+
+        private static async Task<GoogleJsonWebSignature.Payload> IsGoogleTokenValid(string token)
+        {
+            try
             {
-                Token = refreshToken,
-                ExpiredAt = refreshTokenExpiredTime,
-                Type = TOKEN_TYPE.REFRESH_TOKEN,
-                CreatedAt = _dateTimeService.Current,
-                CreatedBy = "System"
-            });
+                GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(token);
+                return payload;
+            }
+            catch
+            {
+                throw new InvalidRequestException("Google token is invalid, cannot login");
+            }
+        }
 
-            var isSuccess = await _userManager.UpdateAsync(user);
-            if (!isSuccess.Succeeded)
-                throw new Exception("Cannot login, please contact administrator");
+        public async Task<AuthDto> AuthenticateWithGoogle(GoogleAuthRequest request)
+        {
+            var payload = await IsGoogleTokenValid(request.GoogleToken);
+            var user = await _userManager.FindByEmailAsync(payload.Email);
+            if (user != null)
+            {
+                if (user.Status == USER_STATUS.IN_ACTIVE)
+                    throw new AccessDeniedException("Your account has been banned");
 
-            return new AuthDto { AccessToken = accessToken, RefreshToken = refreshToken };
+                return await GenerateAuthCredential(user);
+            }
+            var registerRequest = new RegisterRequest()
+            {
+                Email = payload.Email,
+                FirstName = payload.FamilyName,
+                LastName = payload.GivenName,
+                Password = payload.Subject
+            };
+            var userId = await Register(registerRequest);
+            user = await _userManager.FindByIdAsync(userId);
+
+            var resp = await GenerateAuthCredential(user);
+
+            user.Avatar = payload.Picture;
+
+            user.UpdatedAt = _dateTimeService.Current;
+            user.UpdatedBy = _currentUserService.UserId;
+            await _userManager.UpdateAsync(user);
+
+            return resp;
         }
 
         public async Task<AuthDto> RefreshToken(RefreshTokenRequest request)

@@ -32,10 +32,17 @@ namespace green_craze_be_v1.Infrastructure.Services
             var cartItem = await _unitOfWork.Repository<CartItem>().GetEntityWithSpec(new CartItemSpecification(cart.Id, request.VariantId));
 
             var ci = new CartItem();
+
+            var variant = await _unitOfWork.Repository<Variant>().GetEntityWithSpec(new VariantSpecification(request.VariantId))
+                ?? throw new InvalidRequestException("Unexpected variantId");
+
+            var quantity = variant?.Product?.Quantity;
+            if (quantity < request.Quantity)
+                throw new InvalidRequestException("Unexpected quantity, it must be less than or equal to product in inventory");
+
             if (cartItem == null)
             {
-                var variant = await _unitOfWork.Repository<Variant>().GetById(request.VariantId)
-                    ?? throw new InvalidRequestException("Unexpected variantId");
+
                 ci.Quantity = request.Quantity;
                 ci.Variant = variant;
                 cart.CartItems.Add(ci);
@@ -120,8 +127,12 @@ namespace green_craze_be_v1.Infrastructure.Services
             var cart = await _unitOfWork.Repository<Cart>().GetEntityWithSpec(new CartSpecification(request.UserId))
                 ?? throw new NotFoundException("Cannot find cart of current user");
 
-            var cartItem = cart.CartItems.FirstOrDefault(x => x.Id == request.CartItemId)
+            var cartItem = await _unitOfWork.Repository<CartItem>().GetEntityWithSpec(new CartItemSpecification(request.CartItemId, request.UserId))
                 ?? throw new InvalidRequestException("Unexpected cartItemId");
+
+            var quantity = cartItem?.Variant?.Product?.Quantity;
+            if (quantity < request.Quantity)
+                throw new InvalidRequestException("Unexpected quantity, it must be less than or equal to product in inventory");
 
             cartItem.Quantity = request.Quantity;
 

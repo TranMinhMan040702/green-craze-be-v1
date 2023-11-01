@@ -33,7 +33,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         private async Task<Order> InitOrder(AppUser user, PaymentMethod paymentMethod,
             Address userAddress, Delivery delivery, CreateOrderRequest request)
         {
-            var paymentStatus = paymentMethod.Code == PAYMENT_CODE.PAYPAL;
+            //var paymentStatus = paymentMethod.Code == PAYMENT_CODE.PAYPAL;
 
             var orderItems = new List<OrderItem>();
             decimal totalAmount = 0;
@@ -59,10 +59,10 @@ namespace green_craze_be_v1.Infrastructure.Services
             var transaction = new Transaction()
             {
                 PaymentMethod = paymentMethod.Code,
-                PaidAt = paymentStatus ? _dateTimeService.Current : null,
+                //PaidAt = paymentStatus ? _dateTimeService.Current : null,
                 TotalPay = totalAmount,
-                PaypalOrderId = request.PaypalOrderId,
-                PaypalOrderStatus = request.PaypalOrderStatus
+                //PaypalOrderId = request.PaypalOrderId,
+                //PaypalOrderStatus = request.PaypalOrderStatus
             };
 
             var order = new Order()
@@ -77,23 +77,37 @@ namespace green_craze_be_v1.Infrastructure.Services
                 Tax = 0.1,
                 Code = StringUtil.GenerateUniqueCode(),
                 Status = ORDER_STATUS.NOT_PROCESSED,
-                PaymentStatus = paymentStatus,
+                PaymentStatus = false,
                 TotalAmount = totalAmount
             };
 
             return order;
         }
 
-        private async Task UpdateProductQuantity(CreateOrderRequest request)
+        private async Task UpdateProductQuantity(CreateOrderRequest request, Order order)
         {
             foreach (var item in request.Items)
             {
                 var variant = await _unitOfWork.Repository<Variant>().GetEntityWithSpec(new VariantSpecification(item.VariantId))
                     ?? throw new InvalidRequestException("Unexpected variantId");
                 var product = variant.Product ?? throw new InvalidRequestException("Unexpected variantId");
+
                 var q = item.Quantity * variant.Quantity;
+
+                var docket = new Docket()
+                {
+                    Code = StringUtil.GenerateUniqueCode(),
+                    Product = product,
+                    Order = order,
+                    Type = DOCKET_TYPE.EXPORT,
+                    Quantity = q,
+                };
+
+                await _unitOfWork.Repository<Docket>().Insert(docket);
+
                 product.Quantity -= q;
                 product.Sold = q;
+
                 _unitOfWork.Repository<Product>().Update(product);
             }
         }
@@ -110,7 +124,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             }
         }
 
-        public async Task<long> CreateOrder(CreateOrderRequest request)
+        public async Task<string> CreateOrder(CreateOrderRequest request)
         {
             try
             {
@@ -130,7 +144,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 var order = await InitOrder(user, paymentMethod, userAddress, delivery, request);
                 await _unitOfWork.Repository<Order>().Insert(order);
 
-                await UpdateProductQuantity(request);
+                await UpdateProductQuantity(request, order);
 
                 await UpdateUserCart(request, user.Cart);
 
@@ -141,7 +155,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 }
                 await _unitOfWork.Commit();
 
-                return order.Id;
+                return order.Code;
             }
             catch
             {
@@ -284,6 +298,34 @@ namespace green_craze_be_v1.Infrastructure.Services
             orderDto.Items = listItems;
 
             return orderDto;
+        }
+
+        public async Task<bool> CompletePaypalOrder(CompletePaypalOrderRequest request)
+        {
+            try
+            {
+                await _unitOfWork.CreateTransaction();
+                var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(request.OrderId, request.UserId))
+                ?? throw new InvalidRequestException("Unexpected order id");
+
+                order.Transaction.PaidAt = _dateTimeService.Current;
+                order.Transaction.PaypalOrderId = request.PaypalOrderId;
+                order.Transaction.PaypalOrderStatus = request.PaypalOrderStatus;
+                order.PaymentStatus = true;
+                order.Status = ORDER_STATUS.PROCESSING;
+
+                _unitOfWork.Repository<Order>().Update(order);
+
+                await _unitOfWork.Save();
+                await _unitOfWork.Commit();
+
+                return true;
+            }
+            catch
+            {
+                await _unitOfWork.Rollback();
+                throw;
+            }
         }
     }
 }
