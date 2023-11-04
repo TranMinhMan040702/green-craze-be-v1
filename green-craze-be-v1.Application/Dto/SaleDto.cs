@@ -16,5 +16,7 @@ namespace green_craze_be_v1.Application.Dto
         public double PromotionalPercent { get; set; }
         public string Slug { get; set; }
         public string Status { get; set; }
+        public List<ProductCategoryDto> ProductCategories {  get; set; }
+        public bool All {  get; set; }
     }
 }

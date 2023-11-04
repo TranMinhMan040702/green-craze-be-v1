@@ -9,6 +9,11 @@ namespace green_craze_be_v1.Application.Specification.Sale
 {
     public class SaleSpecification : BaseSpecification<Domain.Entities.Sale>
     {
+        public SaleSpecification(long id) : base(x => x.Id == id)
+        {
+            AddInclude(x => x.Products);
+        } 
+
         public SaleSpecification(GetSalePagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;
@@ -56,6 +61,7 @@ namespace green_craze_be_v1.Application.Specification.Sale
                 }
             }
             if (!isPaging) return;
+            AddInclude(x => x.Products);
             int skip = (query.PageIndex - 1) * query.PageSize;
             int take = query.PageSize;
             ApplyPaging(take, skip);
