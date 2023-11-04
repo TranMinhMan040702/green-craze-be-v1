@@ -78,6 +78,17 @@ namespace green_craze_be_v1.Application.Specification.User
         {
             AddInclude(x => x.Addresses);
             AddInclude(x => x.Cart);
+            AddInclude(x => x.AppUserTokens);
+        }
+
+        public UserSpecification()
+        {
+            AddInclude(x => x.AppUserTokens);
+        }
+
+        public UserSpecification(string email, bool test = false) : base(x => x.Email == email)
+        {
+            AddInclude(x => x.AppUserTokens);
         }
     }
 }

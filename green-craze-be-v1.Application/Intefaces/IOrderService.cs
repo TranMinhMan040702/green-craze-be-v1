@@ -12,7 +12,7 @@ namespace green_craze_be_v1.Application.Intefaces
 
         Task<bool> UpdateOrder(UpdateOrderRequest request);
 
-        Task<OrderDto> GetOrder(long id, string userId);
+        Task<OrderDto> GetOrder(long id);
 
         Task<OrderDto> GetOrderByCode(string code, string userId);
 

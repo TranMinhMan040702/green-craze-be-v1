@@ -55,9 +55,10 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetOrder([FromRoute] long id)
         {
-            var order = await _orderService.GetOrder(id, _currentUserService.UserId);
+            var order = await _orderService.GetOrder(id);
 
             return Ok(new APIResponse<OrderDto>(order, StatusCodes.Status200OK));
         }

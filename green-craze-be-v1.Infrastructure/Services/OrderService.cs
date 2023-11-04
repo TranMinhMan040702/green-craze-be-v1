@@ -212,9 +212,9 @@ namespace green_craze_be_v1.Infrastructure.Services
             return listItems;
         }
 
-        public async Task<OrderDto> GetOrder(long id, string userId)
+        public async Task<OrderDto> GetOrder(long id)
         {
-            var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(id, userId))
+            var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(id))
                 ?? throw new InvalidRequestException("Unexpected orderId");
             var listOrderItem = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
 

@@ -9,6 +9,18 @@ namespace green_craze_be_v1.Application.Specification.Order
 {
     public class OrderSpecification : BaseSpecification<Domain.Entities.Order>
     {
+        public OrderSpecification(long orderId) : base(x => x.Id == orderId)
+        {
+            AddInclude(x => x.User);
+            AddInclude(x => x.Address);
+            AddInclude(x => x.Address.Ward);
+            AddInclude(x => x.Address.District);
+            AddInclude(x => x.Address.Province);
+            AddInclude(x => x.Transaction);
+            AddInclude(x => x.CancelReason);
+            AddInclude(x => x.OrderItems);
+        }
+
         public OrderSpecification(long orderId, string userId) : base(x => x.Id == orderId && x.User.Id == userId)
         {
             AddInclude(x => x.User);

@@ -10,6 +10,7 @@ namespace green_craze_be_v1.Application.Common.Enums
     {
         public static string TOKEN = "TOKEN";
         public static string REFRESH_TOKEN = "REFRESH_TOKEN";
-        public static string OTP = "OTP";
+        public static string REGISTER_OTP = "REGISTER_OTP";
+        public static string FORGOT_PASSWORD_OTP = "FORGOT_PASSWORD_OTP";
     }
 }

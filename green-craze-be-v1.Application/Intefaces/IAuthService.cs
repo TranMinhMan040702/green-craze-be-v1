@@ -9,9 +9,17 @@ namespace green_craze_be_v1.Application.Intefaces
 
         Task<AuthDto> AuthenticateWithGoogle(GoogleAuthRequest request);
 
-        Task<string> Register(RegisterRequest request);
+        Task<string> Register(RegisterRequest request, bool isGoogleAuthen = false);
 
         Task<AuthDto> RefreshToken(RefreshTokenRequest request);
+
+        Task<bool> VerifyOTP(VerifyOTPRequest request);
+
+        Task<bool> ResendOTP(string email, string type);
+
+        Task<bool> ForgotPassword(string email);
+
+        Task<bool> ResetPassword(ResetPasswordRequest request);
 
         Task RevokeRefreshToken(string userId);
 
