@@ -24,5 +24,9 @@ namespace green_craze_be_v1.Application.Intefaces
         Task<bool> DeleteSale(long id);
 
         Task<bool> DeleteListSale(List<long> ids);
+
+        Task<bool> ApplySale(long id);
+
+        Task<bool> CancelSale(long id);
     }
 }

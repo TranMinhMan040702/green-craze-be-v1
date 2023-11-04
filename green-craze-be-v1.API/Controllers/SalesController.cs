@@ -73,5 +73,19 @@ namespace green_craze_be_v1.API.Controllers
 
             return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
+
+        [HttpPost("apply")]
+        public async Task<IActionResult> ApplySale([FromForm] long id)
+        {
+            var res = await _saleService.ApplySale(id);
+            return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
+        }
+
+        [HttpPost("cancel")]
+        public async Task<IActionResult> CancelSale([FromForm] long id)
+        {
+            var res = await _saleService.CancelSale(id);
+            return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
+        }
     }
 }

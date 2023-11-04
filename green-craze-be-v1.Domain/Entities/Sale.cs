@@ -17,6 +17,7 @@ namespace green_craze_be_v1.Domain.Entities
         public double PromotionalPercent { get; set; }
         public string Slug { get; set; }
         public string Status { get; set; }
+        public bool All {  get; set; }
         public ICollection<Product> Products { get; set; }
     }
 }
