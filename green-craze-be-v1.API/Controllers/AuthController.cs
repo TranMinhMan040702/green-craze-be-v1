@@ -1,4 +1,5 @@
-﻿using green_craze_be_v1.Application.Dto;
+﻿using green_craze_be_v1.Application.Common.Enums;
+using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Auth;
 using green_craze_be_v1.Application.Model.CustomAPI;
@@ -30,6 +31,64 @@ namespace green_craze_be_v1.API.Controllers
             var authResp = await _authService.Authenticate(request);
 
             return Ok(new APIResponse<AuthDto>(authResp, StatusCodes.Status200OK));
+        }
+
+        [HttpPost("google-login")]
+        public async Task<IActionResult> AuthenticateWithGoogle([FromBody] GoogleAuthRequest request)
+        {
+            var authResp = await _authService.AuthenticateWithGoogle(request);
+
+            return Ok(new APIResponse<AuthDto>(authResp, StatusCodes.Status200OK));
+        }
+
+        [HttpPut("register/verify")]
+        public async Task<IActionResult> VerifyRegistation([FromBody] VerifyOTPRequest request)
+        {
+            request.Type = TOKEN_TYPE.REGISTER_OTP;
+            var isSuccess = await _authService.VerifyOTP(request);
+
+            return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
+        }
+
+        [HttpPut("register/resend")]
+        public async Task<IActionResult> ResendRegistationOTP([FromQuery] string email)
+        {
+            var isSuccess = await _authService.ResendOTP(email, TOKEN_TYPE.REGISTER_OTP);
+
+            return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
+        }
+
+        [HttpPut("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        {
+            var isSuccess = await _authService.ForgotPassword(email);
+
+            return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
+        }
+
+        [HttpPut("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var isSuccess = await _authService.ResetPassword(request);
+
+            return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
+        }
+
+        [HttpPut("forgot-password/verify")]
+        public async Task<IActionResult> VerifyForgottenPassword([FromBody] VerifyOTPRequest request)
+        {
+            request.Type = TOKEN_TYPE.FORGOT_PASSWORD_OTP;
+            var isSuccess = await _authService.VerifyOTP(request);
+
+            return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
+        }
+
+        [HttpPut("forgot-password/resend")]
+        public async Task<IActionResult> ResendForgottenPasswordOTP([FromQuery] string email)
+        {
+            var isSuccess = await _authService.ResendOTP(email, TOKEN_TYPE.FORGOT_PASSWORD_OTP);
+
+            return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
         }
 
         [HttpPost("register")]

@@ -53,6 +53,8 @@ namespace green_craze_be_v1.Application.Common.Mapper
             CreateMap<Order, OrderDto>();
             CreateMap<OrderItem, OrderItemDto>();
 
+            CreateMap<Transaction, TransactionDto>();
+
             CreateMap<Product, ProductDto>();
             // Unit
             CreateMap<Unit, UnitDto>();

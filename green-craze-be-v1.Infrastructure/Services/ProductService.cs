@@ -76,7 +76,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             product.Brand = await _unitOfWork.Repository<Brand>().GetById(request.BrandId)
                 ?? throw new NotFoundException("Cannot find current brand");
 
-            product.Unit = await _unitOfWork.Repository<Unit>().GetById(request.UnitId) 
+            product.Unit = await _unitOfWork.Repository<Unit>().GetById(request.UnitId)
                 ?? throw new NotFoundException("Cannot find current unit");
 
             product.Quantity = 0;
@@ -86,11 +86,11 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             if (request.SaleId != null)
             {
-                product.Sale = await _unitOfWork.Repository<Sale>().GetById(request.SaleId) 
+                product.Sale = await _unitOfWork.Repository<Sale>().GetById(request.SaleId)
                     ?? throw new NotFoundException("Cannot find current sale");
             }
             product.Status = PRODUCT_STATUS.INACTIVE;
-            
+
             List<ProductImage> productImages = new();
             foreach (IFormFile image in request.ProductImages)
             {
@@ -133,10 +133,10 @@ namespace green_craze_be_v1.Infrastructure.Services
             product = _mapper.Map<UpdateProductRequest, Product>(request, product);
             product.Id = id;
 
-            product.Category = await _unitOfWork.Repository<ProductCategory>().GetById(request.CategoryId) 
+            product.Category = await _unitOfWork.Repository<ProductCategory>().GetById(request.CategoryId)
                 ?? throw new NotFoundException("Cannot find current product category");
 
-            product.Brand = await _unitOfWork.Repository<Brand>().GetById(request.BrandId) 
+            product.Brand = await _unitOfWork.Repository<Brand>().GetById(request.BrandId)
                 ?? throw new NotFoundException("Cannot find current product brand");
 
             product.Unit = await _unitOfWork.Repository<Unit>().GetById(request.UnitId)
@@ -144,7 +144,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             if (request.SaleId != null)
             {
-                product.Sale = await _unitOfWork.Repository<Sale>().GetById(request.SaleId) 
+                product.Sale = await _unitOfWork.Repository<Sale>().GetById(request.SaleId)
                     ?? throw new NotFoundException("Cannot find current sale");
             }
 
@@ -168,7 +168,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> DeleteProduct(long id)
         {
-            var product = await _unitOfWork.Repository<Product>().GetById(id) 
+            var product = await _unitOfWork.Repository<Product>().GetById(id)
                 ?? throw new NotFoundException("Cannot find current product");
 
             product.Status = PRODUCT_STATUS.INACTIVE;
@@ -191,7 +191,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 foreach (var id in ids)
                 {
-                    var product = await _unitOfWork.Repository<Product>().GetById(id) 
+                    var product = await _unitOfWork.Repository<Product>().GetById(id)
                         ?? throw new NotFoundException("Cannot find current product");
 
                     product.Status = PRODUCT_STATUS.INACTIVE;
@@ -214,6 +214,16 @@ namespace green_craze_be_v1.Infrastructure.Services
             }
         }
 
+        public async Task<ProductDto> GetProductBySlug(string slug)
+        {
+            var spec = new ProductSpecification(slug);
+            var product = await _unitOfWork.Repository<Product>().GetEntityWithSpec(spec)
+                ?? throw new NotFoundException("Cannot find current product");
+
+            var productDto = _mapper.Map<ProductDto>(product);
+
+            return productDto;
+        }
         public Task<PaginatedResult<ProductDto>> GetListProductByCategory(GetProductPagingRequest request, string categorySlug)
         {
             throw new NotImplementedException();

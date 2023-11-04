@@ -9,6 +9,7 @@ namespace green_craze_be_v1.Application.Dto
     public class CartItemDto : BaseAuditableDto<long>
     {
         public int Quantity { get; set; }
+        public long VariantId { get; set; }
         public string VariantName { get; set; }
         public long VariantQuantity { get; set; }
         public string Sku { get; set; }

@@ -56,6 +56,14 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(new APIResponse<AddressDto>(res, StatusCodes.Status200OK));
         }
 
+        [HttpGet("default")]
+        public async Task<IActionResult> GetDefaultAddress()
+        {
+            var res = await _addressService.GetDefaultAddress(_currentUserService.UserId);
+
+            return Ok(new APIResponse<AddressDto>(res, StatusCodes.Status200OK));
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetListAddress([FromQuery] GetAddressPagingRequest request)
         {

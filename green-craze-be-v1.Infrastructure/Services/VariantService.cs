@@ -5,6 +5,7 @@ using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.Variant;
+using green_craze_be_v1.Application.Specification.Cart;
 using green_craze_be_v1.Application.Specification.Variant;
 using green_craze_be_v1.Domain.Entities;
 
@@ -48,7 +49,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<VariantDto> GetVariant(long id)
         {
-            var spec = new VariantSpecification();
+            var spec = new VariantSpecification(id);
             var variant = await _unitOfWork.Repository<Variant>().GetEntityWithSpec(spec)
                 ?? throw new NotFoundException("Cannot find current variant");
 

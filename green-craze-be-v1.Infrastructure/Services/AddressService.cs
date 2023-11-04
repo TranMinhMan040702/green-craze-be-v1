@@ -104,6 +104,14 @@ namespace green_craze_be_v1.Infrastructure.Services
             return _mapper.Map<AddressDto>(address);
         }
 
+        public async Task<AddressDto> GetDefaultAddress(string userId)
+        {
+            var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, true));
+            if (address == null)
+                return null;
+            return _mapper.Map<AddressDto>(address);
+        }
+
         public async Task<PaginatedResult<AddressDto>> GetListAddress(GetAddressPagingRequest request)
         {
             var spec = new AddressSpecification(request, isPaging: true);
@@ -111,7 +119,10 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             var addresses = await _unitOfWork.Repository<Address>().ListAsync(spec);
             var count = await _unitOfWork.Repository<Address>().CountAsync(countSpec);
-
+            if (request.Status)
+            {
+                addresses = addresses.Where(x => x.Status == true).ToList();
+            }
             var addressDtos = new List<AddressDto>();
             addresses.ForEach(x => addressDtos.Add(_mapper.Map<AddressDto>(x)));
 
@@ -175,27 +186,28 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 if (ward.District.Id != district.Id || district.Province.Id != province.Id)
                     throw new InvalidRequestException("Cannot identify combined address, may be unexpected provinceId, districtId, wardId");
-
+                var isDefault = address.IsDefault;
                 _mapper.Map(request, address);
 
                 address.Province = province;
                 address.District = district;
                 address.Ward = ward;
-                if (!address.IsDefault)
-                {
-                    address.IsDefault = request.IsDefault;
+                address.IsDefault = isDefault;
+                //if (!address.IsDefault)
+                //{
+                //    address.IsDefault = request.IsDefault;
 
-                    if (request.IsDefault)
-                    {
-                        var addresses = await _unitOfWork.Repository<Address>().ListAsync(new AddressSpecification(address.User.Id, isDefault: true));
+                //    if (request.IsDefault)
+                //    {
+                //        var addresses = await _unitOfWork.Repository<Address>().ListAsync(new AddressSpecification(address.User.Id, isDefault: true));
 
-                        foreach (var a in addresses)
-                        {
-                            a.IsDefault = false;
-                            _unitOfWork.Repository<Address>().Update(a);
-                        }
-                    }
-                }
+                //        foreach (var a in addresses)
+                //        {
+                //            a.IsDefault = false;
+                //            _unitOfWork.Repository<Address>().Update(a);
+                //        }
+                //    }
+                //}
 
                 _unitOfWork.Repository<Address>().Update(address);
 

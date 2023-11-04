@@ -33,7 +33,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         private async Task<Order> InitOrder(AppUser user, PaymentMethod paymentMethod,
             Address userAddress, Delivery delivery, CreateOrderRequest request)
         {
-            var paymentStatus = paymentMethod.Code == PAYMENT_CODE.PAYPAL;
+            //var paymentStatus = paymentMethod.Code == PAYMENT_CODE.PAYPAL;
 
             var orderItems = new List<OrderItem>();
             decimal totalAmount = 0;
@@ -54,15 +54,15 @@ namespace green_craze_be_v1.Infrastructure.Services
             }
 
             var tax = totalAmount * ORDER_TAX.TAX;
-            totalAmount = totalAmount + delivery.Price - tax;
+            totalAmount = totalAmount + delivery.Price + tax;
 
             var transaction = new Transaction()
             {
                 PaymentMethod = paymentMethod.Code,
-                PaidAt = paymentStatus ? _dateTimeService.Current : null,
+                //PaidAt = paymentStatus ? _dateTimeService.Current : null,
                 TotalPay = totalAmount,
-                PaypalOrderId = request.PaypalOrderId,
-                PaypalOrderStatus = request.PaypalOrderStatus
+                //PaypalOrderId = request.PaypalOrderId,
+                //PaypalOrderStatus = request.PaypalOrderStatus
             };
 
             var order = new Order()
@@ -77,22 +77,36 @@ namespace green_craze_be_v1.Infrastructure.Services
                 Tax = 0.1,
                 Code = StringUtil.GenerateUniqueCode(),
                 Status = ORDER_STATUS.NOT_PROCESSED,
-                PaymentStatus = paymentStatus,
+                PaymentStatus = false,
                 TotalAmount = totalAmount
             };
 
             return order;
         }
 
-        private async Task UpdateProductQuantity(CreateOrderRequest request)
+        private async Task UpdateProductQuantity(CreateOrderRequest request, Order order)
         {
             foreach (var item in request.Items)
             {
-                var variant = await _unitOfWork.Repository<Variant>().GetById(item.VariantId)
+                var variant = await _unitOfWork.Repository<Variant>().GetEntityWithSpec(new VariantSpecification(item.VariantId))
                     ?? throw new InvalidRequestException("Unexpected variantId");
                 var product = variant.Product ?? throw new InvalidRequestException("Unexpected variantId");
 
-                product.Quantity -= item.Quantity;
+                var q = item.Quantity * variant.Quantity;
+
+                var docket = new Docket()
+                {
+                    Code = StringUtil.GenerateUniqueCode(),
+                    Product = product,
+                    Order = order,
+                    Type = DOCKET_TYPE.EXPORT,
+                    Quantity = q,
+                };
+
+                await _unitOfWork.Repository<Docket>().Insert(docket);
+
+                product.Quantity -= q;
+                product.Sold = q;
 
                 _unitOfWork.Repository<Product>().Update(product);
             }
@@ -106,12 +120,11 @@ namespace green_craze_be_v1.Infrastructure.Services
                     .GetEntityWithSpec(new CartItemSpecification(cart.Id, item.VariantId))
                     ?? throw new InvalidRequestException("Unexpected variantId");
 
-                cart.CartItems.Remove(cartItem);
+                _unitOfWork.Repository<CartItem>().Delete(cartItem);
             }
-            _unitOfWork.Repository<Cart>().Update(cart);
         }
 
-        public async Task<long> CreateOrder(CreateOrderRequest request)
+        public async Task<string> CreateOrder(CreateOrderRequest request)
         {
             try
             {
@@ -123,14 +136,15 @@ namespace green_craze_be_v1.Infrastructure.Services
                     ?? throw new NotFoundException("Cannot find default user's address");
 
                 var delivery = await _unitOfWork.Repository<Delivery>().GetById(request.DeliveryId)
-                    ?? throw new InvalidRequestException("Unexpected variantId deliveryId");
+                    ?? throw new InvalidRequestException("Unexpected deliveryId");
 
                 var paymentMethod = await _unitOfWork.Repository<PaymentMethod>().GetById(request.PaymentMethodId)
-                    ?? throw new InvalidRequestException("Unexpected variantId paymentMethodId");
+                    ?? throw new InvalidRequestException("Unexpected paymentMethodId");
 
                 var order = await InitOrder(user, paymentMethod, userAddress, delivery, request);
+                await _unitOfWork.Repository<Order>().Insert(order);
 
-                await UpdateProductQuantity(request);
+                await UpdateProductQuantity(request, order);
 
                 await UpdateUserCart(request, user.Cart);
 
@@ -141,7 +155,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 }
                 await _unitOfWork.Commit();
 
-                return order.Id;
+                return order.Code;
             }
             catch
             {
@@ -156,7 +170,13 @@ namespace green_craze_be_v1.Infrastructure.Services
             var count = await _unitOfWork.Repository<Order>().CountAsync(new OrderSpecification(request));
 
             var orderDtos = new List<OrderDto>();
-            orders.ForEach(x => orderDtos.Add(_mapper.Map<OrderDto>(x)));
+            foreach (var order in orders)
+            {
+                var listOrderItem = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
+                var dto = _mapper.Map<OrderDto>(order);
+                dto.Items = await GetOrderItemDto(listOrderItem);
+                orderDtos.Add(dto);
+            }
 
             return new PaginatedResult<OrderDto>(orderDtos, request.PageIndex, count, request.PageSize);
         }
@@ -166,12 +186,8 @@ namespace green_craze_be_v1.Infrastructure.Services
             return GetListOrder(request);
         }
 
-        public async Task<OrderDto> GetOrder(long id, string userId)
+        private async Task<List<OrderItemDto>> GetOrderItemDto(List<OrderItem> listOrderItem)
         {
-            var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(id, userId))
-                ?? throw new InvalidRequestException("Unexpected orderId");
-            var listOrderItem = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
-
             var listItems = new List<OrderItemDto>();
             foreach (var oi in listOrderItem)
             {
@@ -185,6 +201,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 orderItemDto.VariantQuantity = variant.Quantity;
                 orderItemDto.VariantName = variant.Name;
+                orderItemDto.Sku = product.Code + "-" + variant.Sku;
                 orderItemDto.ProductName = product.Name;
                 orderItemDto.ProductSlug = product.Slug;
                 orderItemDto.ProductUnit = product.Unit.Name;
@@ -192,6 +209,16 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 listItems.Add(orderItemDto);
             }
+            return listItems;
+        }
+
+        public async Task<OrderDto> GetOrder(long id)
+        {
+            var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(id))
+                ?? throw new InvalidRequestException("Unexpected orderId");
+            var listOrderItem = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
+
+            var listItems = await GetOrderItemDto(listOrderItem);
 
             var orderDto = _mapper.Map<OrderDto>(order);
             orderDto.Items = listItems;
@@ -204,18 +231,28 @@ namespace green_craze_be_v1.Infrastructure.Services
             var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(request.OrderId, request.UserId))
                 ?? throw new InvalidRequestException("Unexpected orderId");
 
+            // Cannot update order while it's delivered
+            if (order.Status == ORDER_STATUS.DELIVERED)
+                throw new InvalidRequestException("Unexpected order status, cannot update order while it's delivered");
+
+            if (order.Status == ORDER_STATUS.CANCELLED
+                && (!_currentUserService.IsInRole(USER_ROLE.ADMIN) && !_currentUserService.IsInRole(USER_ROLE.STAFF)))
+                throw new InvalidRequestException("Unexpected order status, user cannot update order while it's cancelled");
+
+            // Customer cannot cancel order while it's processing, only admin and staff can do that
             if (order.Status != ORDER_STATUS.NOT_PROCESSED
                 && request.Status == ORDER_STATUS.CANCELLED
-                && _currentUserService.IsInRole(USER_ROLE.USER))
+                && (!_currentUserService.IsInRole(USER_ROLE.ADMIN) && !_currentUserService.IsInRole(USER_ROLE.STAFF)))
                 throw new InvalidRequestException("Unexpected order status, cannot cancel order while it's processing");
 
+            var now = _dateTimeService.Current;
             order.Status = request.Status;
             if (request.Status == ORDER_STATUS.DELIVERED)
             {
                 order.PaymentStatus = true;
                 if (order.Transaction.PaymentMethod == PAYMENT_CODE.COD)
-                    order.Transaction.PaidAt = _dateTimeService.Current;
-                order.Transaction.CompletedAt = _dateTimeService.Current;
+                    order.Transaction.PaidAt = now;
+                order.Transaction.CompletedAt = now;
             }
             else if (request.Status == ORDER_STATUS.CANCELLED)
             {
@@ -231,6 +268,11 @@ namespace green_craze_be_v1.Infrastructure.Services
                     order.OtherCancelReason = request.OtherCancellation;
                 }
             }
+            else
+            {
+                order.CancelReason = null;
+                order.OtherCancelReason = null;
+            }
 
             _unitOfWork.Repository<Order>().Update(order);
 
@@ -242,6 +284,48 @@ namespace green_craze_be_v1.Infrastructure.Services
             }
 
             return true;
+        }
+
+        public async Task<OrderDto> GetOrderByCode(string code, string userId)
+        {
+            var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(code, userId))
+                ?? throw new InvalidRequestException("Unexpected order code");
+            var listOrderItem = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
+
+            var listItems = await GetOrderItemDto(listOrderItem);
+
+            var orderDto = _mapper.Map<OrderDto>(order);
+            orderDto.Items = listItems;
+
+            return orderDto;
+        }
+
+        public async Task<bool> CompletePaypalOrder(CompletePaypalOrderRequest request)
+        {
+            try
+            {
+                await _unitOfWork.CreateTransaction();
+                var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(request.OrderId, request.UserId))
+                ?? throw new InvalidRequestException("Unexpected order id");
+
+                order.Transaction.PaidAt = _dateTimeService.Current;
+                order.Transaction.PaypalOrderId = request.PaypalOrderId;
+                order.Transaction.PaypalOrderStatus = request.PaypalOrderStatus;
+                order.PaymentStatus = true;
+                order.Status = ORDER_STATUS.PROCESSING;
+
+                _unitOfWork.Repository<Order>().Update(order);
+
+                await _unitOfWork.Save();
+                await _unitOfWork.Commit();
+
+                return true;
+            }
+            catch
+            {
+                await _unitOfWork.Rollback();
+                throw;
+            }
         }
     }
 }

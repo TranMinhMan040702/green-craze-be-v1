@@ -15,8 +15,6 @@ namespace green_craze_be_v1.Application.Model.Order
         public string Note { get; set; }
         public long PaymentMethodId { get; set; }
         public long DeliveryId { get; set; }
-        public string PaypalOrderId { get; set; } = null;
-        public string PaypalOrderStatus { get; set; } = null;
 
         public List<CreateOrderItemRequest> Items { get; set; }
     }

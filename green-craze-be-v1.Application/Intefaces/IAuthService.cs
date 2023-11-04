@@ -1,10 +1,5 @@
 ﻿using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Model.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Intefaces
 {
@@ -12,9 +7,19 @@ namespace green_craze_be_v1.Application.Intefaces
     {
         Task<AuthDto> Authenticate(LoginRequest request);
 
-        Task<string> Register(RegisterRequest request);
+        Task<AuthDto> AuthenticateWithGoogle(GoogleAuthRequest request);
+
+        Task<string> Register(RegisterRequest request, bool isGoogleAuthen = false);
 
         Task<AuthDto> RefreshToken(RefreshTokenRequest request);
+
+        Task<bool> VerifyOTP(VerifyOTPRequest request);
+
+        Task<bool> ResendOTP(string email, string type);
+
+        Task<bool> ForgotPassword(string email);
+
+        Task<bool> ResetPassword(ResetPasswordRequest request);
 
         Task RevokeRefreshToken(string userId);
 

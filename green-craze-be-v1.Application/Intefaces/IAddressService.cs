@@ -19,6 +19,8 @@ namespace green_craze_be_v1.Application.Intefaces
 
         public Task<AddressDto> GetAddress(long id, string userId);
 
+        public Task<AddressDto> GetDefaultAddress(string userId);
+
         public Task<PaginatedResult<AddressDto>> GetListAddress(GetAddressPagingRequest request);
 
         public Task<bool> SetAddressDefault(long id, string userId);

@@ -16,6 +16,13 @@ namespace green_craze_be_v1.Application.Specification.Cart
             AddInclude(x => x.Cart);
             AddInclude(x => x.Variant);
         }
+        public CartItemSpecification(long cartItemId, string userId)
+            : base(x => x.Id == cartItemId && x.Cart.UserId == userId)
+        {
+            AddInclude(x => x.Cart);
+            AddInclude(x => x.Variant);
+            AddInclude(x => x.Variant.Product);
+        }
 
         public CartItemSpecification(GetCartPagingRequest request, bool isPaging = false)
         {
