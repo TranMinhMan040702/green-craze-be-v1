@@ -224,5 +224,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             return productDto;
         }
+        public Task<PaginatedResult<ProductDto>> GetListProductByCategory(GetProductPagingRequest request, string categorySlug)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

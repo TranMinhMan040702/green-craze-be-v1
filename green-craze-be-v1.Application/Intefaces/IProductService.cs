@@ -14,6 +14,8 @@ namespace green_craze_be_v1.Application.Intefaces
     {
         Task<PaginatedResult<ProductDto>> GetListProduct(GetProductPagingRequest request);
 
+        Task<PaginatedResult<ProductDto>> GetListProductByCategory(GetProductPagingRequest request, string categorySlug);
+
         Task<ProductDto> GetProduct(long id);
         Task<ProductDto> GetProductBySlug(string slug);
 

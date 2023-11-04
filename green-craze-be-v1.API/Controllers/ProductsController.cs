@@ -16,18 +16,16 @@ namespace green_craze_be_v1.API.Controllers
     {
         private readonly IProductService _productService;
         private readonly IProductImageService _productImageService;
-        private readonly IVariantService _variantService;
 
-        public ProductsController(IProductImageService productImageService, IProductService productService, IVariantService variantService)
+        public ProductsController(IProductImageService productImageService, IProductService productService)
         {
             _productImageService = productImageService;
             _productService = productService;
-            _variantService = variantService;
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetListProduct([FromForm] GetProductPagingRequest request)
+        public async Task<IActionResult> GetListProduct([FromQuery] GetProductPagingRequest request)
         {
             var res = await _productService.GetListProduct(request);
 
