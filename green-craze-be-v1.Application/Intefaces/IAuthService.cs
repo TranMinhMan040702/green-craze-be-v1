@@ -15,9 +15,9 @@ namespace green_craze_be_v1.Application.Intefaces
 
         Task<bool> VerifyOTP(VerifyOTPRequest request);
 
-        Task<bool> ResendOTP(string email, string type);
+        Task<bool> ResendOTP(ResendOTPRequest request);
 
-        Task<bool> ForgotPassword(string email);
+        Task<bool> ForgotPassword(ForgotPasswordRequest request);
 
         Task<bool> ResetPassword(ResetPasswordRequest request);
 

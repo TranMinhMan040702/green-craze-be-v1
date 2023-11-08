@@ -1,4 +1,5 @@
-﻿using green_craze_be_v1.Application.Dto;
+﻿using green_craze_be_v1.Application.Common.Enums;
+using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Order;
@@ -75,7 +76,8 @@ namespace green_craze_be_v1.API.Controllers
         public async Task<IActionResult> UpdateOrder([FromRoute] long id, [FromBody] UpdateOrderRequest request)
         {
             request.OrderId = id;
-            request.UserId = _currentUserService.UserId;
+            if (!_currentUserService.IsInRole(USER_ROLE.ADMIN))
+                request.UserId = _currentUserService.UserId;
 
             var isSuccess = await _orderService.UpdateOrder(request);
 

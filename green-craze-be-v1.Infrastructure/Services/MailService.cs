@@ -43,7 +43,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                             }
                        });
 
-                Task.Run(() => client.PostAsync(request));
+                _ = Task.Run(() => client.PostAsync(request));
             }
             catch
             {

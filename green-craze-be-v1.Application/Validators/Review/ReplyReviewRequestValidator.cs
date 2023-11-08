@@ -12,7 +12,7 @@ namespace green_craze_be_v1.Application.Validators.Review
     {
         public ReplyReviewRequestValidator()
         {
-            RuleFor(x => x.Reply).NotEmpty().NotNull();
+            //RuleFor(x => x.Reply).NotEmpty().NotNull();
         }
     }
 }

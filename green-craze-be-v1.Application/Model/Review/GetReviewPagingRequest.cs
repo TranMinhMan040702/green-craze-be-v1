@@ -7,5 +7,10 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Model.Review
 {
-    public class GetReviewPagingRequest : PagingRequest { }
+    public class GetReviewPagingRequest : PagingRequest
+    {
+        public long? ProductId { get; set; }
+
+        public long? Rating { get; set; }
+    }
 }

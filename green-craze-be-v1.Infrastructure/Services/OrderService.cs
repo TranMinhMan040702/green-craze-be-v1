@@ -9,6 +9,7 @@ using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Specification.Cart;
 using green_craze_be_v1.Application.Specification.Order;
 using green_craze_be_v1.Application.Specification.Product;
+using green_craze_be_v1.Application.Specification.Review;
 using green_craze_be_v1.Application.Specification.User;
 using green_craze_be_v1.Application.Specification.Variant;
 using green_craze_be_v1.Domain.Entities;
@@ -198,7 +199,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                     ?? throw new NotFoundException("Cannot find product of variant item");
 
                 var orderItemDto = _mapper.Map<OrderItemDto>(oi);
-
+                orderItemDto.ProductId = product.Id;
                 orderItemDto.VariantQuantity = variant.Quantity;
                 orderItemDto.VariantName = variant.Name;
                 orderItemDto.Sku = product.Code + "-" + variant.Sku;
@@ -228,8 +229,18 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> UpdateOrder(UpdateOrderRequest request)
         {
-            var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(request.OrderId, request.UserId))
+            var spec = new OrderSpecification(request.OrderId);
+            if (!string.IsNullOrEmpty(request.UserId))
+            {
+                spec = new OrderSpecification(request.OrderId, request.UserId);
+            }
+            var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(spec)
                 ?? throw new InvalidRequestException("Unexpected orderId");
+
+            if (order.Status == ORDER_STATUS.NOT_PROCESSED && order.PaymentStatus == false && order.Transaction.PaymentMethod == PAYMENT_CODE.PAYPAL)
+            {
+                throw new InvalidRequestException("Cannot update this order status, until it was paid by user through PayPal");
+            }
 
             // Cannot update order while it's delivered
             if (order.Status == ORDER_STATUS.DELIVERED)
@@ -291,12 +302,13 @@ namespace green_craze_be_v1.Infrastructure.Services
             var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(code, userId))
                 ?? throw new InvalidRequestException("Unexpected order code");
             var listOrderItem = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
-
+            var listReview = await _unitOfWork.Repository<Review>().ListAsync(new ReviewSpecification(order.Id));
             var listItems = await GetOrderItemDto(listOrderItem);
 
             var orderDto = _mapper.Map<OrderDto>(order);
             orderDto.Items = listItems;
-
+            orderDto.IsReview = listReview.Count == listItems.Count;
+            orderDto.ReviewedDate = listReview.Max(x => x.CreatedAt);
             return orderDto;
         }
 

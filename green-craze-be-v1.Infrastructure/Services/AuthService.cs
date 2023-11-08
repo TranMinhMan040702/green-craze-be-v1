@@ -8,7 +8,6 @@ using green_craze_be_v1.Application.Model.Auth;
 using green_craze_be_v1.Application.Specification.User;
 using green_craze_be_v1.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Org.BouncyCastle.Asn1.Ocsp;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
@@ -99,7 +98,14 @@ namespace green_craze_be_v1.Infrastructure.Services
                 throw new AccessDeniedException("Your account has been banned");
 
             if (!user.EmailConfirmed)
+            {
+                await ResendOTP(new ResendOTPRequest()
+                {
+                    Email = user.Email,
+                    Type = TOKEN_TYPE.REGISTER_OTP
+                });
                 throw new AccessDeniedException("Your account hasn't been confirmed");
+            }
 
             return await GenerateAuthCredential(user);
         }
@@ -120,12 +126,21 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<AuthDto> AuthenticateWithGoogle(GoogleAuthRequest request)
         {
             var payload = await IsGoogleTokenValid(request.GoogleToken);
-            var user = await _userManager.FindByEmailAsync(payload.Email);
+            var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(payload.Email, true));
+
             if (user != null)
             {
                 if (user.Status == USER_STATUS.IN_ACTIVE)
                     throw new AccessDeniedException("Your account has been banned");
                 user.EmailConfirmed = true;
+                var userOTP = user.AppUserTokens.FirstOrDefault(x => x.Type == TOKEN_TYPE.REGISTER_OTP);
+                if (userOTP != null)
+                {
+                    userOTP.Token = null;
+                    userOTP.ExpiredAt = null;
+                    userOTP.UpdatedAt = _dateTimeService.Current;
+                    userOTP.UpdatedBy = _currentUserService.UserId;
+                }
                 return await GenerateAuthCredential(user);
             }
             var registerRequest = new RegisterRequest()
@@ -137,14 +152,9 @@ namespace green_craze_be_v1.Infrastructure.Services
             };
             var userId = await Register(registerRequest, isGoogleAuthen: true);
             user = await _userManager.FindByIdAsync(userId);
-
-            var resp = await GenerateAuthCredential(user);
-
             user.Avatar = payload.Picture;
 
-            user.UpdatedAt = _dateTimeService.Current;
-            user.UpdatedBy = _currentUserService.UserId;
-            await _userManager.UpdateAsync(user);
+            var resp = await GenerateAuthCredential(user);
 
             return resp;
         }
@@ -181,6 +191,10 @@ namespace green_craze_be_v1.Infrastructure.Services
             user.CreatedAt = _dateTimeService.Current;
             user.CreatedBy = "System";
             user.Cart = new Cart();
+            if (isGoogleAuthen)
+            {
+                user.EmailConfirmed = true;
+            }
             var res = await _userManager.CreateAsync(user, request.Password);
 
             if (res.Succeeded)
@@ -196,7 +210,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                     user.AppUserTokens.Add(new AppUserToken()
                     {
                         Token = otp,
-                        ExpiredAt = _dateTimeService.Current.AddMinutes(5),
+                        ExpiredAt = _dateTimeService.Current.AddMinutes(720),
                         Type = TOKEN_TYPE.REGISTER_OTP,
                         CreatedAt = _dateTimeService.Current,
                         CreatedBy = "System"
@@ -251,13 +265,13 @@ namespace green_craze_be_v1.Infrastructure.Services
             var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(request.Email, true))
                 ?? throw new NotFoundException("Cannot find user with email: " + request.Email);
 
-            var userToken = user.AppUserTokens.FirstOrDefault(x => x.Type == request.Type);
+            var userToken = user.AppUserTokens.FirstOrDefault(x => x.Type == request.Type) ??
+                throw new InvalidRequestException("Cannot verify, you must follow the steps in order");
 
-            if (userToken is null || userToken.Token != request.OTP)
+            if (userToken.Token != request.OTP)
             {
                 throw new InvalidRequestException("OTP is invalid");
             }
-
             if (userToken.ExpiredAt <= _dateTimeService.Current)
             {
                 throw new InvalidRequestException("OTP is expired");
@@ -280,17 +294,25 @@ namespace green_craze_be_v1.Infrastructure.Services
             return true;
         }
 
-        public async Task<bool> ResendOTP(string email, string type)
+        public async Task<bool> ResendOTP(ResendOTPRequest request)
         {
-            var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(email, true))
-                ?? throw new NotFoundException("Cannot find user with email: " + email);
-            var userToken = user.AppUserTokens.FirstOrDefault(x => x.Type == type)
-                ?? throw new InvalidRequestException("This user hasn't been signed up before, invalid request");
+            var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(request.Email, true))
+                ?? throw new NotFoundException("Cannot find user with email: " + request.Email);
+            var userToken = user.AppUserTokens.FirstOrDefault(x => x.Type == request.Type);
+
+            if (userToken == null && request.Type == TOKEN_TYPE.REGISTER_OTP)
+                throw new InvalidRequestException("This user hasn't been signed up before, invalid request");
+
+            if (userToken == null && request.Type == TOKEN_TYPE.FORGOT_PASSWORD_OTP)
+                throw new InvalidRequestException("You need to perform forgot password feature for your account before, invalid request");
+
+            if (request.Type == TOKEN_TYPE.REGISTER_OTP && user.EmailConfirmed)
+                throw new InvalidRequestException("Your account has been verified, invalid request");
 
             var otp = _tokenService.GenerateOTP();
 
             userToken.Token = otp;
-            userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(5);
+            userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(720);
             userToken.UpdatedAt = _dateTimeService.Current;
             userToken.UpdatedBy = _currentUserService.UserId;
 
@@ -304,10 +326,12 @@ namespace green_craze_be_v1.Infrastructure.Services
             return true;
         }
 
-        public async Task<bool> ForgotPassword(string email)
+        public async Task<bool> ForgotPassword(ForgotPasswordRequest request)
         {
-            var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(email, true))
-                ?? throw new NotFoundException("Cannot find user with email: " + email);
+            var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(request.Email, true))
+                ?? throw new NotFoundException("Cannot find user with email: " + request.Email);
+            if (!user.EmailConfirmed)
+                throw new InvalidRequestException("Your account hasn't been confirmed, please verify it before");
 
             var userToken = user.AppUserTokens.FirstOrDefault(x => x.Type == TOKEN_TYPE.FORGOT_PASSWORD_OTP);
 
@@ -317,7 +341,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 user.AppUserTokens.Add(new AppUserToken()
                 {
                     Token = otp,
-                    ExpiredAt = _dateTimeService.Current.AddMinutes(5),
+                    ExpiredAt = _dateTimeService.Current.AddMinutes(720),
                     Type = TOKEN_TYPE.FORGOT_PASSWORD_OTP,
                     CreatedAt = _dateTimeService.Current,
                     CreatedBy = "System"
@@ -326,7 +350,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             else
             {
                 userToken.Token = otp;
-                userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(5);
+                userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(720);
                 userToken.UpdatedAt = _dateTimeService.Current;
                 userToken.UpdatedBy = _currentUserService.UserId;
             }
@@ -342,18 +366,24 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> ResetPassword(ResetPasswordRequest request)
         {
+            await VerifyOTP(new VerifyOTPRequest()
+            {
+                Email = request.Email,
+                OTP = request.OTP,
+                Type = TOKEN_TYPE.FORGOT_PASSWORD_OTP
+            });
+
             var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(request.Email, true))
                 ?? throw new NotFoundException("Cannot find user with email: " + request.Email);
-
-            var userToken = user.AppUserTokens.FirstOrDefault(x => x.Type == TOKEN_TYPE.FORGOT_PASSWORD_OTP)
-                ?? throw new InvalidRequestException("Cannot reset password, this account has never receive request for forgotting password before");
-
-            if (userToken.Token != null)
-                throw new InvalidRequestException("Please verify OTP before reset password");
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             var res = await _userManager.ResetPasswordAsync(user, token, request.Password);
+            user.UpdatedAt = _dateTimeService.Current;
+            user.UpdatedBy = _currentUserService.UserId;
+            await _userManager.UpdateAsync(user);
+            if (!res.Succeeded)
+                throw new Exception("Cannot reset your password, please contact administrator");
 
             return res.Succeeded;
         }

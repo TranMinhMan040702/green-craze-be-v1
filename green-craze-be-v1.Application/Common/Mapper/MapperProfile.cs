@@ -86,6 +86,10 @@ namespace green_craze_be_v1.Application.Common.Mapper
             CreateMap<UpdateSaleRequest, Sale>().ForMember(dest => dest.Image, act => act.Ignore()); ;
             // Inventory
             CreateMap<Docket, DocketDto>();
+
+            // Review
+            CreateMap<Review, ReviewDto>();
+            CreateMap<CreateReviewRequest, Review>();
         }
     }
 }

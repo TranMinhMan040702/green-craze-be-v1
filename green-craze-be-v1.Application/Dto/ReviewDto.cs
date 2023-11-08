@@ -18,5 +18,8 @@ namespace green_craze_be_v1.Application.Model.Review
         public string Image { get; set; }
         public string Reply { get; set; }
         public bool Status { get; set; }
+        public string VariantName { get; set; }
+        public ProductDto Product { get; set; }
+        public UserDto User { get; set; }
     }
 }

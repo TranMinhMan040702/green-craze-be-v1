@@ -18,6 +18,8 @@ namespace green_craze_be_v1.Application.Dto
         public string Status { get; set; }
         public string Code { get; set; }
         public string DeliveryMethod { get; set; }
+        public bool IsReview { get; set; }
+        public DateTime? ReviewedDate { get; set; }
         public UserDto User { get; set; }
         public AddressDto Address { get; set; }
         public TransactionDto Transaction { get; set; }
