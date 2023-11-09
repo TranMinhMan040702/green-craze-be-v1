@@ -147,9 +147,9 @@ namespace green_craze_be_v1.Application.Specification.Order
                 {
                     AddOrderByDescending(x => x.Id);
                 }
-                else if (column == nameof(Domain.Entities.Order.CreatedAt).ToLower())
+                else if (column == nameof(Domain.Entities.Order.Code).ToLower())
                 {
-                    AddOrderByDescending(x => x.CreatedAt);
+                    AddOrderByDescending(x => x.Code);
                 }
                 else if (column == nameof(Domain.Entities.Order.Transaction.PaymentMethod).ToLower())
                 {

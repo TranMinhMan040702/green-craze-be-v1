@@ -15,21 +15,40 @@ namespace green_craze_be_v1.Application.Specification.ProductCategory
 
             if (!string.IsNullOrEmpty(keyword))
             {
-                Criteria = x => x.Name == keyword;
+                if (query.Status)
+                    Criteria = x => (x.Name.Contains(keyword) || x.Slug.Contains(keyword)) && x.Status == true;
+                else
+                    Criteria = x => x.Name.Contains(keyword) || x.Slug.Contains(keyword);
             }
+            else
+            {
+                if (query.Status)
+                    Criteria = x => x.Status == true;
+                else
+                    Criteria = x => true;
+            }
+            var columnName = query.ColumnName.ToLower();
             if (query.IsSortAccending)
             {
-                if (query.ColumnName == nameof(Domain.Entities.ProductCategory.Name))
+                if (columnName == nameof(Domain.Entities.ProductCategory.Name).ToLower())
                 {
                     AddOrderBy(x => x.Name);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.ProductCategory.CreatedAt))
+                else if (columnName == nameof(Domain.Entities.ProductCategory.Slug).ToLower())
+                {
+                    AddOrderBy(x => x.Slug);
+                }
+                else if (columnName == nameof(Domain.Entities.ProductCategory.CreatedAt).ToLower())
                 {
                     AddOrderBy(x => x.CreatedAt);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.ProductCategory.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.ProductCategory.UpdatedAt).ToLower())
                 {
                     AddOrderBy(x => x.UpdatedAt);
+                }
+                else if (columnName == nameof(Domain.Entities.ProductCategory.Status).ToLower())
+                {
+                    AddOrderBy(x => x.Status);
                 }
                 else
                 {
@@ -38,17 +57,25 @@ namespace green_craze_be_v1.Application.Specification.ProductCategory
             }
             else
             {
-                if (query.ColumnName == nameof(Domain.Entities.ProductCategory.Name))
+                if (columnName == nameof(Domain.Entities.ProductCategory.Name).ToLower())
                 {
                     AddOrderByDescending(x => x.Name);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.ProductCategory.CreatedAt))
+                else if (columnName == nameof(Domain.Entities.ProductCategory.Slug).ToLower())
+                {
+                    AddOrderByDescending(x => x.Slug);
+                }
+                else if (columnName == nameof(Domain.Entities.ProductCategory.CreatedAt).ToLower())
                 {
                     AddOrderByDescending(x => x.CreatedAt);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.ProductCategory.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.ProductCategory.UpdatedAt).ToLower())
                 {
                     AddOrderByDescending(x => x.UpdatedAt);
+                }
+                else if (columnName == nameof(Domain.Entities.ProductCategory.Status).ToLower())
+                {
+                    AddOrderByDescending(x => x.Status);
                 }
                 else
                 {

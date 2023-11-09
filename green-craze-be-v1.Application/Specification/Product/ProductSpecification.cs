@@ -82,17 +82,42 @@ namespace green_craze_be_v1.Application.Specification.Product
                     Criteria = x => true;
                 }
             }
+            var columnName = query.ColumnName.ToLower();
             if (query.IsSortAccending)
             {
-                if (query.ColumnName == nameof(Domain.Entities.Product.Name))
+                if (columnName == nameof(Domain.Entities.Product.Name).ToLower())
                 {
                     AddOrderBy(x => x.Name);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.Product.CreatedAt))
+                else if (columnName == nameof(Domain.Entities.Product.Sold).ToLower())
+                {
+                    AddOrderBy(x => x.Sold);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.Quantity).ToLower())
+                {
+                    AddOrderBy(x => x.Quantity);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.ActualInventory).ToLower())
+                {
+                    AddOrderBy(x => x.ActualInventory);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.Code).ToLower())
+                {
+                    AddOrderBy(x => x.Code);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.Status).ToLower())
+                {
+                    AddOrderBy(x => x.Status);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.Category).ToLower())
+                {
+                    AddOrderBy(x => x.Category.Name);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.CreatedAt).ToLower())
                 {
                     AddOrderBy(x => x.CreatedAt);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.Product.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.Product.UpdatedAt).ToLower())
                 {
                     AddOrderBy(x => x.UpdatedAt);
                 }
@@ -103,15 +128,39 @@ namespace green_craze_be_v1.Application.Specification.Product
             }
             else
             {
-                if (query.ColumnName == nameof(Domain.Entities.Product.Name))
+                if (columnName == nameof(Domain.Entities.Product.Name).ToLower())
                 {
                     AddOrderByDescending(x => x.Name);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.Product.CreatedAt))
+                else if (columnName == nameof(Domain.Entities.Product.Sold).ToLower())
+                {
+                    AddOrderByDescending(x => x.Sold);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.Quantity).ToLower())
+                {
+                    AddOrderByDescending(x => x.Quantity);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.ActualInventory).ToLower())
+                {
+                    AddOrderByDescending(x => x.ActualInventory);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.Code).ToLower())
+                {
+                    AddOrderByDescending(x => x.Code);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.Status).ToLower())
+                {
+                    AddOrderByDescending(x => x.Status);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.Category.Name).ToLower())
+                {
+                    AddOrderByDescending(x => x.Category.Name);
+                }
+                else if (columnName == nameof(Domain.Entities.Product.CreatedAt).ToLower())
                 {
                     AddOrderByDescending(x => x.CreatedAt);
                 }
-                else if (query.ColumnName == nameof(Domain.Entities.Product.UpdatedAt))
+                else if (columnName == nameof(Domain.Entities.Product.UpdatedAt).ToLower())
                 {
                     AddOrderByDescending(x => x.UpdatedAt);
                 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using green_craze_be_v1.Application.Common.Enums;
 using green_craze_be_v1.Application.Common.Exceptions;
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
@@ -35,6 +36,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             var variant = await _unitOfWork.Repository<Variant>().GetEntityWithSpec(new VariantSpecification(request.VariantId))
                 ?? throw new InvalidRequestException("Unexpected variantId");
+
+            if (variant.Product.Status != PRODUCT_STATUS.ACTIVE)
+                throw new InvalidRequestException("Unexpected variantId, product is not active");
 
             var quantity = variant?.Product?.Quantity;
             if (quantity < request.Quantity)
