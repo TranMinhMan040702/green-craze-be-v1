@@ -107,7 +107,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 await _unitOfWork.Repository<Docket>().Insert(docket);
 
                 product.Quantity -= q;
-                product.Sold = q;
+                product.Sold += q;
 
                 _unitOfWork.Repository<Product>().Update(product);
             }
