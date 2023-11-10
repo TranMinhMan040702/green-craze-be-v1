@@ -17,6 +17,6 @@ namespace green_craze_be_v1.Application.Model.Order
 
         public string Status { get; set; }
         public string OtherCancellation { get; set; }
-        public long OrderCancellationReasonId { get; set; }
+        public long? OrderCancellationReasonId { get; set; }
     }
 }

@@ -1,16 +1,12 @@
 ﻿using AutoMapper;
-using green_craze_be_v1.Application.Dto;
+using green_craze_be_v1.Application.Common.Enums;
+using green_craze_be_v1.Application.Common.Exceptions;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.Review;
+using green_craze_be_v1.Application.Specification.Order;
 using green_craze_be_v1.Application.Specification.Review;
-using green_craze_be_v1.Application.Specification.Unit;
 using green_craze_be_v1.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Services
 {
@@ -34,8 +30,14 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             var reviews = await _unitOfWork.Repository<Review>().ListAsync(spec);
             var count = await _unitOfWork.Repository<Review>().CountAsync(countSpec);
+
             var reviewDtos = new List<ReviewDto>();
-            reviews.ForEach(x => reviewDtos.Add(_mapper.Map<ReviewDto>(x)));
+            reviews.ForEach(x =>
+            {
+                var dto = _mapper.Map<ReviewDto>(x);
+                dto.VariantName = x?.OrderItem?.Variant?.Name;
+                reviewDtos.Add(dto);
+            });
 
             return new PaginatedResult<ReviewDto>(reviewDtos, request.PageIndex, count, request.PageSize);
         }
@@ -50,24 +52,54 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<ReviewDto> GetReview(long id)
         {
-            var review = await _unitOfWork.Repository<Review>().GetById(id);
+            var review = await _unitOfWork.Repository<Review>().GetEntityWithSpec(new ReviewSpecification(true, id)) ??
+            throw new InvalidRequestException("Unexpected reviewId");
 
-            return _mapper.Map<ReviewDto>(review);
+            var dto = _mapper.Map<ReviewDto>(review);
+            dto.VariantName = review?.OrderItem?.Variant?.Name;
+
+            return dto;
         }
 
         public async Task<long> CreateReview(CreateReviewRequest request)
         {
-            var review = _mapper.Map<Review>(request);
-            review.Image = _uploadService.UploadFile(request.Image).Result;
-            await _unitOfWork.Repository<Review>().Insert(review);
-
-            var isSuccess = await _unitOfWork.Save() > 0;
-            if (!isSuccess)
+            try
             {
-                throw new Exception("Cannot create entity");
-            }
+                await _unitOfWork.CreateTransaction();
+                var x = await _unitOfWork.Repository<Review>().GetEntityWithSpec(new ReviewSpecification(request.OrderItemId, request.UserId));
 
-            return review.Id;
+                if (x != null) throw new InvalidRequestException("Unexpected orderItemId, this order item has been reviewed");
+
+                var review = _mapper.Map<Review>(request);
+                if (request.Image != null)
+                    review.Image = await _uploadService.UploadFile(request.Image);
+                var product = await _unitOfWork.Repository<Product>().GetById(request.ProductId) ??
+                    throw new InvalidRequestException("Unexpected productId");
+                var user = await _unitOfWork.Repository<AppUser>().GetById(request.UserId) ??
+                    throw new NotFoundException("Cannot found current user");
+                var orderItem = await _unitOfWork.Repository<OrderItem>().GetEntityWithSpec(new OrderItemSpecification(request.OrderItemId, ORDER_STATUS.DELIVERED)) ??
+                    throw new InvalidRequestException("Unexpected orderItemId, order has not been deliveried");
+
+                review.Product = product;
+                review.User = user;
+                review.OrderItem = orderItem;
+                await _unitOfWork.Repository<Review>().Insert(review);
+                await _unitOfWork.Save();
+                await CalculateProductReview(review.Product);
+                var isSuccess = await _unitOfWork.Save() > 0;
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot create entity");
+                }
+                await _unitOfWork.Commit();
+
+                return review.Id;
+            }
+            catch
+            {
+                await _unitOfWork.Rollback();
+                throw;
+            }
         }
 
         public async Task<bool> ReplyReview(long id, ReplyReviewRequest request)
@@ -87,18 +119,29 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> DeleteReview(long id)
         {
-            var review = await _unitOfWork.Repository<Review>().GetById(id);
-
-            review.Status = false;
-            _unitOfWork.Repository<Review>().Update(review);
-
-            var isSuccess = await _unitOfWork.Save() > 0;
-            if (!isSuccess)
+            try
             {
-                throw new Exception("Cannot update status of entity");
-            }
+                var review = await _unitOfWork.Repository<Review>().GetEntityWithSpec(new ReviewSpecification(true, id)) ??
+                throw new InvalidRequestException("Unexpected reviewId");
 
-            return isSuccess;
+                review.Status = false;
+                _unitOfWork.Repository<Review>().Update(review);
+                await _unitOfWork.Save();
+                await CalculateProductReview(review.Product);
+
+                var isSuccess = await _unitOfWork.Save() > 0;
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot update status of entity");
+                }
+
+                return isSuccess;
+            }
+            catch
+            {
+                await _unitOfWork.Rollback();
+                throw;
+            }
         }
 
         public async Task<bool> DeleteListReview(List<long> ids)
@@ -109,9 +152,14 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 foreach (var id in ids)
                 {
-                    var review = await _unitOfWork.Repository<Review>().GetById(id);
+                    var review = await _unitOfWork.Repository<Review>().GetEntityWithSpec(new ReviewSpecification(true, id)) ??
+                        throw new InvalidRequestException("Unexpected reviewId");
                     review.Status = false;
+
                     _unitOfWork.Repository<Review>().Update(review);
+                    await _unitOfWork.Save();
+
+                    await CalculateProductReview(review.Product);
                 }
 
                 var isSuccess = await _unitOfWork.Save() > 0;
@@ -130,5 +178,103 @@ namespace green_craze_be_v1.Infrastructure.Services
             }
         }
 
+        private async Task CalculateProductReview(Product product)
+        {
+            var reviews = await _unitOfWork.Repository<Review>().ListAsync(new ReviewSpecification(product.Id, true));
+            product.Rating = reviews.Count == 0 ? 0 : reviews.Average(x => x.Rating);
+            product.Rating = Math.Round(product.Rating.Value, 1);
+            _unitOfWork.Repository<Product>().Update(product);
+        }
+
+        public async Task<bool> UpdateReview(UpdateReviewRequest request)
+        {
+            try
+            {
+                await _unitOfWork.CreateTransaction();
+                var review = await _unitOfWork.Repository<Review>().GetEntityWithSpec(new ReviewSpecification(request.UserId, request.Id))
+                ?? throw new InvalidRequestException("Unexpected reviewId");
+
+                review.Title = request.Title;
+                review.Content = request.Content;
+                review.Rating = request.Rating;
+                if (request.Image != null)
+                    review.Image = await _uploadService.UploadFile(request.Image);
+                else if (request.IsDeleteImage)
+                    review.Image = null;
+                _unitOfWork.Repository<Review>().Update(review);
+                await _unitOfWork.Save();
+                await CalculateProductReview(review.Product);
+
+                var isSuccess = await _unitOfWork.Save() > 0;
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot update review");
+                }
+                await _unitOfWork.Commit();
+
+                return true;
+            }
+            catch
+            {
+                await _unitOfWork.Rollback();
+                throw;
+            }
+        }
+
+        public async Task<ReviewDto> GetReviewByOrderItem(long orderItemId, string userId)
+        {
+            var review = await _unitOfWork.Repository<Review>().GetEntityWithSpec(new ReviewSpecification(orderItemId, userId));
+            if (review == null)
+                return null;
+            var res = _mapper.Map<ReviewDto>(review);
+            res.ProductId = review.Product.Id;
+
+            return res;
+        }
+
+        public async Task<bool> ToggleReview(long id)
+        {
+            try
+            {
+                await _unitOfWork.CreateTransaction();
+                var review = await _unitOfWork.Repository<Review>().GetEntityWithSpec(new ReviewSpecification(true, id)) ??
+                throw new InvalidRequestException("Unexpected reviewId");
+
+                review.Status = !review.Status;
+                _unitOfWork.Repository<Review>().Update(review);
+                await _unitOfWork.Save();
+
+                await CalculateProductReview(review.Product);
+
+                var isSuccess = await _unitOfWork.Save() > 0;
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot toggle status of entity");
+                }
+                await _unitOfWork.Commit();
+                return isSuccess;
+            }
+            catch
+            {
+                await _unitOfWork.Rollback();
+                throw;
+            }
+        }
+
+        public async Task<List<long>> CountReview(long productId)
+        {
+            var listProductReviews = await _unitOfWork.Repository<Review>().ListAsync(new ReviewSpecification(productId, true));
+            var listReviews = new List<long>()
+            {
+                listProductReviews.Count,
+                listProductReviews.Count(x => x.Rating == 5),
+                listProductReviews.Count(x => x.Rating == 4),
+                listProductReviews.Count(x => x.Rating == 3),
+                listProductReviews.Count(x => x.Rating == 2),
+                listProductReviews.Count(x => x.Rating == 1)
+            };
+
+            return listReviews;
+        }
     }
 }

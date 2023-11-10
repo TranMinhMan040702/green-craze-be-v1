@@ -51,17 +51,18 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpPut("register/resend")]
-        public async Task<IActionResult> ResendRegistationOTP([FromQuery] string email)
+        public async Task<IActionResult> ResendRegistationOTP([FromBody] ResendOTPRequest request)
         {
-            var isSuccess = await _authService.ResendOTP(email, TOKEN_TYPE.REGISTER_OTP);
+            request.Type = TOKEN_TYPE.REGISTER_OTP;
+            var isSuccess = await _authService.ResendOTP(request);
 
             return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
         }
 
         [HttpPut("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            var isSuccess = await _authService.ForgotPassword(email);
+            var isSuccess = await _authService.ForgotPassword(request);
 
             return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
         }
@@ -74,19 +75,11 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
         }
 
-        [HttpPut("forgot-password/verify")]
-        public async Task<IActionResult> VerifyForgottenPassword([FromBody] VerifyOTPRequest request)
+        [HttpPut("forgot-password/resend")]
+        public async Task<IActionResult> ResendForgottenPasswordOTP([FromBody] ResendOTPRequest request)
         {
             request.Type = TOKEN_TYPE.FORGOT_PASSWORD_OTP;
-            var isSuccess = await _authService.VerifyOTP(request);
-
-            return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
-        }
-
-        [HttpPut("forgot-password/resend")]
-        public async Task<IActionResult> ResendForgottenPasswordOTP([FromQuery] string email)
-        {
-            var isSuccess = await _authService.ResendOTP(email, TOKEN_TYPE.FORGOT_PASSWORD_OTP);
+            var isSuccess = await _authService.ResendOTP(request);
 
             return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));
         }

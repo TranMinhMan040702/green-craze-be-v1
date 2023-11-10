@@ -1,10 +1,4 @@
 ﻿using green_craze_be_v1.Application.Model.Review;
-using green_craze_be_v1.Application.Model.Unit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Specification.Review
 {
@@ -23,53 +17,153 @@ namespace green_craze_be_v1.Application.Specification.Review
         public ReviewSpecification(GetReviewPagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;
+            AddInclude(x => x.Product);
+            AddInclude(x => x.User);
+            AddInclude(x => x.OrderItem);
+            AddInclude(x => x.OrderItem.Variant);
             if (!string.IsNullOrEmpty(keyword))
             {
-                Criteria = x => x.Title == keyword;
-            }
-
-            if (query.IsSortAccending)
-            {
-                if (query.ColumnName == nameof(Domain.Entities.Review.Title))
+                if (query.ProductId == null)
                 {
-                    AddOrderBy(x => x.Title);
-                }
-                else if (query.ColumnName == nameof(Domain.Entities.Review.CreatedAt))
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (query.ColumnName == nameof(Domain.Entities.Review.UpdatedAt))
-                {
-                    AddOrderBy(x => x.UpdatedAt);
+                    Criteria = x => x.Title.Contains(keyword) || x.Product.Name.Contains(keyword);
                 }
                 else
                 {
-                    AddOrderBy(x => x.Id);
+                    Criteria = x => (x.Title.Contains(keyword) || x.Product.Name.Contains(keyword)) && x.Product.Id == query.ProductId;
                 }
             }
             else
             {
-                if (query.ColumnName == nameof(Domain.Entities.Review.Title))
+                if (query.ProductId == null)
                 {
-                    AddOrderByDescending(x => x.Title);
-                }
-                else if (query.ColumnName == nameof(Domain.Entities.Review.CreatedAt))
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (query.ColumnName == nameof(Domain.Entities.Review.UpdatedAt))
-                {
-                    AddOrderByDescending(x => x.UpdatedAt);
+                    Criteria = x => true;
                 }
                 else
                 {
+                    if (query.Status)
+                    {
+                        if(query.Rating != null)
+                        {
+                            Criteria = x => x.Product.Id == query.ProductId && x.Status == true && x.Rating == query.Rating;
+                        }
+                        else
+                        {
+                            Criteria = x => x.Product.Id == query.ProductId && x.Status == true;
+                        }
+                    }
+                    else
+                    {
+                        Criteria = x => x.Product.Id == query.ProductId;
+                    }
+                }
+            }
+            var columnName = query.ColumnName.ToLower();
+            if (query.IsSortAccending)
+            {
+                if (columnName == nameof(Domain.Entities.Review.Title).ToLower())
+                {
+                    AddOrderBy(x => x.Title);
+                }
+                else if (columnName == nameof(Domain.Entities.Review.Id).ToLower())
+                {
+                    AddOrderBy(x => x.Id);
+                }
+                else if (columnName == nameof(Domain.Entities.Review.CreatedAt).ToLower())
+                {
+                    AddOrderBy(x => x.CreatedAt);
+                }
+                else if (columnName == nameof(Domain.Entities.Review.Product.Name).ToLower())
+                {
+                    AddOrderBy(x => x.Product.Name);
+                }
+                else if (columnName == nameof(Domain.Entities.Review.Rating).ToLower())
+                {
+                    AddOrderBy(x => x.Rating);
+                }
+                else if (columnName == nameof(Domain.Entities.Review.Status).ToLower())
+                {
+                    AddOrderBy(x => x.Status);
+                }
+                else
+                {
+                    AddOrderBy(x => x.UpdatedAt);
+                }
+            }
+            else
+            {
+                if (columnName == nameof(Domain.Entities.Review.Title).ToLower())
+                {
+                    AddOrderByDescending(x => x.Title);
+                }
+                else if (columnName == nameof(Domain.Entities.Review.Id).ToLower())
+                {
                     AddOrderByDescending(x => x.Id);
+                }
+                else if (columnName == nameof(Domain.Entities.Review.CreatedAt).ToLower())
+                {
+                    AddOrderByDescending(x => x.CreatedAt);
+                }
+                else if (columnName == nameof(Domain.Entities.Review.Product.Name).ToLower())
+                {
+                    AddOrderByDescending(x => x.Product.Name);
+                }
+                else if (columnName == nameof(Domain.Entities.Review.Rating).ToLower())
+                {
+                    AddOrderByDescending(x => x.Rating);
+                }
+                else if (columnName == nameof(Domain.Entities.Review.Status).ToLower())
+                {
+                    AddOrderByDescending(x => x.Status);
+                }
+                else
+                {
+                    AddOrderByDescending(x => x.UpdatedAt);
                 }
             }
             if (!isPaging) return;
             int skip = (query.PageIndex - 1) * query.PageSize;
             int take = query.PageSize;
             ApplyPaging(take, skip);
+        }
+
+        public ReviewSpecification(string userId, long id) : base(x => x.User.Id == userId && x.Id == id)
+        {
+            AddInclude(x => x.User);
+            AddInclude(x => x.Product);
+            AddInclude(x => x.OrderItem);
+            AddInclude(x => x.OrderItem.Variant);
+        }
+
+        public ReviewSpecification(long orderItemId, string userId) : base(x => x.OrderItem.Id == orderItemId && x.User.Id == userId)
+        {
+            AddInclude(x => x.User);
+            AddInclude(x => x.Product);
+            AddInclude(x => x.OrderItem);
+            AddInclude(x => x.OrderItem.Variant);
+        }
+
+        public ReviewSpecification(long orderId) : base(x => x.OrderItem.Order.Id == orderId)
+        {
+            AddInclude(x => x.User);
+            AddInclude(x => x.Product);
+            AddInclude(x => x.OrderItem);
+            AddInclude(x => x.OrderItem.Order);
+        }
+
+        public ReviewSpecification(long productId, bool status = true) : base(x => x.Product.Id == productId && x.Status == status)
+        {
+            AddInclude(x => x.User);
+            AddInclude(x => x.Product);
+            AddInclude(x => x.OrderItem);
+            AddInclude(x => x.OrderItem.Variant);
+        }
+
+        public ReviewSpecification(bool status, long id) : base(x => x.Id == id)
+        {
+            AddInclude(x => x.User);
+            AddInclude(x => x.Product);
+            AddInclude(x => x.OrderItem);
+            AddInclude(x => x.OrderItem.Variant);
         }
     }
 }
