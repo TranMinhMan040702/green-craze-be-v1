@@ -9,6 +9,24 @@ namespace green_craze_be_v1.Application.Specification.Transaction
 {
     public class TransactionSpecification : BaseSpecification<Domain.Entities.Transaction>
     {
+        public TransactionSpecification() 
+        {
+            AddInclude(x => x.Order);
+        }
+
+        public TransactionSpecification(int limit)
+        {
+            AddInclude(x => x.Order);
+            AddOrderByDescending(x => x.CreatedAt);
+            ApplyPaging(limit, 0);
+        }
+
+        public TransactionSpecification(DateTime firstDate, DateTime lastDate) 
+            : base(x => x.CreatedAt >= firstDate && x.CreatedAt <= lastDate)
+        {
+            AddInclude(x => x.Order);
+        }
+
         public TransactionSpecification(GetTransactionPagingRequest request, bool isPaging = false)
         {
             var keyword = request.Search;

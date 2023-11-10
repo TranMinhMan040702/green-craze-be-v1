@@ -7,5 +7,18 @@
             AddInclude(x => x.Order);
             AddInclude(x => x.Product);
         }
+
+        public DocketSpecification(string type) : base(x => x.Type == type)
+        {
+            AddInclude(x => x.Order);
+            AddInclude(x => x.Product);
+        }
+
+        public DocketSpecification(string type, DateTime firstDate, DateTime lastDate) 
+            : base(x => x.Type == type && x.CreatedAt >= firstDate && x.CreatedAt <= lastDate)
+        {
+            AddInclude(x => x.Order);
+            AddInclude(x => x.Product);
+        }
     }
 }

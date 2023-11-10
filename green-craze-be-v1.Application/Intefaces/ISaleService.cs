@@ -17,6 +17,8 @@ namespace green_craze_be_v1.Application.Intefaces
 
         Task<SaleDto> GetSale(long id);
 
+        Task<SaleDto> GetSaleLatest();
+
         Task<long> CreateSale(CreateSaleRequest request);
 
         Task<bool> UpdateSale(long id, UpdateSaleRequest request);

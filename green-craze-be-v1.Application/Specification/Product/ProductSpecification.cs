@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -56,6 +57,13 @@ namespace green_craze_be_v1.Application.Specification.Product
             AddInclude(x => x.Sale);
             AddInclude(x => x.Brand);
             AddInclude(x => x.Unit);
+            AddInclude(x => x.Variants);
+        }
+
+        public ProductSpecification(int limit, bool sortBy )
+        {
+            AddOrderByDescending(x => x.Sold);
+            ApplyPaging(limit, 0);
             AddInclude(x => x.Variants);
         }
 

@@ -10,6 +10,16 @@ namespace green_craze_be_v1.Application.Specification.Review
 {
     public class ReviewSpecification : BaseSpecification<Domain.Entities.Review>
     {
+        public ReviewSpecification(int limit)
+        {
+            AddOrderByDescending(x => x.CreatedAt);
+            ApplyPaging(limit, 0);
+        }
+
+        public ReviewSpecification(DateTime firstDate, DateTime lastDate, int rating)
+            : base(x => x.CreatedAt >= firstDate && x.CreatedAt <= lastDate && x.Rating == rating)
+        { }
+
         public ReviewSpecification(GetReviewPagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;

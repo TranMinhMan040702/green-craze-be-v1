@@ -14,6 +14,8 @@ namespace green_craze_be_v1.Application.Intefaces
     {
         Task<PaginatedResult<ReviewDto>> GetListReview(GetReviewPagingRequest request);
 
+        Task<List<ReviewDto>> GetTop5ReviewLatest();
+
         Task<ReviewDto> GetReview(long id);
 
         Task<long> CreateReview(CreateReviewRequest request);

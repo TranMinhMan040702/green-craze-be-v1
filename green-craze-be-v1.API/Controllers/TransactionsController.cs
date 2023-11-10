@@ -2,6 +2,7 @@
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Paging;
+using green_craze_be_v1.Application.Model.Statistic;
 using green_craze_be_v1.Application.Model.Transaction;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -27,6 +28,14 @@ namespace green_craze_be_v1.API.Controllers
             var transactions = await _transactionService.GetListTransaction(request);
 
             return Ok(new APIResponse<PaginatedResult<TransactionDto>>(transactions, StatusCodes.Status200OK));
+        }
+
+        [HttpGet("top5-tracsaction-latest")]
+        public async Task<IActionResult> GetTop5TransactionLatest()
+        {
+            var transactions = await _transactionService.GetTop5TransactionLatest();
+
+            return Ok(new APIResponse<List<StatisticTransactionResponse>>(transactions, StatusCodes.Status200OK));
         }
 
         [HttpGet("{transactionId}")]

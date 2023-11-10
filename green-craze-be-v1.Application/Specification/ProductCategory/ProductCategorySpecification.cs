@@ -9,6 +9,7 @@ namespace green_craze_be_v1.Application.Specification.ProductCategory
 {
     public class ProductCategorySpecification : BaseSpecification<Domain.Entities.ProductCategory>
     {
+        public ProductCategorySpecification(string slug) : base(x => x.Slug == slug) { }
         public ProductCategorySpecification(GetProductCategoryPagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;

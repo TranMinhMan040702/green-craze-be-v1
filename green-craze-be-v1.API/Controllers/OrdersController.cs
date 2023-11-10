@@ -54,6 +54,15 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(new APIResponse<PaginatedResult<OrderDto>>(orders, StatusCodes.Status200OK));
         }
 
+        [HttpGet("top5-order-latest")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetTop5OrderLatest()
+        {
+            var resp = await _orderService.GetTop5OrderLatest();
+
+            return Ok(new APIResponse<List<OrderDto>>(resp, StatusCodes.Status200OK));
+        }
+
         [HttpGet("{id}")]
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetOrder([FromRoute] long id)

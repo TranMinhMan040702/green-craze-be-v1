@@ -60,6 +60,15 @@ namespace green_craze_be_v1.Infrastructure.Services
             return productCategoryDto;
         }
 
+        public async Task<ProductCategoryDto> GetProductCategoryBySlug(string slug)
+        {
+            var productCategory = await _unitOfWork.Repository<ProductCategory>()
+                .GetEntityWithSpec(new ProductCategorySpecification(slug))
+                ?? throw new NotFoundException("Cannot find current product category");
+
+            return _mapper.Map<ProductCategoryDto>(productCategory);
+        }
+
         public async Task<long> CreateProductCategory(CreateProductCategoryRequest request)
         {
             var productCategory = _mapper.Map<ProductCategory>(request);

@@ -83,6 +83,12 @@ namespace green_craze_be_v1.Infrastructure.Services
             return saleDto;
         }
 
+        public async Task<SaleDto> GetSaleLatest()
+        {
+            var sale = await _unitOfWork.Repository<Sale>().GetEntityWithSpec(new SaleSpecification(true));
+            return _mapper.Map<SaleDto>(sale);
+        }
+
         public async Task<long> CreateSale(CreateSaleRequest request)
         {
             var sale = _mapper.Map<Sale>(request);
