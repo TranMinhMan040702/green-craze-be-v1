@@ -85,9 +85,9 @@ namespace green_craze_be_v1.Infrastructure.Services
             return order;
         }
 
-        private async Task UpdateProductQuantity(CreateOrderRequest request, Order order)
+        private async Task UpdateProductQuantity(List<CreateOrderItemRequest> Items, Order order, string type = DOCKET_TYPE.EXPORT)
         {
-            foreach (var item in request.Items)
+            foreach (var item in Items)
             {
                 var variant = await _unitOfWork.Repository<Variant>().GetEntityWithSpec(new VariantSpecification(item.VariantId))
                     ?? throw new InvalidRequestException("Unexpected variantId");
@@ -100,7 +100,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                     Code = StringUtil.GenerateUniqueCode(),
                     Product = product,
                     Order = order,
-                    Type = DOCKET_TYPE.EXPORT,
+                    Type = type,
                     Quantity = q,
                 };
 
@@ -145,7 +145,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 var order = await InitOrder(user, paymentMethod, userAddress, delivery, request);
                 await _unitOfWork.Repository<Order>().Insert(order);
 
-                await UpdateProductQuantity(request, order);
+                await UpdateProductQuantity(request.Items, order);
 
                 await UpdateUserCart(request, user.Cart);
 
@@ -229,72 +229,88 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> UpdateOrder(UpdateOrderRequest request)
         {
-            var spec = new OrderSpecification(request.OrderId);
-            if (!string.IsNullOrEmpty(request.UserId))
+            try
             {
-                spec = new OrderSpecification(request.OrderId, request.UserId);
-            }
-            var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(spec)
-                ?? throw new InvalidRequestException("Unexpected orderId");
+                await _unitOfWork.CreateTransaction();
 
-            if (order.Status == ORDER_STATUS.NOT_PROCESSED && order.PaymentStatus == false && order.Transaction.PaymentMethod == PAYMENT_CODE.PAYPAL)
-            {
-                throw new InvalidRequestException("Cannot update this order status, until it was paid by user through PayPal");
-            }
-
-            // Cannot update order while it's delivered
-            if (order.Status == ORDER_STATUS.DELIVERED)
-                throw new InvalidRequestException("Unexpected order status, cannot update order while it's delivered");
-
-            if (order.Status == ORDER_STATUS.CANCELLED
-                && (!_currentUserService.IsInRole(USER_ROLE.ADMIN) && !_currentUserService.IsInRole(USER_ROLE.STAFF)))
-                throw new InvalidRequestException("Unexpected order status, user cannot update order while it's cancelled");
-
-            // Customer cannot cancel order while it's processing, only admin and staff can do that
-            if (order.Status != ORDER_STATUS.NOT_PROCESSED
-                && request.Status == ORDER_STATUS.CANCELLED
-                && (!_currentUserService.IsInRole(USER_ROLE.ADMIN) && !_currentUserService.IsInRole(USER_ROLE.STAFF)))
-                throw new InvalidRequestException("Unexpected order status, cannot cancel order while it's processing");
-
-            var now = _dateTimeService.Current;
-            order.Status = request.Status;
-            if (request.Status == ORDER_STATUS.DELIVERED)
-            {
-                order.PaymentStatus = true;
-                if (order.Transaction.PaymentMethod == PAYMENT_CODE.COD)
-                    order.Transaction.PaidAt = now;
-                order.Transaction.CompletedAt = now;
-            }
-            else if (request.Status == ORDER_STATUS.CANCELLED)
-            {
-                if (string.IsNullOrEmpty(request.OtherCancellation))
+                var spec = new OrderSpecification(request.OrderId);
+                if (!string.IsNullOrEmpty(request.UserId))
                 {
-                    var cancellationReason = await _unitOfWork.Repository<OrderCancellationReason>()
-                        .GetById(request.OrderCancellationReasonId)
-                        ?? throw new InvalidRequestException("Unexpected orderCancellationReasonId");
-                    order.CancelReason = cancellationReason;
+                    spec = new OrderSpecification(request.OrderId, request.UserId);
+                }
+                var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(spec)
+                    ?? throw new InvalidRequestException("Unexpected orderId");
+
+                if (order.Status == ORDER_STATUS.NOT_PROCESSED && order.PaymentStatus == false && order.Transaction.PaymentMethod == PAYMENT_CODE.PAYPAL)
+                {
+                    throw new InvalidRequestException("Cannot update this order status, until it was paid by user through PayPal");
+                }
+
+                // Cannot update order while it's delivered
+                if (order.Status == ORDER_STATUS.DELIVERED)
+                    throw new InvalidRequestException("Unexpected order status, cannot update order while it's delivered");
+
+                if (order.Status == ORDER_STATUS.CANCELLED
+                    && (!_currentUserService.IsInRole(USER_ROLE.ADMIN) && !_currentUserService.IsInRole(USER_ROLE.STAFF)))
+                    throw new InvalidRequestException("Unexpected order status, user cannot update order while it's cancelled");
+
+                // Customer cannot cancel order while it's processing, only admin and staff can do that
+                if (order.Status != ORDER_STATUS.NOT_PROCESSED
+                    && request.Status == ORDER_STATUS.CANCELLED
+                    && (!_currentUserService.IsInRole(USER_ROLE.ADMIN) && !_currentUserService.IsInRole(USER_ROLE.STAFF)))
+                    throw new InvalidRequestException("Unexpected order status, cannot cancel order while it's processing");
+
+                var now = _dateTimeService.Current;
+                order.Status = request.Status;
+                if (request.Status == ORDER_STATUS.DELIVERED)
+                {
+                    order.PaymentStatus = true;
+                    if (order.Transaction.PaymentMethod == PAYMENT_CODE.COD)
+                        order.Transaction.PaidAt = now;
+                    order.Transaction.CompletedAt = now;
+                }
+                else if (request.Status == ORDER_STATUS.CANCELLED)
+                {
+                    if (string.IsNullOrEmpty(request.OtherCancellation))
+                    {
+                        var cancellationReason = await _unitOfWork.Repository<OrderCancellationReason>()
+                            .GetById(request.OrderCancellationReasonId)
+                            ?? throw new InvalidRequestException("Unexpected orderCancellationReasonId");
+                        order.CancelReason = cancellationReason;
+                    }
+                    else
+                    {
+                        order.OtherCancelReason = request.OtherCancellation;
+                    }
+                    var orderItems = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
+                    await UpdateProductQuantity(orderItems.Select(x => new CreateOrderItemRequest()
+                    {
+                        Quantity = -1 * x.Quantity,
+                        VariantId = x.Variant.Id
+                    }).ToList(), order, DOCKET_TYPE.IMPORT);
                 }
                 else
                 {
-                    order.OtherCancelReason = request.OtherCancellation;
+                    order.CancelReason = null;
+                    order.OtherCancelReason = null;
                 }
+
+                _unitOfWork.Repository<Order>().Update(order);
+
+                var isSuccess = await _unitOfWork.Save() > 0;
+
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot handle to update order, an error has occured");
+                }
+                await _unitOfWork.Commit();
+                return true;
             }
-            else
+            catch
             {
-                order.CancelReason = null;
-                order.OtherCancelReason = null;
+                await _unitOfWork.Rollback();
+                throw;
             }
-
-            _unitOfWork.Repository<Order>().Update(order);
-
-            var isSuccess = await _unitOfWork.Save() > 0;
-
-            if (!isSuccess)
-            {
-                throw new Exception("Cannot handle to update order, an error has occured");
-            }
-
-            return true;
         }
 
         public async Task<OrderDto> GetOrderByCode(string code, string userId)

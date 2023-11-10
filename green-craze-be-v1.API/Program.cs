@@ -1,5 +1,6 @@
 using green_craze_be_v1.API.Middlewares;
 using green_craze_be_v1.Application;
+using green_craze_be_v1.Application.Common.SignalR;
 using green_craze_be_v1.Infrastructure;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.OpenApi.Models;
@@ -45,6 +46,7 @@ builder.Services.AddSwaggerGen(s =>
         }
     });
 });
+builder.Services.AddSignalR();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddCors(options =>
 {
@@ -70,6 +72,7 @@ app.UseRouting();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHub<AppHub>("/app-hub");
 
 app.MapControllers();
 app.MigrateDatabase();

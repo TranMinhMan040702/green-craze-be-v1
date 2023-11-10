@@ -14,6 +14,7 @@ using green_craze_be_v1.Application.Model.ProductCategory;
 using green_craze_be_v1.Application.Model.Product;
 using green_craze_be_v1.Application.Model.Sale;
 using green_craze_be_v1.Application.Model.Variant;
+using green_craze_be_v1.Application.Model.Notification;
 
 namespace green_craze_be_v1.Application.Common.Mapper
 {
@@ -90,6 +91,10 @@ namespace green_craze_be_v1.Application.Common.Mapper
             // Review
             CreateMap<Review, ReviewDto>();
             CreateMap<CreateReviewRequest, Review>();
+
+            //Notification
+            CreateMap<Notification, NotificationDto>();
+            CreateMap<CreateNotificationRequest, Notification>();
         }
     }
 }

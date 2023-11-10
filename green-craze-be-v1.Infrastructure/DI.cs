@@ -53,7 +53,7 @@ namespace green_craze_be_v1.Infrastructure
             services.AddIdentity<AppUser, AppRole>(opts =>
             {
                 opts.Password.RequireNonAlphanumeric = false;
-                opts.Password.RequiredLength = 5;
+                opts.Password.RequiredLength = 1;
                 opts.Password.RequireDigit = false;
                 opts.Password.RequireLowercase = false;
                 opts.Password.RequireUppercase = false;
@@ -72,6 +72,7 @@ namespace green_craze_be_v1.Infrastructure
                 .AddScoped<IMailService, MailService>()
                 .AddScoped<ITokenService, TokenService>()
                 .AddScoped<IUnitService, UnitService>()
+                .AddScoped<INotificationService, NotificationService>()
                 .AddScoped<IBrandService, BrandService>()
                 .AddScoped<IVariantService, VariantService>()
                 .AddScoped<IAuthService, AuthService>()
