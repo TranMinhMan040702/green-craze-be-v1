@@ -40,6 +40,15 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(APIResponse<ProductCategoryDto>.Initialize(res, StatusCodes.Status200OK));
         }
 
+        [HttpGet("slug/{slug}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetProductCategoryBySlug([FromRoute] string slug)
+        {
+            var res = await _productCategoryService.GetProductCategoryBySlug(slug);
+
+            return Ok(APIResponse<ProductCategoryDto>.Initialize(res, StatusCodes.Status200OK));
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateProductCategory([FromForm] CreateProductCategoryRequest request)
         {

@@ -17,6 +17,8 @@ namespace green_craze_be_v1.Application.Intefaces
 
         Task<ProductCategoryDto> GetProductCategory(long id);
 
+        Task<ProductCategoryDto> GetProductCategoryBySlug(string slug);
+
         Task<long> CreateProductCategory(CreateProductCategoryRequest request);
 
         Task<bool> UpdateProductCategory(long id, UpdateProductCategoryRequest request);
