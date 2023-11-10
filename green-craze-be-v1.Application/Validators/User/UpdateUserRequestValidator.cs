@@ -17,7 +17,6 @@ namespace green_craze_be_v1.Application.Validators.User
             RuleFor(x => x.FirstName).NotEmpty().NotNull();
             RuleFor(x => x.LastName).NotEmpty().NotNull();
             RuleFor(x => x.Phone).NotEmpty().NotNull();
-            RuleFor(x => x.Status).NotEmpty().NotNull();
         }
     }
 }

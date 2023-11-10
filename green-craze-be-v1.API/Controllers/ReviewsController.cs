@@ -30,6 +30,14 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(APIResponse<PaginatedResult<ReviewDto>>.Initialize(res, StatusCodes.Status200OK));
         }
 
+        [HttpGet("top5-review-latest")]
+        public async Task<IActionResult> GetTop5ReviewLatest()
+        {
+            var res = await _reviewService.GetTop5ReviewLatest();
+
+            return Ok(new APIResponse<List<ReviewDto>>(res, StatusCodes.Status200OK));
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetReview([FromRoute] long id)
         {

@@ -355,5 +355,13 @@ namespace green_craze_be_v1.Infrastructure.Services
                 throw;
             }
         }
+
+        public async Task<List<OrderDto>> GetTop5OrderLatest()
+        {
+            List<OrderDto> orderDtos = new();
+            var orders = await _unitOfWork.Repository<Order>().ListAsync(new OrderSpecification(5));
+            orders.ForEach(order => orderDtos.Add(_mapper.Map<OrderDto>(order)));
+            return orderDtos;
+        }
     }
 }

@@ -32,6 +32,15 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(APIResponse<PaginatedResult<SaleDto>>.Initialize(res, StatusCodes.Status200OK));
         }
 
+        [HttpGet("latest")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetSaleLatest()
+        {
+            var res = await _saleService.GetSaleLatest();
+
+            return Ok(APIResponse<SaleDto>.Initialize(res, StatusCodes.Status200OK));
+        }
+
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetSale([FromRoute] long id)

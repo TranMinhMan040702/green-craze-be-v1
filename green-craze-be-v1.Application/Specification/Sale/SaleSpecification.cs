@@ -12,7 +12,14 @@ namespace green_craze_be_v1.Application.Specification.Sale
         public SaleSpecification(long id) : base(x => x.Id == id)
         {
             AddInclude(x => x.Products);
-        } 
+        }
+
+        public SaleSpecification(bool latest)
+        {
+            AddOrderByDescending(x => x.StartDate);
+            ApplyPaging(1, 0);
+            AddInclude(x => x.Products);
+        }
 
         public SaleSpecification(GetSalePagingRequest query, bool isPaging = false)
         {

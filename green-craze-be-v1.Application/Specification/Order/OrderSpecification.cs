@@ -9,6 +9,18 @@ namespace green_craze_be_v1.Application.Specification.Order
 {
     public class OrderSpecification : BaseSpecification<Domain.Entities.Order>
     {
+        public OrderSpecification(string status) : base(x => x.Status == status)
+        {
+            AddInclude(x => x.User);
+            AddInclude(x => x.Address);
+            AddInclude(x => x.Address.Ward);
+            AddInclude(x => x.Address.District);
+            AddInclude(x => x.Address.Province);
+            AddInclude(x => x.Transaction);
+            AddInclude(x => x.CancelReason);
+            AddInclude(x => x.OrderItems);
+        }
+
         public OrderSpecification(long orderId) : base(x => x.Id == orderId)
         {
             AddInclude(x => x.User);
@@ -44,6 +56,24 @@ namespace green_craze_be_v1.Application.Specification.Order
             AddInclude(x => x.CancelReason);
             AddInclude(x => x.OrderItems);
         }
+
+        public OrderSpecification(int limit)
+        {
+            AddOrderByDescending(x => x.CreatedAt);
+            ApplyPaging(limit, 0);
+            AddInclude(x => x.User);
+            AddInclude(x => x.Address);
+            AddInclude(x => x.Address.Ward);
+            AddInclude(x => x.Address.District);
+            AddInclude(x => x.Address.Province);
+            AddInclude(x => x.Transaction);
+            AddInclude(x => x.CancelReason);
+            AddInclude(x => x.OrderItems);
+        }
+
+        public OrderSpecification(DateTime firstDate, DateTime lastDate, string status) 
+            : base (x => x.CreatedAt >= firstDate && x.CreatedAt <= lastDate && x.Status == status)
+        { }
 
         public OrderSpecification(GetOrderPagingRequest request, bool isPaging = false)
         {

@@ -2,8 +2,12 @@
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Paging;
+using green_craze_be_v1.Application.Model.Statistic;
 using green_craze_be_v1.Application.Model.Transaction;
+using green_craze_be_v1.Application.Specification.Order;
 using green_craze_be_v1.Application.Specification.Transaction;
+using green_craze_be_v1.Application.Specification.User;
+using green_craze_be_v1.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +41,21 @@ namespace green_craze_be_v1.Infrastructure.Services
                 return res;
             }).ToList(),
                 request.PageIndex, count, request.PageSize);
+        }
+
+        public async Task<List<StatisticTransactionResponse>> GetTop5TransactionLatest()
+        {
+            List<StatisticTransactionResponse> transactionDtos = new List<StatisticTransactionResponse>();
+            var transactions = await _unitOfWork.Repository<Transaction>().ListAsync(new TransactionSpecification(5));
+            foreach (var transaction in transactions)
+            {
+                var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(transaction.OrderId));
+                var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(order.User.Id));
+                var userDto = _mapper.Map<UserDto>(user);
+                var transactionDto = _mapper.Map<TransactionDto>(transaction);
+                transactionDtos.Add(new StatisticTransactionResponse(transactionDto, userDto));
+            }
+            return transactionDtos;
         }
 
         public async Task<TransactionDto> GetTransaction(long id)

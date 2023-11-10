@@ -18,6 +18,8 @@ namespace green_craze_be_v1.Application.Intefaces
 
         Task<PaginatedResult<OrderDto>> GetListOrder(GetOrderPagingRequest request);
 
+        Task<List<OrderDto>> GetTop5OrderLatest();
+
         Task<PaginatedResult<OrderDto>> GetListUserOrder(GetOrderPagingRequest request);
     }
 }

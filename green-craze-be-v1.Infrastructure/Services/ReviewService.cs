@@ -42,6 +42,14 @@ namespace green_craze_be_v1.Infrastructure.Services
             return new PaginatedResult<ReviewDto>(reviewDtos, request.PageIndex, count, request.PageSize);
         }
 
+        public async Task<List<ReviewDto>> GetTop5ReviewLatest()
+        {
+            var reviewDtos = new List<ReviewDto>();
+            var reviews = await _unitOfWork.Repository<Review>().ListAsync(new ReviewSpecification(5));
+            reviews.ForEach(x => reviewDtos.Add(_mapper.Map<ReviewDto>(x)));
+            return reviewDtos;
+        }
+
         public async Task<ReviewDto> GetReview(long id)
         {
             var review = await _unitOfWork.Repository<Review>().GetEntityWithSpec(new ReviewSpecification(true, id)) ??
