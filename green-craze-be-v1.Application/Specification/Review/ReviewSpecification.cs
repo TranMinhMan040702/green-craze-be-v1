@@ -8,6 +8,7 @@ namespace green_craze_be_v1.Application.Specification.Review
         {
             AddOrderByDescending(x => x.CreatedAt);
             ApplyPaging(limit, 0);
+            AddInclude(x => x.Product);
         }
 
         public ReviewSpecification(DateTime firstDate, DateTime lastDate, int rating)

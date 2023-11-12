@@ -235,6 +235,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 foreach(var variant in product.Variants)
                 {
                     variant.PromotionalItemPrice = variant.ItemPrice - variant.ItemPrice * (decimal)sale.PromotionalPercent / 100;
+                    variant.TotalPromotionalPrice = variant.PromotionalItemPrice * variant.Quantity;
                 }
                 _unitOfWork.Repository<Product>().Update(product);
             }
@@ -271,6 +272,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 foreach (var variant in product.Variants)
                 {
                     variant.PromotionalItemPrice = null;
+                    variant.TotalPromotionalPrice = null;
                 }
                 _unitOfWork.Repository<Product>().Update(product);
             }
