@@ -17,12 +17,14 @@ namespace green_craze_be_v1.Infrastructure.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IUploadService _uploadService;
+        private readonly INotificationService _notificationService;
 
-        public SaleService (IUnitOfWork unitOfWork, IMapper mapper, IUploadService uploadService)
+        public SaleService(IUnitOfWork unitOfWork, IMapper mapper, IUploadService uploadService, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _uploadService = uploadService;
+            _notificationService = notificationService;
         }
 
         public async Task<PaginatedResult<SaleDto>> GetListSale(GetSalePagingRequest request)
@@ -32,9 +34,8 @@ namespace green_craze_be_v1.Infrastructure.Services
             var sales = await _unitOfWork.Repository<Sale>().ListAsync(spec);
             var count = await _unitOfWork.Repository<Sale>().CountAsync(countSpec);
 
-           
             var saleDtos = new List<SaleDto>();
-            foreach(var sale in sales)
+            foreach (var sale in sales)
             {
                 HashSet<ProductCategory> productCategories = new HashSet<ProductCategory>();
                 var productCategoryDtos = new List<ProductCategoryDto>();
@@ -55,7 +56,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 saleDto.ProductCategories = productCategoryDtos;
                 saleDtos.Add(saleDto);
             }
-            
+
             return new PaginatedResult<SaleDto>(saleDtos, request.PageIndex, count, request.PageSize);
         }
 
@@ -98,13 +99,14 @@ namespace green_craze_be_v1.Infrastructure.Services
             var products = new List<Product>();
             if (request.All)
             {
-               products = await _unitOfWork.Repository<Product>().ListAsync(new ProductSpecification());
-            } else
+                products = await _unitOfWork.Repository<Product>().ListAsync(new ProductSpecification());
+            }
+            else
             {
                 foreach (long categoryId in request.CategoryIds)
                 {
-                   var listProduct = await _unitOfWork.Repository<Product>().ListAsync(new ProductSpecification(categoryId, true));
-                   listProduct.ForEach(p =>  products.Add(p));
+                    var listProduct = await _unitOfWork.Repository<Product>().ListAsync(new ProductSpecification(categoryId, true));
+                    listProduct.ForEach(p => products.Add(p));
                 }
             }
 
@@ -139,7 +141,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             }
             else
             {
-                var listAllProduct  = await _unitOfWork.Repository<Product>()
+                var listAllProduct = await _unitOfWork.Repository<Product>()
                     .ListAsync(new ProductSpecification(id, true, true));
 
                 foreach (long categoryId in request.CategoryIds)
@@ -227,12 +229,13 @@ namespace green_craze_be_v1.Infrastructure.Services
             }
 
             var products = sale.Products;
-            if (products.Count == 0) return true;
+            if (products.Count == 0)
+                throw new Exception("Cannot find any product applied this sale");
 
             foreach (var p in products)
             {
                 Product product = await _unitOfWork.Repository<Product>().GetEntityWithSpec(new ProductSpecification(p.Id));
-                foreach(var variant in product.Variants)
+                foreach (var variant in product.Variants)
                 {
                     variant.PromotionalItemPrice = variant.ItemPrice - variant.ItemPrice * (decimal)sale.PromotionalPercent / 100;
                     variant.TotalPromotionalPrice = variant.PromotionalItemPrice * variant.Quantity;
@@ -248,7 +251,15 @@ namespace green_craze_be_v1.Infrastructure.Services
             {
                 throw new Exception("Cannot update status of entities");
             }
-
+            await _notificationService.CreateSaleNotification(new Application.Model.Notification.CreateNotificationRequest()
+            {
+                Content = $"Đợt khuyến mãi hiện đang có mặt tại cửa hàng, giảm giá lên tới {sale.PromotionalPercent }%",
+                Type = NOTIFICATION_TYPE.SALE,
+                Image = sale.Image,
+                Status = false,
+                Title = $"{sale.Name}",
+                Anchor = "#"
+            });
             return isSuccess;
         }
 

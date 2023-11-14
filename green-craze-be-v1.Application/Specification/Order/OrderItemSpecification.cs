@@ -9,7 +9,12 @@ namespace green_craze_be_v1.Application.Specification.Order
             AddInclude(x => x.Variant);
         }
 
-        public OrderItemSpecification(long orderItemId, string status) : base(x => x.Id == orderItemId && x.Order.Status == status) { }
+        public OrderItemSpecification(long orderItemId, string status) : base(x => x.Id == orderItemId && x.Order.Status == status)
+        {
+            AddInclude(x => x.Variant);
+            AddInclude(x => x.Variant.Product);
+            AddInclude(x => x.Variant.Product.Images);
+        }
 
         public OrderItemSpecification(long variantId, DateTime firstDate, DateTime lastDate, string status)
             : base(
@@ -18,6 +23,5 @@ namespace green_craze_be_v1.Application.Specification.Order
                   && x.Order.CreatedAt <= lastDate
                   && x.Order.Status == status)
         { }
-
     }
 }

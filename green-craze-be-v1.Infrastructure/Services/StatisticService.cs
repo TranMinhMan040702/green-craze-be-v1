@@ -9,7 +9,9 @@ using green_craze_be_v1.Application.Specification.Review;
 using green_craze_be_v1.Application.Specification.Transaction;
 using green_craze_be_v1.Application.Specification.User;
 using green_craze_be_v1.Domain.Entities;
+using green_craze_be_v1.Infrastructure.Data.Context;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,12 +25,14 @@ namespace green_craze_be_v1.Infrastructure.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IStatisticRepository _statisticRepository;
 
-        public StatisticService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<AppUser> userManager)
+        public StatisticService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<AppUser> userManager, IStatisticRepository statisticRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userManager = userManager;
+            _statisticRepository = statisticRepository;
         }
 
         public async Task<List<StatisticOrderStatusResponse>> StatisticOrderStatus(StatisticOrderStatusRequest request)
@@ -82,9 +86,9 @@ namespace green_craze_be_v1.Infrastructure.Services
             return resp;
         }
 
-        public Task<List<StatisticTopSellingProductResponse>> StatisticTopSellingProduct(StatisticTopSellingProductRequest request)
+        public async Task<List<StatisticTopSellingProductResponse>> StatisticTopSellingProduct(StatisticTopSellingProductRequest request)
         {
-            throw new NotImplementedException();
+            return await _statisticRepository.StatisticTopSellingProduct(request);
         }
 
         public async Task<List<StatisticTopSellingProductYearResponse>> StatisticTopSellingProductYear(
@@ -98,15 +102,15 @@ namespace green_craze_be_v1.Infrastructure.Services
                 DateTime firstDate = new DateTime(request.Year, month, 1);
                 int lastDay = DateTime.DaysInMonth(request.Year, month);
                 DateTime lastDate = new DateTime(request.Year, month, lastDay);
-                Dictionary<string, int> data = new Dictionary<string, int>();
+                Dictionary<string, long> data = new();
                 foreach (var product in products)
                 {
-                    int sold = 0;
+                    long sold = 0;
                     foreach (var variant in product.Variants)
                     {
                         var orderItems = await _unitOfWork.Repository<OrderItem>()
                             .ListAsync(new OrderItemSpecification(variant.Id, firstDate, lastDate, ORDER_STATUS.DELIVERED));
-                        orderItems.ForEach(orderItem => sold += orderItem.Quantity);
+                        orderItems.ForEach(orderItem => sold += orderItem.Quantity * orderItem.Variant.Quantity);
                     }
                     data[product.Name] = sold;
                 }

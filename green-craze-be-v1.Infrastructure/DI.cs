@@ -24,7 +24,8 @@ namespace green_craze_be_v1.Infrastructure
         {
             services
                 .AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork))
-                .AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+                .AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+                .AddScoped<IStatisticRepository, StatisticRepository>();
         }
 
         public static WebApplication MigrateDatabase(this WebApplication webApp)

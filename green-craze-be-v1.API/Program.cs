@@ -47,6 +47,8 @@ builder.Services.AddSwaggerGen(s =>
     });
 });
 builder.Services.AddSignalR();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddCors(options =>
 {
@@ -68,12 +70,14 @@ if (app.Environment.IsDevelopment())
 app.UseProblemDetails();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseSession();
 app.UseRouting();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHub<AppHub>("/app-hub");
 
 app.MapControllers();
+app.MapHub<AppHub>("/app-hub");
 app.MigrateDatabase();
 app.Run();

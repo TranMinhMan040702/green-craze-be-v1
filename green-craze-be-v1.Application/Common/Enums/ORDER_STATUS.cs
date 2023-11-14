@@ -22,5 +22,14 @@ namespace green_craze_be_v1.Application.Common.Enums
             DELIVERED,
             CANCELLED
         };
+
+        public static Dictionary<string, string> OrderStatusSubTitle = new()
+        {
+            {NOT_PROCESSED, "Chưa xử lý"},
+            {PROCESSING, "Đang được xử lý"},
+            {SHIPPED, "Đang được vận chuyển"},
+            {DELIVERED, "Đã giao hàng"},
+            {CANCELLED, "Bị huỷ"},
+        };
     }
 }

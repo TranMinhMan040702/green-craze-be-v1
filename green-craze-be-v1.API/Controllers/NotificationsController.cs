@@ -46,5 +46,13 @@ namespace green_craze_be_v1.API.Controllers
 
             return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
         }
+
+        [HttpPut("all")]
+        public async Task<IActionResult> UpdateAllNotification()
+        {
+            var res = await _notificationService.UpdateAllNotification();
+
+            return Ok(new APIResponse<bool>(res, StatusCodes.Status204NoContent));
+        }
     }
 }
