@@ -18,6 +18,7 @@ namespace green_craze_be_v1.Application.Specification.Variant
         public VariantSpecification(long id) : base(x => x.Id == id)
         {
             AddInclude(x => x.Product);
+            AddInclude(x => x.Product.Images);
         }
 
         public VariantSpecification(long productId, bool ok = true) : base(x => x.Product.Id == productId)

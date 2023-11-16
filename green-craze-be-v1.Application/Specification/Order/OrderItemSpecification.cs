@@ -7,6 +7,8 @@ namespace green_craze_be_v1.Application.Specification.Order
         public OrderItemSpecification(long orderId) : base(x => x.Order.Id == orderId)
         {
             AddInclude(x => x.Variant);
+            AddInclude(x => x.Variant.Product);
+            AddInclude(x => x.Variant.Product.Images);
         }
 
         public OrderItemSpecification(long orderItemId, string status) : base(x => x.Id == orderItemId && x.Order.Status == status)

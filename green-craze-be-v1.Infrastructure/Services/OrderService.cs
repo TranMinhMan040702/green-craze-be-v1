@@ -163,7 +163,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 {
                     throw new Exception("Cannot handle to create order, an error has occured");
                 }
-                await _unitOfWork.Commit();
+
                 var notiRequest = new CreateNotificationRequest()
                 {
                     UserId = user.Id,
@@ -204,6 +204,8 @@ namespace green_craze_be_v1.Infrastructure.Services
                     notiRequest.Anchor = "/checkout/payment/" + order.Code;
                 }
                 await _notificationService.CreateOrderNotification(notiRequest);
+                await _unitOfWork.Commit();
+
                 return order.Code;
             }
             catch
@@ -403,7 +405,6 @@ namespace green_craze_be_v1.Infrastructure.Services
                 _unitOfWork.Repository<Order>().Update(order);
 
                 await _unitOfWork.Save();
-                await _unitOfWork.Commit();
 
                 var userAddress = order.Address;
                 var req = new CreateMailRequest()
@@ -424,16 +425,19 @@ namespace green_craze_be_v1.Infrastructure.Services
                 };
                 _mailService.SendMail(req);
 
+                var orderItems = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
+
                 await _notificationService.CreateOrderNotification(new CreateNotificationRequest()
                 {
                     UserId = order.User.Id,
-                    Image = order.OrderItems.FirstOrDefault()?.Variant.Product.Images.FirstOrDefault()?.Image,
+                    Image = orderItems.FirstOrDefault()?.Variant.Product.Images.FirstOrDefault(x => x.IsDefault)?.Image,
                     Title = "Thanh toán thành công",
                     Content = $"Đơn hàng #{order.Code} của bạn đã được thanh toán, hệ thống đã ghi nhận và đang được xử lý",
                     Type = NOTIFICATION_TYPE.ORDER,
                     Anchor = "/user/order/" + order.Code,
                 });
                 _mailService.SendMail(req);
+                await _unitOfWork.Commit();
 
                 return true;
             }
