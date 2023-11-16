@@ -4,8 +4,11 @@ using green_craze_be_v1.Application.Common.Exceptions;
 using green_craze_be_v1.Application.Common.Extensions;
 using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
+using green_craze_be_v1.Application.Model.Mail;
+using green_craze_be_v1.Application.Model.Notification;
 using green_craze_be_v1.Application.Model.Order;
 using green_craze_be_v1.Application.Model.Paging;
+using green_craze_be_v1.Application.Specification.Address;
 using green_craze_be_v1.Application.Specification.Cart;
 using green_craze_be_v1.Application.Specification.Order;
 using green_craze_be_v1.Application.Specification.Product;
@@ -13,6 +16,7 @@ using green_craze_be_v1.Application.Specification.Review;
 using green_craze_be_v1.Application.Specification.User;
 using green_craze_be_v1.Application.Specification.Variant;
 using green_craze_be_v1.Domain.Entities;
+using Mailjet.Client.Resources;
 
 namespace green_craze_be_v1.Infrastructure.Services
 {
@@ -22,13 +26,18 @@ namespace green_craze_be_v1.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly IDateTimeService _dateTimeService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly INotificationService _notificationService;
+        private readonly IMailService _mailService;
 
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IDateTimeService dateTimeService, ICurrentUserService currentUserService)
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IDateTimeService dateTimeService, ICurrentUserService currentUserService,
+            INotificationService notificationService, IMailService mailService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _dateTimeService = dateTimeService;
             _currentUserService = currentUserService;
+            _notificationService = notificationService;
+            _mailService = mailService;
         }
 
         private async Task<Order> InitOrder(AppUser user, PaymentMethod paymentMethod,
@@ -155,7 +164,46 @@ namespace green_craze_be_v1.Infrastructure.Services
                     throw new Exception("Cannot handle to create order, an error has occured");
                 }
                 await _unitOfWork.Commit();
+                var notiRequest = new CreateNotificationRequest()
+                {
+                    UserId = user.Id,
+                    Image = order.OrderItems.FirstOrDefault()?.Variant.Product.Images.FirstOrDefault()?.Image,
+                    Title = "Đặt hàng thành công",
+                    Content = $"Đơn hàng #{order.Code} của bạn đã được hệ thống ghi nhận và đang được xử lý",
+                    Type = NOTIFICATION_TYPE.ORDER,
+                    Anchor = "/user/order/" + order.Code,
+                };
+                if (order.Transaction.PaymentMethod.ToLower() != "paypal")
+                {
+                    var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(user.Id, true));
+                    var orderDetail = new OrderConfirmationMail()
+                    {
+                        Email = address.Email,
+                        Receiver = address.Receiver,
+                        Phone = address.Phone,
+                        Address = $"{address.Street}, {address?.Ward?.Name}, {address?.District?.Name}, {address?.Province?.Name}",
+                        PaymentMethod = paymentMethod.Name,
+                        TotalPrice = order.TotalAmount
+                    };
 
+                    var req = new CreateMailRequest()
+                    {
+                        Email = user.Email,
+                        Name = user.FirstName + " " + user.LastName,
+                        Type = "order-confirmation.html",
+                        Title = "Xác nhận đặt hàng",
+                        OrderConfirmationMail = orderDetail
+                    };
+
+                    _mailService.SendMail(req);
+                }
+                else
+                {
+                    notiRequest.Title = "Đơn hàng cần thanh toán";
+                    notiRequest.Content = $"Đơn hàng #{order.Code} của bạn cần được thanh toán qua Paypal trước khi hệ thống có thể xử lý";
+                    notiRequest.Anchor = "/checkout/payment/" + order.Code;
+                }
+                await _notificationService.CreateOrderNotification(notiRequest);
                 return order.Code;
             }
             catch
@@ -304,6 +352,16 @@ namespace green_craze_be_v1.Infrastructure.Services
                     throw new Exception("Cannot handle to update order, an error has occured");
                 }
                 await _unitOfWork.Commit();
+                var orderItem = await _unitOfWork.Repository<OrderItem>().GetEntityWithSpec(new OrderItemSpecification(order.OrderItems.FirstOrDefault().Id, order.Status));
+                await _notificationService.CreateOrderNotification(new CreateNotificationRequest()
+                {
+                    UserId = order.User.Id,
+                    Image = orderItem?.Variant.Product.Images.FirstOrDefault()?.Image,
+                    Title = "Cập nhật đơn hàng",
+                    Content = $"Đơn hàng #{order.Code} của bạn đã chuyển sang trạng thái {ORDER_STATUS.OrderStatusSubTitle[order.Status]}",
+                    Type = NOTIFICATION_TYPE.ORDER,
+                    Anchor = "/user/order/" + order.Code,
+                });
                 return true;
             }
             catch
@@ -346,6 +404,36 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 await _unitOfWork.Save();
                 await _unitOfWork.Commit();
+
+                var userAddress = order.Address;
+                var req = new CreateMailRequest()
+                {
+                    Email = order.User.Email,
+                    Name = order.User.FirstName + " " + order.User.LastName,
+                    Type = "order-confirmation.html",
+                    Title = "Xác nhận đặt hàng",
+                    OrderConfirmationMail = new OrderConfirmationMail()
+                    {
+                        Email = userAddress.Email,
+                        Receiver = userAddress.Receiver,
+                        Phone = userAddress.Phone,
+                        Address = $"{userAddress.Street}, {userAddress.Ward.Name}, {userAddress.District.Name}, {userAddress.Province.Name}",
+                        PaymentMethod = order.Transaction.PaymentMethod,
+                        TotalPrice = order.TotalAmount
+                    }
+                };
+                _mailService.SendMail(req);
+
+                await _notificationService.CreateOrderNotification(new CreateNotificationRequest()
+                {
+                    UserId = order.User.Id,
+                    Image = order.OrderItems.FirstOrDefault()?.Variant.Product.Images.FirstOrDefault()?.Image,
+                    Title = "Thanh toán thành công",
+                    Content = $"Đơn hàng #{order.Code} của bạn đã được thanh toán, hệ thống đã ghi nhận và đang được xử lý",
+                    Type = NOTIFICATION_TYPE.ORDER,
+                    Anchor = "/user/order/" + order.Code,
+                });
+                _mailService.SendMail(req);
 
                 return true;
             }

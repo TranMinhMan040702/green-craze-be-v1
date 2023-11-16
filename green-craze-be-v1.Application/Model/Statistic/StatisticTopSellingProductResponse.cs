@@ -9,6 +9,6 @@ namespace green_craze_be_v1.Application.Model.Statistic
     public class StatisticTopSellingProductResponse
     {
         public string Name { get; set; }
-        public int Value { get; set; }
+        public long Value { get; set; }
     }
 }

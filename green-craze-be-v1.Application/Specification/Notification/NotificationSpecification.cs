@@ -17,6 +17,10 @@ namespace green_craze_be_v1.Application.Specification.Notification
                 Criteria = x => (x.Title.ToLower().Contains(keyword)
                 || x.Content.Contains(keyword)) && x.User.Id == request.UserId;
             }
+            else
+            {
+                Criteria = x => x.User.Id == request.UserId;
+            }
 
             var columnName = request.ColumnName.ToLower();
             if (request.IsSortAccending)
@@ -29,13 +33,13 @@ namespace green_craze_be_v1.Application.Specification.Notification
                 {
                     AddOrderBy(x => x.Content);
                 }
-                else if (columnName == nameof(Domain.Entities.Notification.Status).ToLower())
+                else if (columnName == nameof(Domain.Entities.Notification.UpdatedAt).ToLower())
                 {
-                    AddOrderBy(x => x.Status);
+                    AddOrderBy(x => x.UpdatedAt);
                 }
                 else
                 {
-                    AddOrderBy(x => x.UpdatedAt == null ? x.CreatedAt : x.UpdatedAt);
+                    AddOrderBy(x => x.Status);
                 }
             }
             else
@@ -48,13 +52,13 @@ namespace green_craze_be_v1.Application.Specification.Notification
                 {
                     AddOrderByDescending(x => x.Content);
                 }
-                else if (columnName == nameof(Domain.Entities.Notification.Status).ToLower())
+                else if (columnName == nameof(Domain.Entities.Notification.UpdatedAt).ToLower())
                 {
-                    AddOrderByDescending(x => x.Status);
+                    AddOrderByDescending(x => x.UpdatedAt);
                 }
                 else
                 {
-                    AddOrderByDescending(x => x.UpdatedAt == null ? x.CreatedAt : x.UpdatedAt);
+                    AddOrderByDescending(x => x.Status);
                 }
             }
 
@@ -65,6 +69,10 @@ namespace green_craze_be_v1.Application.Specification.Notification
         }
 
         public NotificationSpecification(string userId, long id) : base(x => x.Id == id && x.User.Id == userId)
+        {
+            AddInclude(x => x.User);
+        }
+        public NotificationSpecification(string userId) : base(x => x.User.Id == userId)
         {
             AddInclude(x => x.User);
         }

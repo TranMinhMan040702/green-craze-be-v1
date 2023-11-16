@@ -7,6 +7,7 @@ using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Specification.Notification;
 using green_craze_be_v1.Domain.Entities;
 using Microsoft.AspNetCore.SignalR;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace green_craze_be_v1.Infrastructure.Services
 {
@@ -14,20 +15,20 @@ namespace green_craze_be_v1.Infrastructure.Services
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICurrentUserService _currentUserService;
         private readonly IHubContext<AppHub> _hub;
+        private readonly ICurrentUserService _currentUserService;
 
-        public NotificationService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IMapper mapper, IHubContext<AppHub> hub)
+        public NotificationService(IUnitOfWork unitOfWork, IMapper mapper, IHubContext<AppHub> hub, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
-            _currentUserService = currentUserService;
             _mapper = mapper;
             _hub = hub;
+            _currentUserService = currentUserService;
         }
 
-        public async Task<long> CreateNotification(CreateNotificationRequest request)
+        public async Task CreateOrderNotification(CreateNotificationRequest request)
         {
-            var user = await _unitOfWork.Repository<AppUser>().GetById(_currentUserService.UserId)
+            var user = await _unitOfWork.Repository<AppUser>().GetById(request.UserId)
                 ?? throw new Exception("User not login");
 
             var notification = _mapper.Map<Notification>(request);
@@ -39,7 +40,26 @@ namespace green_craze_be_v1.Infrastructure.Services
             {
                 await _hub.Clients.Group(user.Id).SendAsync("ReceiveNotification", _mapper.Map<NotificationDto>(notification));
             }
-            return notification.Id;
+        }
+
+        public async Task CreateSaleNotification(CreateNotificationRequest request)
+        {
+            var users = await _unitOfWork.Repository<AppUser>().GetAll();
+            foreach (var user in users)
+            {
+                var notification = _mapper.Map<Notification>(request);
+                notification.User = user;
+                await _unitOfWork.Repository<Notification>().Insert(notification);
+            }
+
+            var res = await _unitOfWork.Save() > 0;
+            if (res)
+            {
+                foreach (var user in users)
+                {
+                    await _hub.Clients.Group(user.Id).SendAsync("ReceiveNotification", _mapper.Map<NotificationDto>(_mapper.Map<Notification>(request)));
+                }
+            }
         }
 
         public async Task<PaginatedResult<NotificationDto>> GetListNotification(GetNotificationPagingRequest request)
@@ -50,6 +70,19 @@ namespace green_craze_be_v1.Infrastructure.Services
             return new PaginatedResult<NotificationDto>(notifications
                 .Select(x => _mapper.Map<NotificationDto>(x)).ToList(),
                 request.PageIndex, total, request.PageSize);
+        }
+
+        public async Task<bool> UpdateAllNotification()
+        {
+            var notifications = await _unitOfWork.Repository<Notification>().ListAsync(new NotificationSpecification(_currentUserService.UserId));
+
+            notifications.ForEach(x =>
+            {
+                x.Status = true;
+                _unitOfWork.Repository<Notification>().Update(x);
+            });
+
+            return await _unitOfWork.Save() > 0;
         }
 
         public async Task<bool> UpdateNotification(UpdateNotificationRequest request)

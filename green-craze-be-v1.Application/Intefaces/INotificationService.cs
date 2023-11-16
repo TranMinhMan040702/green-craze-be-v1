@@ -6,9 +6,13 @@ namespace green_craze_be_v1.Application.Intefaces
 {
     public interface INotificationService
     {
-        Task<long> CreateNotification(CreateNotificationRequest request);
+        Task CreateOrderNotification(CreateNotificationRequest request);
+
+        Task CreateSaleNotification(CreateNotificationRequest request);
 
         Task<bool> UpdateNotification(UpdateNotificationRequest request);
+
+        Task<bool> UpdateAllNotification();
 
         Task<PaginatedResult<NotificationDto>> GetListNotification(GetNotificationPagingRequest request);
     }

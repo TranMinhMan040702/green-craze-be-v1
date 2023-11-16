@@ -1,32 +1,55 @@
 ﻿using green_craze_be_v1.Application.Common.Extensions;
 using green_craze_be_v1.Application.Common.Options;
 using green_craze_be_v1.Application.Intefaces;
-using Mailjet.Client;
-using Mailjet.Client.Resources;
+using green_craze_be_v1.Application.Model.Mail;
 using MailKit.Security;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
-using MySqlX.XDevAPI;
-using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Globalization;
 
 namespace green_craze_be_v1.Infrastructure.Services
 {
     public class MailService : IMailService
     {
+        private readonly string _mailTemplate;
         private readonly IConfiguration _configuration;
 
-        public MailService(IConfiguration configuration)
+        private const string EMAIL_TEMPLATE = "email-template";
+
+        public MailService(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
+            _mailTemplate = Path.Combine(webHostEnvironment.WebRootPath, EMAIL_TEMPLATE);
             _configuration = configuration;
         }
 
-        public void SendMail(string name, string email, string content, string title)
+        private string GetMailContent(CreateMailRequest request)
+        {
+            var path = Path.Combine(_mailTemplate, request.Type);
+            string body = string.Empty;
+            using (StreamReader reader = new StreamReader(path))
+            {
+                body = reader.ReadToEnd();
+            }
+            body = body.Replace("{name}", request.Name);
+            body = body.Replace("{email}", request.Email);
+            body = body.Replace("{OTP}", request.OTP);
+            if (request.OrderConfirmationMail != null)
+            {
+                body = body.Replace("{email}", request.OrderConfirmationMail.Email);
+                body = body.Replace("{receiver}", request.OrderConfirmationMail.Receiver);
+                body = body.Replace("{phone}", request.OrderConfirmationMail.Phone);
+                body = body.Replace("{address}", request.OrderConfirmationMail.Address);
+                body = body.Replace("{paymentMethod}", request.OrderConfirmationMail.PaymentMethod);
+
+                string totalPrice = request.OrderConfirmationMail.TotalPrice.ToString("#,###", CultureInfo.GetCultureInfo("vi-VN"));
+                body = body.Replace("{totalPrice}", totalPrice + "đ");
+            }
+
+            return body;
+        }
+
+        public void SendMail(CreateMailRequest request)
         {
             try
             {
@@ -56,13 +79,13 @@ namespace green_craze_be_v1.Infrastructure.Services
                 };
 
                 mailMessage.From.Add(new MailboxAddress(options.DisplayName, options.Mail));
-                mailMessage.To.Add(MailboxAddress.Parse(email));
+                mailMessage.To.Add(MailboxAddress.Parse(request.Email));
 
-                mailMessage.Subject = title;
+                mailMessage.Subject = request.Title;
 
                 var builder = new BodyBuilder
                 {
-                    HtmlBody = content
+                    HtmlBody = GetMailContent(request)
                 };
                 mailMessage.Body = builder.ToMessageBody();
 

@@ -10,5 +10,7 @@ namespace green_craze_be_v1.Application.Model.Statistic
     {
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+
+        public int Top { get; set; } = 5;
     }
 }

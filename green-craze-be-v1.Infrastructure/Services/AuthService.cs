@@ -210,7 +210,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                     user.AppUserTokens.Add(new AppUserToken()
                     {
                         Token = otp,
-                        ExpiredAt = _dateTimeService.Current.AddMinutes(720),
+                        ExpiredAt = _dateTimeService.Current.AddMinutes(5),
                         Type = TOKEN_TYPE.REGISTER_OTP,
                         CreatedAt = _dateTimeService.Current,
                         CreatedBy = "System"
@@ -218,10 +218,16 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                     await _userManager.UpdateAsync(user);
 
-                    var content = "Mã OTP: " + otp + "\nHiệu lực trong 5 phút";
                     var title = "Xác nhận đăng ký tài khoản";
                     var name = user.FirstName + " " + user.LastName;
-                    _mailService.SendMail(name, user.Email, content, title);
+                    _mailService.SendMail(new Application.Model.Mail.CreateMailRequest()
+                    {
+                        Email = user.Email,
+                        Name = name,
+                        OTP = otp,
+                        Title = title,
+                        Type = MAIL_TYPE.REGISTATION
+                    });
                 }
 
                 return user.Id;
@@ -312,16 +318,22 @@ namespace green_craze_be_v1.Infrastructure.Services
             var otp = _tokenService.GenerateOTP();
 
             userToken.Token = otp;
-            userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(720);
+            userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(5);
             userToken.UpdatedAt = _dateTimeService.Current;
             userToken.UpdatedBy = _currentUserService.UserId;
 
             await _userManager.UpdateAsync(user);
 
-            var content = "Mã OTP: " + otp + "\nHiệu lực trong 5 phút";
             var title = "Gửi lại mã OTP";
             var name = user.FirstName + " " + user.LastName;
-            _mailService.SendMail(name, user.Email, content, title);
+            _mailService.SendMail(new Application.Model.Mail.CreateMailRequest()
+            {
+                Email = user.Email,
+                Name = name,
+                OTP = otp,
+                Title = title,
+                Type = MAIL_TYPE.RESEND
+            });
 
             return true;
         }
@@ -341,7 +353,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 user.AppUserTokens.Add(new AppUserToken()
                 {
                     Token = otp,
-                    ExpiredAt = _dateTimeService.Current.AddMinutes(720),
+                    ExpiredAt = _dateTimeService.Current.AddMinutes(5),
                     Type = TOKEN_TYPE.FORGOT_PASSWORD_OTP,
                     CreatedAt = _dateTimeService.Current,
                     CreatedBy = "System"
@@ -350,16 +362,22 @@ namespace green_craze_be_v1.Infrastructure.Services
             else
             {
                 userToken.Token = otp;
-                userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(720);
+                userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(5);
                 userToken.UpdatedAt = _dateTimeService.Current;
                 userToken.UpdatedBy = _currentUserService.UserId;
             }
             await _userManager.UpdateAsync(user);
 
-            var content = "Mã OTP: " + otp + "\nHiệu lực trong 5 phút";
             var title = "Quên mật khẩu";
             var name = user.FirstName + " " + user.LastName;
-            _mailService.SendMail(name, user.Email, content, title);
+            _mailService.SendMail(new Application.Model.Mail.CreateMailRequest()
+            {
+                Email = user.Email,
+                Name = name,
+                OTP = otp,
+                Title = title,
+                Type = MAIL_TYPE.FORGOT_PASSWORD
+            });
 
             return true;
         }
