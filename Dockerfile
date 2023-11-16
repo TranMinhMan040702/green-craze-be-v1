@@ -6,11 +6,6 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
-ENV ASPNETCORE_ENVIRONMENT=docker
-
-EXPOSE 80
-EXPOSE 443
-
 COPY ["./green-craze-be-v1.API/green-craze-be-v1.API.csproj", "green-craze-be-v1.API/"]
 COPY ["./green-craze-be-v1.Application/green-craze-be-v1.Application.csproj", "green-craze-be-v1.Application/"]
 COPY ["./green-craze-be-v1.Domain/green-craze-be-v1.Domain.csproj", "green-craze-be-v1.Domain/"]
@@ -27,4 +22,4 @@ RUN dotnet publish "green-craze-be-v1.API.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "green-craze-be-v1.API.dll"]
+ENTRYPOINT ["dotnet", "green-craze-be-v1.API.dll", "--environment=Docker"]

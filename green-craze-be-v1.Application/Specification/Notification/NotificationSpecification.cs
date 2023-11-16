@@ -72,6 +72,7 @@ namespace green_craze_be_v1.Application.Specification.Notification
         {
             AddInclude(x => x.User);
         }
+
         public NotificationSpecification(string userId) : base(x => x.User.Id == userId)
         {
             AddInclude(x => x.User);
