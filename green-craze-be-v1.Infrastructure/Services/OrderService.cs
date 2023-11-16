@@ -164,6 +164,15 @@ namespace green_craze_be_v1.Infrastructure.Services
                     throw new Exception("Cannot handle to create order, an error has occured");
                 }
                 await _unitOfWork.Commit();
+                var notiRequest = new CreateNotificationRequest()
+                {
+                    UserId = user.Id,
+                    Image = order.OrderItems.FirstOrDefault()?.Variant.Product.Images.FirstOrDefault()?.Image,
+                    Title = "Đặt hàng thành công",
+                    Content = $"Đơn hàng #{order.Code} của bạn đã được hệ thống ghi nhận và đang được xử lý",
+                    Type = NOTIFICATION_TYPE.ORDER,
+                    Anchor = "/user/order/" + order.Code,
+                };
                 if (order.Transaction.PaymentMethod.ToLower() != "paypal")
                 {
                     var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(user.Id, true));
@@ -185,8 +194,16 @@ namespace green_craze_be_v1.Infrastructure.Services
                         Title = "Xác nhận đặt hàng",
                         OrderConfirmationMail = orderDetail
                     };
+
                     _mailService.SendMail(req);
                 }
+                else
+                {
+                    notiRequest.Title = "Đơn hàng cần thanh toán";
+                    notiRequest.Content = $"Đơn hàng #{order.Code} của bạn cần được thanh toán qua Paypal trước khi hệ thống có thể xử lý";
+                    notiRequest.Anchor = "/checkout/payment/" + order.Code;
+                }
+                await _notificationService.CreateOrderNotification(notiRequest);
                 return order.Code;
             }
             catch
@@ -405,6 +422,17 @@ namespace green_craze_be_v1.Infrastructure.Services
                         TotalPrice = order.TotalAmount
                     }
                 };
+                _mailService.SendMail(req);
+
+                await _notificationService.CreateOrderNotification(new CreateNotificationRequest()
+                {
+                    UserId = order.User.Id,
+                    Image = order.OrderItems.FirstOrDefault()?.Variant.Product.Images.FirstOrDefault()?.Image,
+                    Title = "Thanh toán thành công",
+                    Content = $"Đơn hàng #{order.Code} của bạn đã được thanh toán, hệ thống đã ghi nhận và đang được xử lý",
+                    Type = NOTIFICATION_TYPE.ORDER,
+                    Anchor = "/user/order/" + order.Code,
+                });
                 _mailService.SendMail(req);
 
                 return true;
