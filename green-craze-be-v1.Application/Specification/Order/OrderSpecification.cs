@@ -140,7 +140,7 @@ namespace green_craze_be_v1.Application.Specification.Order
                 }
             }
             var column = request.ColumnName.ToLower();
-            if (request.IsSortAccending)
+            if (request.IsSortAscending)
             {
                 if (column == nameof(Domain.Entities.Order.Id).ToLower())
                 {

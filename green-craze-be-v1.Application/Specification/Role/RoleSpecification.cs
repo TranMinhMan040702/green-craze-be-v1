@@ -24,7 +24,7 @@ namespace green_craze_be_v1.Application.Specification.Role
             {
                 Criteria = x => x.Name.Contains(keyword);
             }
-            if (request.IsSortAccending)
+            if (request.IsSortAscending)
             {
                 if (request.ColumnName == nameof(Domain.Entities.AppRole.Name).ToLower())
                 {

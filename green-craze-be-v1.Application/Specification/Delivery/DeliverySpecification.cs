@@ -19,7 +19,7 @@ namespace green_craze_be_v1.Application.Specification.Delivery
                 || x.Price.ToString().Contains(keyword);
             }
             var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAccending)
+            if (request.IsSortAscending)
             {
                 if (columnName == nameof(Domain.Entities.Delivery.Name).ToLower())
                 {

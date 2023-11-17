@@ -30,7 +30,7 @@ namespace green_craze_be_v1.Application.Specification.Sale
                 Criteria = x => x.Name.Contains(keyword) || x.PromotionalPercent.ToString().Contains(keyword);
             }
             var columnName = query.ColumnName.ToLower();
-            if (query.IsSortAccending)
+            if (query.IsSortAscending)
             {
                 if (columnName == nameof(Domain.Entities.Sale.Name).ToLower())
                 {

@@ -23,7 +23,7 @@ namespace green_craze_be_v1.Application.Specification.Notification
             }
 
             var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAccending)
+            if (request.IsSortAscending)
             {
                 if (columnName == nameof(Domain.Entities.Notification.Title).ToLower())
                 {

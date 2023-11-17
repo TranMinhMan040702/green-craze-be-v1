@@ -18,7 +18,7 @@ namespace green_craze_be_v1.Application.Specification.PaymentMethod
                 || x.Code.ToLower().Contains(keyword);
             }
             var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAccending)
+            if (request.IsSortAscending)
             {
                 if (columnName == nameof(Domain.Entities.PaymentMethod.Name).ToLower())
                 {

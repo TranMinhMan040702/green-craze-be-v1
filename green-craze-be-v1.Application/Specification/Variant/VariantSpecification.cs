@@ -35,7 +35,7 @@ namespace green_craze_be_v1.Application.Specification.Variant
             {
                 Criteria = x => x.Name == keyword;
             }
-            if (query.IsSortAccending)
+            if (query.IsSortAscending)
             {
                 if (query.ColumnName == nameof(Domain.Entities.Variant.Name))
                 {

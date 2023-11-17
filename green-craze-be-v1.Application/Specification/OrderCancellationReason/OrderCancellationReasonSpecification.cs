@@ -20,7 +20,7 @@ namespace green_craze_be_v1.Application.Specification.OrderCancellationReason
                 || x.Note.ToLower().Contains(keyword);
             }
             var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAccending)
+            if (request.IsSortAscending)
             {
                 if (columnName == nameof(Domain.Entities.OrderCancellationReason.Name).ToLower())
                 {

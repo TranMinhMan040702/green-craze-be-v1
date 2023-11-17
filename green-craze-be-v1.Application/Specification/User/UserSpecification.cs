@@ -22,7 +22,7 @@ namespace green_craze_be_v1.Application.Specification.User
             }
             AddInclude(x => x.Staff);
             var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAccending)
+            if (request.IsSortAscending)
             {
                 if (columnName == nameof(Domain.Entities.AppUser.Email).ToLower())
                 {

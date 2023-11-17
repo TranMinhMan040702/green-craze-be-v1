@@ -29,7 +29,7 @@ namespace green_craze_be_v1.Application.Specification.ProductCategory
                     Criteria = x => true;
             }
             var columnName = query.ColumnName.ToLower();
-            if (query.IsSortAccending)
+            if (query.IsSortAscending)
             {
                 if (columnName == nameof(Domain.Entities.ProductCategory.Name).ToLower())
                 {
