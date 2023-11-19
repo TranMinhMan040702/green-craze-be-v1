@@ -38,7 +38,8 @@ namespace green_craze_be_v1.Infrastructure.Services
             var res = await _unitOfWork.Save() > 0;
             if (res)
             {
-                await _hub.Clients.Group(user.Id).SendAsync("ReceiveNotification", _mapper.Map<NotificationDto>(notification));
+                var count = await _unitOfWork.Repository<Notification>().CountAsync(new NotificationSpecification(request.UserId, false));
+                await _hub.Clients.Group(user.Id).SendAsync("ReceiveNotification", _mapper.Map<NotificationDto>(notification), count);
             }
         }
 
@@ -57,7 +58,8 @@ namespace green_craze_be_v1.Infrastructure.Services
             {
                 foreach (var user in users)
                 {
-                    await _hub.Clients.Group(user.Id).SendAsync("ReceiveNotification", _mapper.Map<NotificationDto>(_mapper.Map<Notification>(request)));
+                    var count = await _unitOfWork.Repository<Notification>().CountAsync(new NotificationSpecification(request.UserId, false));
+                    await _hub.Clients.Group(user.Id).SendAsync("ReceiveNotification", _mapper.Map<NotificationDto>(_mapper.Map<Notification>(request)), count);
                 }
             }
         }

@@ -15,8 +15,27 @@ namespace green_craze_be_v1.Application.Specification.Delivery
             var keyword = request.Search;
             if (!string.IsNullOrEmpty(keyword))
             {
-                Criteria = x => x.Name.ToLower().Contains(keyword)
-                || x.Price.ToString().Contains(keyword);
+                if (request.Status)
+                {
+                    Criteria = x => x.Status && (x.Name.ToLower().Contains(keyword)
+                    || x.Price.ToString().Contains(keyword));
+                }
+                else
+                {
+                    Criteria = x => x.Name.ToLower().Contains(keyword)
+                    || x.Price.ToString().Contains(keyword);
+                }
+            }
+            else
+            {
+                if (request.Status)
+                {
+                    Criteria = x => x.Status;
+                }
+                else
+                {
+                    Criteria = x => true;
+                }
             }
             var columnName = request.ColumnName.ToLower();
             if (request.IsSortAscending)

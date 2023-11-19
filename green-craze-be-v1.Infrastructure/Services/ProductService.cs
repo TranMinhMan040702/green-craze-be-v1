@@ -224,9 +224,36 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             return productDto;
         }
+
         public Task<PaginatedResult<ProductDto>> GetListProductByCategory(GetProductPagingRequest request, string categorySlug)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<PaginatedResult<ProductDto>> GetListFilteringProduct(FilterProductPagingRequest request)
+        {
+            var spec = new ProductFilterSpecification(request, isPaging: true);
+            var countSpec = new ProductFilterSpecification(request);
+
+            var products = await _unitOfWork.Repository<Product>().ListAsync(spec);
+            var count = await _unitOfWork.Repository<Product>().CountAsync(countSpec);
+
+            var productDtos = products.Select(x => _mapper.Map<ProductDto>(x)).ToList();
+
+            return new PaginatedResult<ProductDto>(productDtos, request.PageIndex, count, request.PageSize);
+        }
+
+        public async Task<PaginatedResult<ProductDto>> GetListSearchingProduct(SearchProductPagingRequest request)
+        {
+            var spec = new ProductSearchSpecification(request, isPaging: true);
+            var countSpec = new ProductSearchSpecification(request);
+
+            var products = await _unitOfWork.Repository<Product>().ListAsync(spec);
+            var count = await _unitOfWork.Repository<Product>().CountAsync(countSpec);
+
+            var productDtos = products.Select(x => _mapper.Map<ProductDto>(x)).ToList();
+
+            return new PaginatedResult<ProductDto>(productDtos, request.PageIndex, count, request.PageSize);
         }
     }
 }

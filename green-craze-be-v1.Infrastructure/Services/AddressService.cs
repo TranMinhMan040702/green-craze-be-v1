@@ -119,10 +119,10 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             var addresses = await _unitOfWork.Repository<Address>().ListAsync(spec);
             var count = await _unitOfWork.Repository<Address>().CountAsync(countSpec);
-            if (request.Status)
-            {
-                addresses = addresses.Where(x => x.Status == true).ToList();
-            }
+            //if (request.Status)
+            //{
+            //    addresses = addresses.Where(x => x.Status == true).ToList();
+            //}
             var addressDtos = new List<AddressDto>();
             addresses.ForEach(x => addressDtos.Add(_mapper.Map<AddressDto>(x)));
 

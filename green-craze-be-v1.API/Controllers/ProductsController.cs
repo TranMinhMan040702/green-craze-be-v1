@@ -32,6 +32,24 @@ namespace green_craze_be_v1.API.Controllers
             return Ok(APIResponse<PaginatedResult<ProductDto>>.Initialize(res, StatusCodes.Status200OK));
         }
 
+        [HttpGet("filter")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetListFilteringProduct([FromQuery] FilterProductPagingRequest request)
+        {
+            var res = await _productService.GetListFilteringProduct(request);
+
+            return Ok(APIResponse<PaginatedResult<ProductDto>>.Initialize(res, StatusCodes.Status200OK));
+        }
+
+        [HttpGet("search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetListSearchingProduct([FromQuery] SearchProductPagingRequest request)
+        {
+            var res = await _productService.GetListSearchingProduct(request);
+
+            return Ok(APIResponse<PaginatedResult<ProductDto>>.Initialize(res, StatusCodes.Status200OK));
+        }
+
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetProduct([FromRoute] long id)

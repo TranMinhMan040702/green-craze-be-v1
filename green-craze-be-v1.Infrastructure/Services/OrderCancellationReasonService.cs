@@ -23,7 +23,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         {
             var orderCancellationReason = _mapper.Map<OrderCancellationReason>(request);
             orderCancellationReason.Status = true;
-            if(orderCancellationReason.Note == null)
+            if (orderCancellationReason.Note == null)
             {
                 orderCancellationReason.Note = string.Empty;
             }
@@ -98,8 +98,8 @@ namespace green_craze_be_v1.Infrastructure.Services
                 .CountAsync(new OrderCancellationReasonSpecification(request));
 
             var orderCancellationReasonDtos = new List<OrderCancellationReasonDto>();
-            if (request.Status)
-                orderCancellationReasons = orderCancellationReasons.Where(x => x.Status == true).ToList();
+            //if (request.Status)
+            //    orderCancellationReasons = orderCancellationReasons.Where(x => x.Status == true).ToList();
             orderCancellationReasons.ForEach(x => orderCancellationReasonDtos.Add(_mapper.Map<OrderCancellationReasonDto>(x)));
 
             return new PaginatedResult<OrderCancellationReasonDto>(orderCancellationReasonDtos, request.PageIndex,

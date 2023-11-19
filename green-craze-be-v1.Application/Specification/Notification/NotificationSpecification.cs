@@ -33,6 +33,10 @@ namespace green_craze_be_v1.Application.Specification.Notification
                 {
                     AddOrderBy(x => x.Content);
                 }
+                else if (columnName == nameof(Domain.Entities.Notification.CreatedAt).ToLower())
+                {
+                    AddOrderBy(x => x.CreatedAt);
+                }
                 else if (columnName == nameof(Domain.Entities.Notification.UpdatedAt).ToLower())
                 {
                     AddOrderBy(x => x.UpdatedAt);
@@ -51,6 +55,10 @@ namespace green_craze_be_v1.Application.Specification.Notification
                 else if (columnName == nameof(Domain.Entities.Notification.Content).ToLower())
                 {
                     AddOrderByDescending(x => x.Content);
+                }
+                else if (columnName == nameof(Domain.Entities.Notification.CreatedAt).ToLower())
+                {
+                    AddOrderByDescending(x => x.CreatedAt);
                 }
                 else if (columnName == nameof(Domain.Entities.Notification.UpdatedAt).ToLower())
                 {
@@ -74,6 +82,10 @@ namespace green_craze_be_v1.Application.Specification.Notification
         }
 
         public NotificationSpecification(string userId) : base(x => x.User.Id == userId)
+        {
+            AddInclude(x => x.User);
+        }
+        public NotificationSpecification(string userId, bool status) : base(x => x.User.Id == userId && x.Status == status)
         {
             AddInclude(x => x.User);
         }

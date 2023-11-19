@@ -9,7 +9,10 @@ namespace green_craze_be_v1.Application.Specification.ProductCategory
 {
     public class ProductCategorySpecification : BaseSpecification<Domain.Entities.ProductCategory>
     {
-        public ProductCategorySpecification(string slug) : base(x => x.Slug == slug) { }
+        public ProductCategorySpecification(string slug) : base(x => x.Slug == slug)
+        {
+        }
+
         public ProductCategorySpecification(GetProductCategoryPagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;
@@ -17,16 +20,52 @@ namespace green_craze_be_v1.Application.Specification.ProductCategory
             if (!string.IsNullOrEmpty(keyword))
             {
                 if (query.Status)
-                    Criteria = x => (x.Name.Contains(keyword) || x.Slug.Contains(keyword)) && x.Status == true;
+                {
+                    if (query.ParentCategoryId != null)
+                    {
+                        Criteria = x => (x.Name.Contains(keyword) || x.Slug.Contains(keyword)) && x.Status == true && x.ParentId == query.ParentCategoryId;
+                    }
+                    else
+                    {
+                        Criteria = x => (x.Name.Contains(keyword) || x.Slug.Contains(keyword)) && x.Status == true;
+                    }
+                }
                 else
-                    Criteria = x => x.Name.Contains(keyword) || x.Slug.Contains(keyword);
+                {
+                    if (query.ParentCategoryId != null)
+                    {
+                        Criteria = x => (x.Name.Contains(keyword) || x.Slug.Contains(keyword)) && x.ParentId == query.ParentCategoryId;
+                    }
+                    else
+                    {
+                        Criteria = x => (x.Name.Contains(keyword) || x.Slug.Contains(keyword));
+                    }
+                }
             }
             else
             {
                 if (query.Status)
-                    Criteria = x => x.Status == true;
+                {
+                    if (query.ParentCategoryId != null)
+                    {
+                        Criteria = x => x.Status == true && x.ParentId == query.ParentCategoryId;
+                    }
+                    else
+                    {
+                        Criteria = x => x.Status == true;
+                    }
+                }
                 else
-                    Criteria = x => true;
+                {
+                    if (query.ParentCategoryId != null)
+                    {
+                        Criteria = x => x.ParentId == query.ParentCategoryId;
+                    }
+                    else
+                    {
+                        Criteria = x => true;
+                    }
+                }
             }
             var columnName = query.ColumnName.ToLower();
             if (query.IsSortAscending)

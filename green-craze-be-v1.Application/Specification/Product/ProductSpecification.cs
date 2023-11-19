@@ -29,6 +29,7 @@ namespace green_craze_be_v1.Application.Specification.Product
             AddInclude(x => x.Unit);
             AddInclude(x => x.Variants);
         }
+
         public ProductSpecification(string slug) : base(x => x.Slug == slug)
         {
             AddInclude(x => x.Images);
@@ -49,7 +50,7 @@ namespace green_craze_be_v1.Application.Specification.Product
             AddInclude(x => x.Variants);
         }
 
-        public ProductSpecification(long saleId, bool category = true, bool sale = true) 
+        public ProductSpecification(long saleId, bool category = true, bool sale = true)
             : base(x => x.Sale.Id == saleId)
         {
             AddInclude(x => x.Images);
@@ -60,7 +61,7 @@ namespace green_craze_be_v1.Application.Specification.Product
             AddInclude(x => x.Variants);
         }
 
-        public ProductSpecification(int limit, bool sortBy )
+        public ProductSpecification(int limit, bool sortBy)
         {
             AddOrderByDescending(x => x.Sold);
             ApplyPaging(limit, 0);
@@ -76,16 +77,19 @@ namespace green_craze_be_v1.Application.Specification.Product
                 if (!string.IsNullOrEmpty(query.CategorySlug))
                 {
                     Criteria = x => x.Name.ToLower().Contains(keyword) && x.Category.Slug == query.CategorySlug;
-                } else
+                }
+                else
                 {
                     Criteria = x => x.Name.ToLower().Contains(keyword);
                 }
-            } else
+            }
+            else
             {
                 if (!string.IsNullOrEmpty(query.CategorySlug))
                 {
                     Criteria = x => x.Category.Slug == query.CategorySlug;
-                } else
+                }
+                else
                 {
                     Criteria = x => true;
                 }

@@ -21,6 +21,14 @@ namespace green_craze_be_v1.Application.Specification.Address
         public AddressSpecification(GetAddressPagingRequest request, bool isPaging = false)
             : base(x => x.User.Id == request.UserId)
         {
+            if (request.Status)
+            {
+                Criteria = x => x.Status == true;
+            }
+            else
+            {
+                Criteria = x => true;
+            }
             AddInclude(x => x.User);
             AddInclude(x => x.Province);
             AddInclude(x => x.District);

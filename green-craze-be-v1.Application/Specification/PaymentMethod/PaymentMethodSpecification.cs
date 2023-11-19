@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace green_craze_be_v1.Application.Specification.PaymentMethod
 {
@@ -12,10 +13,20 @@ namespace green_craze_be_v1.Application.Specification.PaymentMethod
         public PaymentMethodSpecification(GetPaymentMethodPagingRequest request, bool isPaging = false)
         {
             var keyword = request.Search;
+
             if (!string.IsNullOrEmpty(keyword))
             {
-                Criteria = x => x.Name.ToLower().Contains(keyword)
-                || x.Code.ToLower().Contains(keyword);
+                if (request.Status)
+                    Criteria = x => (x.Name.Contains(keyword) || x.Code.Contains(keyword)) && x.Status == true;
+                else
+                    Criteria = x => x.Name.Contains(keyword) || x.Code.Contains(keyword);
+            }
+            else
+            {
+                if (request.Status)
+                    Criteria = x => x.Status == true;
+                else
+                    Criteria = x => true;
             }
             var columnName = request.ColumnName.ToLower();
             if (request.IsSortAscending)

@@ -94,8 +94,8 @@ namespace green_craze_be_v1.Infrastructure.Services
         {
             var paymentMethods = await _unitOfWork.Repository<PaymentMethod>().ListAsync(new PaymentMethodSpecification(request, isPaging: true));
             var totalCount = await _unitOfWork.Repository<PaymentMethod>().CountAsync(new PaymentMethodSpecification(request));
-            if (request.Status)
-                paymentMethods = paymentMethods.Where(x => x.Status == true).ToList();
+            //if (request.Status)
+            //    paymentMethods = paymentMethods.Where(x => x.Status == true).ToList();
             var paymentMethodDtos = new List<PaymentMethodDto>();
             paymentMethods.ForEach(x => paymentMethodDtos.Add(_mapper.Map<PaymentMethodDto>(x)));
 

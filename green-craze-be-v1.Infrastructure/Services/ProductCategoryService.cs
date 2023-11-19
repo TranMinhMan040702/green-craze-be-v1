@@ -30,23 +30,23 @@ namespace green_craze_be_v1.Infrastructure.Services
             var productCategories = await _unitOfWork.Repository<ProductCategory>().ListAsync(spec);
             var count = await _unitOfWork.Repository<ProductCategory>().CountAsync(countSpec);
             var productCategoryDtos = new List<ProductCategoryDto>();
-            productCategories.ForEach(async x =>
+            foreach (var cate in productCategories)
             {
-                var productCategoryDto = _mapper.Map<ProductCategoryDto>(x);
-                if (x.ParentId != null)
+                var productCategoryDto = _mapper.Map<ProductCategoryDto>(cate);
+                if (cate.ParentId != null)
                 {
-                    var parentCategory = await _unitOfWork.Repository<ProductCategory>().GetById(x.ParentId);
+                    var parentCategory = await _unitOfWork.Repository<ProductCategory>().GetById(cate.ParentId);
                     productCategoryDto.ParentName = parentCategory.Name;
                 }
                 productCategoryDtos.Add(productCategoryDto);
-            });
+            }
 
             return new PaginatedResult<ProductCategoryDto>(productCategoryDtos, request.PageIndex, count, request.PageSize);
         }
 
         public async Task<ProductCategoryDto> GetProductCategory(long id)
         {
-            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id) 
+            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id)
                 ?? throw new NotFoundException("Cannot find current product category");
 
             var productCategoryDto = _mapper.Map<ProductCategoryDto>(productCategory);
@@ -86,7 +86,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> UpdateProductCategory(long id, UpdateProductCategoryRequest request)
         {
-            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id) 
+            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id)
                 ?? throw new NotFoundException("Cannot find current product category");
 
             productCategory = _mapper.Map<UpdateProductCategoryRequest, ProductCategory>(request, productCategory);
@@ -109,7 +109,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> DeleteProductCategory(long id)
         {
-            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id) 
+            var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id)
                 ?? throw new NotFoundException("Cannot find current product category");
 
             productCategory.Status = false;
@@ -131,7 +131,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 foreach (var id in ids)
                 {
-                    var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id) 
+                    var productCategory = await _unitOfWork.Repository<ProductCategory>().GetById(id)
                         ?? throw new NotFoundException("Cannot find current product category");
 
                     productCategory.Status = false;

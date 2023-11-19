@@ -94,8 +94,8 @@ namespace green_craze_be_v1.Infrastructure.Services
         {
             var deliveries = await _unitOfWork.Repository<Delivery>().ListAsync(new DeliverySpecification(request, isPaging: true));
             var totalCount = await _unitOfWork.Repository<Delivery>().CountAsync(new DeliverySpecification(request));
-            if(request.Status)
-                deliveries = deliveries.Where(x => x.Status == true).ToList();
+            //if(request.Status)
+            //    deliveries = deliveries.Where(x => x.Status == true).ToList();
             var deliveryDtos = new List<DeliveryDto>();
             deliveries.ForEach(x => deliveryDtos.Add(_mapper.Map<DeliveryDto>(x)));
 
