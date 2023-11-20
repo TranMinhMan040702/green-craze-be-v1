@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace green_craze_be_v1.Application.Specification.Transaction
 {
     public class TransactionSpecification : BaseSpecification<Domain.Entities.Transaction>
     {
-        public TransactionSpecification() 
+        public TransactionSpecification()
         {
             AddInclude(x => x.Order);
         }
@@ -21,7 +22,7 @@ namespace green_craze_be_v1.Application.Specification.Transaction
             ApplyPaging(limit, 0);
         }
 
-        public TransactionSpecification(DateTime firstDate, DateTime lastDate) 
+        public TransactionSpecification(DateTime firstDate, DateTime lastDate)
             : base(x => x.CreatedAt >= firstDate && x.CreatedAt <= lastDate)
         {
             AddInclude(x => x.Order);
@@ -36,69 +37,22 @@ namespace green_craze_be_v1.Application.Specification.Transaction
                 Criteria = x => x.PaymentMethod.ToLower().Contains(keyword)
                 || x.Order.Code.ToLower().Contains(keyword);
             }
+
             var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAscending)
+            if (columnName == nameof(Domain.Entities.Transaction.Order.Code).ToLower())
             {
-                if (columnName == nameof(Domain.Entities.Transaction.PaymentMethod).ToLower())
-                {
-                    AddOrderBy(x => x.PaymentMethod);
-                }
-                else if (columnName == nameof(Domain.Entities.Transaction.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Transaction.CompletedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CompletedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Transaction.PaidAt).ToLower())
-                {
-                    AddOrderBy(x => x.PaidAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Transaction.TotalPay).ToLower())
-                {
-                    AddOrderBy(x => x.TotalPay);
-                }
-                else if (columnName == nameof(Domain.Entities.Transaction.Order.Code).ToLower())
-                {
+                if (request.IsSortAscending)
                     AddOrderBy(x => x.Order.Code);
-                }
                 else
-                {
-                    AddOrderBy(x => x.Id);
-                }
+                    AddOrderByDescending(x => x.Order.Code);
             }
             else
             {
-                if (columnName == nameof(Domain.Entities.Transaction.PaymentMethod).ToLower())
-                {
-                    AddOrderByDescending(x => x.PaymentMethod);
-                }
-                else if (columnName == nameof(Domain.Entities.Transaction.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Transaction.CompletedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CompletedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Transaction.PaidAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.PaidAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Transaction.TotalPay).ToLower())
-                {
-                    AddOrderByDescending(x => x.TotalPay);
-                }
-                else if (columnName == nameof(Domain.Entities.Transaction.Order.Code).ToLower())
-                {
-                    AddOrderByDescending(x => x.Order.Code);
-                }
-                else
-                {
-                    AddOrderByDescending(x => x.Id);
-                }
+                if (string.IsNullOrEmpty(request.ColumnName))
+                    request.ColumnName = "Id";
+                AddSorting(request.ColumnName, request.IsSortAscending);
             }
+
             if (!isPaging) return;
             int skip = (request.PageIndex - 1) * request.PageSize;
             int take = request.PageSize;

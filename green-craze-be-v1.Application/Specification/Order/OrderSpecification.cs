@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace green_craze_be_v1.Application.Specification.Order
 {
@@ -71,8 +72,8 @@ namespace green_craze_be_v1.Application.Specification.Order
             AddInclude(x => x.OrderItems);
         }
 
-        public OrderSpecification(DateTime firstDate, DateTime lastDate, string status) 
-            : base (x => x.CreatedAt >= firstDate && x.CreatedAt <= lastDate && x.Status == status)
+        public OrderSpecification(DateTime firstDate, DateTime lastDate, string status)
+            : base(x => x.CreatedAt >= firstDate && x.CreatedAt <= lastDate && x.Status == status)
         { }
 
         public OrderSpecification(GetOrderPagingRequest request, bool isPaging = false)
@@ -139,69 +140,20 @@ namespace green_craze_be_v1.Application.Specification.Order
                     }
                 }
             }
-            var column = request.ColumnName.ToLower();
-            if (request.IsSortAscending)
+            if(request.ColumnName.ToLower() == nameof(Domain.Entities.Order.Transaction.PaymentMethod).ToLower())
             {
-                if (column == nameof(Domain.Entities.Order.Id).ToLower())
-                {
-                    AddOrderBy(x => x.Id);
-                }
-                else if (column == nameof(Domain.Entities.Order.Code).ToLower())
-                {
-                    AddOrderBy(x => x.Code);
-                }
-                else if (column == nameof(Domain.Entities.Order.Transaction.PaymentMethod).ToLower())
-                {
+                if (request.IsSortAscending)
                     AddOrderBy(x => x.Transaction.PaymentMethod);
-                }
-                else if (column == nameof(Domain.Entities.Order.PaymentStatus).ToLower())
-                {
-                    AddOrderBy(x => x.PaymentStatus);
-                }
-                else if (column == nameof(Domain.Entities.Order.TotalAmount).ToLower())
-                {
-                    AddOrderBy(x => x.TotalAmount);
-                }
-                else if (column == nameof(Domain.Entities.Order.Status).ToLower())
-                {
-                    AddOrderBy(x => x.Status);
-                }
                 else
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
+                    AddOrderByDescending(x => x.Transaction.PaymentMethod);
             }
             else
             {
-                if (column == nameof(Domain.Entities.Order.Id).ToLower())
-                {
-                    AddOrderByDescending(x => x.Id);
-                }
-                else if (column == nameof(Domain.Entities.Order.Code).ToLower())
-                {
-                    AddOrderByDescending(x => x.Code);
-                }
-                else if (column == nameof(Domain.Entities.Order.Transaction.PaymentMethod).ToLower())
-                {
-                    AddOrderByDescending(x => x.Transaction.PaymentMethod);
-                }
-                else if (column == nameof(Domain.Entities.Order.PaymentStatus).ToLower())
-                {
-                    AddOrderByDescending(x => x.PaymentStatus);
-                }
-                else if (column == nameof(Domain.Entities.Order.TotalAmount).ToLower())
-                {
-                    AddOrderByDescending(x => x.TotalAmount);
-                }
-                else if (column == nameof(Domain.Entities.Order.Status).ToLower())
-                {
-                    AddOrderByDescending(x => x.Status);
-                }
-                else
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
+                if (string.IsNullOrEmpty(request.ColumnName))
+                    request.ColumnName = "CreatedAt";
+                AddSorting(request.ColumnName, request.IsSortAscending);
             }
+
             if (!isPaging) return;
             int skip = (request.PageIndex - 1) * request.PageSize;
             int take = request.PageSize;

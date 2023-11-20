@@ -32,6 +32,27 @@ namespace green_craze_be_v1.Application.Specification
             Includes.Add(includeExpression);
         }
 
+        protected void AddSorting(string propertyName, bool asc)
+        {
+            if (asc)
+            {
+                AddOrderBy(ToLambda<T>(propertyName));
+            }
+            else
+            {
+                AddOrderByDescending(ToLambda<T>(propertyName));
+            }
+        }
+
+        private static Expression<Func<T, object>> ToLambda<T>(string propertyName)
+        {
+            var parameter = Expression.Parameter(typeof(T));
+            var property = Expression.Property(parameter, propertyName);
+            var propAsObject = Expression.Convert(property, typeof(object));
+
+            return Expression.Lambda<Func<T, object>>(propAsObject, parameter);
+        }
+
         protected void AddOrderBy(Expression<Func<T, object>> orderByExpression)
         {
             OrderBy = orderByExpression;

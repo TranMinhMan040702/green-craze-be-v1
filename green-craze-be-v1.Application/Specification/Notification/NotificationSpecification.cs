@@ -1,4 +1,5 @@
 ﻿using green_craze_be_v1.Application.Model.Notification;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace green_craze_be_v1.Application.Specification.Notification
 {
@@ -21,54 +22,9 @@ namespace green_craze_be_v1.Application.Specification.Notification
             {
                 Criteria = x => x.User.Id == request.UserId;
             }
-
-            var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAscending)
-            {
-                if (columnName == nameof(Domain.Entities.Notification.Title).ToLower())
-                {
-                    AddOrderBy(x => x.Title);
-                }
-                else if (columnName == nameof(Domain.Entities.Notification.Content).ToLower())
-                {
-                    AddOrderBy(x => x.Content);
-                }
-                else if (columnName == nameof(Domain.Entities.Notification.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Notification.UpdatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.UpdatedAt);
-                }
-                else
-                {
-                    AddOrderBy(x => x.Status);
-                }
-            }
-            else
-            {
-                if (columnName == nameof(Domain.Entities.Notification.Title).ToLower())
-                {
-                    AddOrderByDescending(x => x.Title);
-                }
-                else if (columnName == nameof(Domain.Entities.Notification.Content).ToLower())
-                {
-                    AddOrderByDescending(x => x.Content);
-                }
-                else if (columnName == nameof(Domain.Entities.Notification.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Notification.UpdatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.UpdatedAt);
-                }
-                else
-                {
-                    AddOrderByDescending(x => x.Status);
-                }
-            }
+            if (string.IsNullOrEmpty(request.ColumnName))
+                request.ColumnName = "CreatedAt";
+            AddSorting(request.ColumnName, request.IsSortAscending);
 
             if (!isPaging) return;
             int skip = (request.PageIndex - 1) * request.PageSize;
@@ -85,6 +41,7 @@ namespace green_craze_be_v1.Application.Specification.Notification
         {
             AddInclude(x => x.User);
         }
+
         public NotificationSpecification(string userId, bool status) : base(x => x.User.Id == userId && x.Status == status)
         {
             AddInclude(x => x.User);

@@ -95,92 +95,20 @@ namespace green_craze_be_v1.Application.Specification.Product
                 }
             }
             var columnName = query.ColumnName.ToLower();
-            if (query.IsSortAscending)
+            if (columnName == nameof(Domain.Entities.Product.Category).ToLower())
             {
-                if (columnName == nameof(Domain.Entities.Product.Name).ToLower())
-                {
-                    AddOrderBy(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Sold).ToLower())
-                {
-                    AddOrderBy(x => x.Sold);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Quantity).ToLower())
-                {
-                    AddOrderBy(x => x.Quantity);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.ActualInventory).ToLower())
-                {
-                    AddOrderBy(x => x.ActualInventory);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Code).ToLower())
-                {
-                    AddOrderBy(x => x.Code);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Status).ToLower())
-                {
-                    AddOrderBy(x => x.Status);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Category).ToLower())
-                {
+                if (query.IsSortAscending)
                     AddOrderBy(x => x.Category.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.UpdatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.UpdatedAt);
-                }
                 else
-                {
-                    AddOrderBy(x => x.Id);
-                }
+                    AddOrderByDescending(x => x.Category.Name);
             }
             else
             {
-                if (columnName == nameof(Domain.Entities.Product.Name).ToLower())
-                {
-                    AddOrderByDescending(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Sold).ToLower())
-                {
-                    AddOrderByDescending(x => x.Sold);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Quantity).ToLower())
-                {
-                    AddOrderByDescending(x => x.Quantity);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.ActualInventory).ToLower())
-                {
-                    AddOrderByDescending(x => x.ActualInventory);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Code).ToLower())
-                {
-                    AddOrderByDescending(x => x.Code);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Status).ToLower())
-                {
-                    AddOrderByDescending(x => x.Status);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Category.Name).ToLower())
-                {
-                    AddOrderByDescending(x => x.Category.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.UpdatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.UpdatedAt);
-                }
-                else
-                {
-                    AddOrderByDescending(x => x.Id);
-                }
+                if (string.IsNullOrEmpty(query.ColumnName))
+                    query.ColumnName = "Id";
+                AddSorting(query.ColumnName, query.IsSortAscending);
             }
+
             AddInclude(x => x.Images);
             AddInclude(x => x.Category);
             AddInclude(x => x.Sale);

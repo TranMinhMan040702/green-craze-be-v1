@@ -67,61 +67,11 @@ namespace green_craze_be_v1.Application.Specification.ProductCategory
                     }
                 }
             }
-            var columnName = query.ColumnName.ToLower();
-            if (query.IsSortAscending)
-            {
-                if (columnName == nameof(Domain.Entities.ProductCategory.Name).ToLower())
-                {
-                    AddOrderBy(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.ProductCategory.Slug).ToLower())
-                {
-                    AddOrderBy(x => x.Slug);
-                }
-                else if (columnName == nameof(Domain.Entities.ProductCategory.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.ProductCategory.UpdatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.UpdatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.ProductCategory.Status).ToLower())
-                {
-                    AddOrderBy(x => x.Status);
-                }
-                else
-                {
-                    AddOrderBy(x => x.Id);
-                }
-            }
-            else
-            {
-                if (columnName == nameof(Domain.Entities.ProductCategory.Name).ToLower())
-                {
-                    AddOrderByDescending(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.ProductCategory.Slug).ToLower())
-                {
-                    AddOrderByDescending(x => x.Slug);
-                }
-                else if (columnName == nameof(Domain.Entities.ProductCategory.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.ProductCategory.UpdatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.UpdatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.ProductCategory.Status).ToLower())
-                {
-                    AddOrderByDescending(x => x.Status);
-                }
-                else
-                {
-                    AddOrderByDescending(x => x.Id);
-                }
-            }
+
+            if (string.IsNullOrEmpty(query.ColumnName))
+                query.ColumnName = "Id";
+            AddSorting(query.ColumnName, query.IsSortAscending);
+
             if (!isPaging) return;
             int skip = (query.PageIndex - 1) * query.PageSize;
             int take = query.PageSize;

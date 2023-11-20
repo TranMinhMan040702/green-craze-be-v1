@@ -38,45 +38,10 @@ namespace green_craze_be_v1.Application.Specification.OrderCancellationReason
                     Criteria = x => true;
                 }
             }
-            var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAscending)
-            {
-                if (columnName == nameof(Domain.Entities.OrderCancellationReason.Name).ToLower())
-                {
-                    AddOrderBy(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.Status).ToLower())
-                {
-                    AddOrderBy(x => x.Status);
-                }
-                else
-                {
-                    AddOrderBy(x => x.Id);
-                }
-            }
-            else
-            {
-                if (columnName == nameof(Domain.Entities.OrderCancellationReason.Name).ToLower())
-                {
-                    AddOrderByDescending(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.Status).ToLower())
-                {
-                    AddOrderByDescending(x => x.Status);
-                }
-                else
-                {
-                    AddOrderByDescending(x => x.Id);
-                }
-            }
+
+            if (string.IsNullOrEmpty(request.ColumnName))
+                request.ColumnName = "CreatedAt";
+            AddSorting(request.ColumnName, request.IsSortAscending);
             if (!isPaging) return;
             int skip = (request.PageIndex - 1) * request.PageSize;
             int take = request.PageSize;

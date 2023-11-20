@@ -14,15 +14,10 @@ namespace green_craze_be_v1.Application.Specification.Product
         {
             Criteria = x => x.Name.Contains(query.Search);
 
-            var columnName = query.ColumnName.ToLower();
-            if (query.IsSortAscending)
-            {
-                AddOrderBy(x => x.Name);
-            }
-            else
-            {
-                AddOrderByDescending(x => x.Name);
-            }
+            if (string.IsNullOrEmpty(query.ColumnName))
+                query.ColumnName = "Name";
+            AddSorting(query.ColumnName, query.IsSortAscending);
+
             if (!isPaging) return;
             int skip = (query.PageIndex - 1) * query.PageSize;
             int take = query.PageSize;

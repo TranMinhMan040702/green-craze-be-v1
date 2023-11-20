@@ -43,7 +43,7 @@ namespace green_craze_be_v1.Application.Specification.Review
                 {
                     if (query.Status)
                     {
-                        if(query.Rating != null)
+                        if (query.Rating != null)
                         {
                             Criteria = x => x.Product.Id == query.ProductId && x.Status == true && x.Rating == query.Rating;
                         }
@@ -59,67 +59,18 @@ namespace green_craze_be_v1.Application.Specification.Review
                 }
             }
             var columnName = query.ColumnName.ToLower();
-            if (query.IsSortAscending)
+            if (columnName == nameof(Domain.Entities.Review.Product.Name).ToLower())
             {
-                if (columnName == nameof(Domain.Entities.Review.Title).ToLower())
-                {
-                    AddOrderBy(x => x.Title);
-                }
-                else if (columnName == nameof(Domain.Entities.Review.Id).ToLower())
-                {
-                    AddOrderBy(x => x.Id);
-                }
-                else if (columnName == nameof(Domain.Entities.Review.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Review.Product.Name).ToLower())
-                {
+                if (query.IsSortAscending)
                     AddOrderBy(x => x.Product.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Review.Rating).ToLower())
-                {
-                    AddOrderBy(x => x.Rating);
-                }
-                else if (columnName == nameof(Domain.Entities.Review.Status).ToLower())
-                {
-                    AddOrderBy(x => x.Status);
-                }
                 else
-                {
-                    AddOrderBy(x => x.UpdatedAt);
-                }
+                    AddOrderByDescending(x => x.Product.Name);
             }
             else
             {
-                if (columnName == nameof(Domain.Entities.Review.Title).ToLower())
-                {
-                    AddOrderByDescending(x => x.Title);
-                }
-                else if (columnName == nameof(Domain.Entities.Review.Id).ToLower())
-                {
-                    AddOrderByDescending(x => x.Id);
-                }
-                else if (columnName == nameof(Domain.Entities.Review.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Review.Product.Name).ToLower())
-                {
-                    AddOrderByDescending(x => x.Product.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Review.Rating).ToLower())
-                {
-                    AddOrderByDescending(x => x.Rating);
-                }
-                else if (columnName == nameof(Domain.Entities.Review.Status).ToLower())
-                {
-                    AddOrderByDescending(x => x.Status);
-                }
-                else
-                {
-                    AddOrderByDescending(x => x.UpdatedAt);
-                }
+                if (string.IsNullOrEmpty(query.ColumnName))
+                    query.ColumnName = "UpdatedAt";
+                AddSorting(query.ColumnName, query.IsSortAscending);
             }
             if (!isPaging) return;
             int skip = (query.PageIndex - 1) * query.PageSize;

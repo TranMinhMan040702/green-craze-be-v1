@@ -18,44 +18,24 @@ namespace green_craze_be_v1.Application.Specification.Product
                 && (query.CategoryIds.Count <= 0 || query.CategoryIds.Contains(x.Category.Id));
 
             var columnName = query.ColumnName.ToLower();
-            if (query.IsSortAscending)
+            if (columnName == "price")
             {
-                if (columnName == nameof(Domain.Entities.Product.Name).ToLower())
-                {
-                    AddOrderBy(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Sold).ToLower())
-                {
-                    AddOrderBy(x => x.Sold);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == "price")
-                {
-                    AddOrderBy(x => x.Variants.OrderBy(y => y.PromotionalItemPrice ?? y.ItemPrice).Select(z => z.PromotionalItemPrice ?? z.ItemPrice).FirstOrDefault());
-                }
+                if (query.IsSortAscending)
+                    AddOrderBy(x => x.Variants.OrderBy(y => y.PromotionalItemPrice ?? y.ItemPrice)
+                        .Select(z => z.PromotionalItemPrice ?? z.ItemPrice)
+                        .FirstOrDefault());
+                else
+                    AddOrderByDescending(x => x.Variants.OrderBy(y => y.PromotionalItemPrice ?? y.ItemPrice)
+                        .Select(z => z.PromotionalItemPrice ?? z.ItemPrice)
+                        .FirstOrDefault());
             }
             else
             {
-                if (columnName == nameof(Domain.Entities.Product.Name).ToLower())
-                {
-                    AddOrderByDescending(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.Sold).ToLower())
-                {
-                    AddOrderByDescending(x => x.Sold);
-                }
-                else if (columnName == nameof(Domain.Entities.Product.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == "price")
-                {
-                    AddOrderByDescending(x => x.Variants.OrderBy(y => y.PromotionalItemPrice ?? y.ItemPrice).Select(z => z.PromotionalItemPrice ?? z.ItemPrice).FirstOrDefault());
-                }
+                if (string.IsNullOrEmpty(query.ColumnName))
+                    query.ColumnName = "CreatedAt";
+                AddSorting(query.ColumnName, query.IsSortAscending);
             }
+
             AddInclude(x => x.Images);
             AddInclude(x => x.Category);
             AddInclude(x => x.Sale);
