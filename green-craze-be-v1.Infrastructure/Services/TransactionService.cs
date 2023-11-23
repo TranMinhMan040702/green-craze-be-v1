@@ -8,11 +8,6 @@ using green_craze_be_v1.Application.Specification.Order;
 using green_craze_be_v1.Application.Specification.Transaction;
 using green_craze_be_v1.Application.Specification.User;
 using green_craze_be_v1.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Infrastructure.Services
 {
@@ -45,7 +40,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<List<StatisticTransactionResponse>> GetTop5TransactionLatest()
         {
-            List<StatisticTransactionResponse> transactionDtos = new List<StatisticTransactionResponse>();
+            List<StatisticTransactionResponse> transactionDtos = new();
             var transactions = await _unitOfWork.Repository<Transaction>().ListAsync(new TransactionSpecification(5));
             foreach (var transaction in transactions)
             {

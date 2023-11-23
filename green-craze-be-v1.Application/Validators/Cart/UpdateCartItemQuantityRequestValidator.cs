@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Validators.Cart
 {
-    public class UpdateCartItemQuantityRequestValidator : AbstractValidator<UpdateCartItemQuantityRequest>
+    public class UpdateCartItemQuantityRequestValidator : AbstractValidator<UpdateCartItemRequest>
     {
         public UpdateCartItemQuantityRequestValidator()
         {

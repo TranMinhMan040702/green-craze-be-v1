@@ -1,9 +1,6 @@
 ﻿using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
-using green_craze_be_v1.Application.Model.Brand;
 using green_craze_be_v1.Application.Model.CustomAPI;
-using green_craze_be_v1.Application.Model.Paging;
-using green_craze_be_v1.Application.Model.Unit;
 using green_craze_be_v1.Application.Model.Variant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

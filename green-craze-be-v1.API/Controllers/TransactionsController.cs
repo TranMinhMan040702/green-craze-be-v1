@@ -5,7 +5,6 @@ using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.Statistic;
 using green_craze_be_v1.Application.Model.Transaction;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
@@ -23,7 +22,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetListTranssaction([FromQuery]GetTransactionPagingRequest request)
+        public async Task<IActionResult> GetListTranssaction([FromQuery] GetTransactionPagingRequest request)
         {
             var transactions = await _transactionService.GetListTransaction(request);
 
@@ -39,7 +38,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet("{transactionId}")]
-        public async Task<IActionResult> GetTranssaction([FromRoute]long transactionId)
+        public async Task<IActionResult> GetTranssaction([FromRoute] long transactionId)
         {
             var transaction = await _transactionService.GetTransaction(transactionId);
 

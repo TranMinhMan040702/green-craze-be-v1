@@ -34,10 +34,10 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.GivenName, user.FirstName + user.LastName),
-                new Claim(ClaimTypes.Name, user.UserName)
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new(ClaimTypes.Email, user.Email),
+                new(ClaimTypes.GivenName, user.FirstName + user.LastName),
+                new(ClaimTypes.Name, user.UserName)
             };
             foreach (var role in roles)
             {

@@ -11,9 +11,9 @@ namespace green_craze_be_v1.Application.Intefaces
 {
     public interface ICartService
     {
-        Task<bool> AddVariantItemToCart(AddVariantItemToCartRequest request);
+        Task<bool> AddVariantItemToCart(CreateCartItemRequest request);
 
-        Task<bool> UpdateCartItemQuantity(UpdateCartItemQuantityRequest request);
+        Task<bool> UpdateCartItemQuantity(UpdateCartItemRequest request);
 
         Task<bool> DeleteCartItem(long cartItemId, string userId);
 

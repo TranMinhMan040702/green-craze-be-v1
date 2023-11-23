@@ -4,7 +4,6 @@ using green_craze_be_v1.Application.Model.Cart;
 using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Paging;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
@@ -24,7 +23,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddVariantItemToCart([FromBody] AddVariantItemToCartRequest request)
+        public async Task<IActionResult> AddVariantItemToCart([FromBody] CreateCartItemRequest request)
         {
             request.UserId = _currentUserService.UserId;
             var res = await _cartService.AddVariantItemToCart(request);
@@ -33,7 +32,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpPut("{cartItemId}")]
-        public async Task<IActionResult> UpdateCartItemQuantity([FromRoute] long cartItemId, [FromBody] UpdateCartItemQuantityRequest request)
+        public async Task<IActionResult> UpdateCartItemQuantity([FromRoute] long cartItemId, [FromBody] UpdateCartItemRequest request)
         {
             request.CartItemId = cartItemId;
             request.UserId = _currentUserService.UserId;

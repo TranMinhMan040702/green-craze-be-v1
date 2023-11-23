@@ -10,9 +10,9 @@ namespace green_craze_be_v1.Application.Intefaces
         Task<List<long>> CountReview(long productId);
 
         Task<List<ReviewDto>> GetTop5ReviewLatest();
-      
+
         Task<ReviewDto> GetReview(long id);
-      
+
         Task<ReviewDto> GetReviewByOrderItem(long orderItemId, string userId);
 
         Task<long> CreateReview(CreateReviewRequest request);
@@ -22,7 +22,7 @@ namespace green_craze_be_v1.Application.Intefaces
         Task<bool> ReplyReview(long id, ReplyReviewRequest request);
 
         Task<bool> DeleteReview(long id);
-      
+
         Task<bool> ToggleReview(long id);
 
         Task<bool> DeleteListReview(List<long> ids);

@@ -11,7 +11,7 @@ namespace green_craze_be_v1.API.Controllers
     public class InventoriesController : ControllerBase
     {
         private readonly IInventoryService _inventoryService;
-        
+
         public InventoriesController(IInventoryService inventoryService)
         {
             _inventoryService = inventoryService;

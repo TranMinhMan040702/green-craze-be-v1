@@ -16,7 +16,6 @@ using green_craze_be_v1.Application.Specification.Review;
 using green_craze_be_v1.Application.Specification.User;
 using green_craze_be_v1.Application.Specification.Variant;
 using green_craze_be_v1.Domain.Entities;
-using Mailjet.Client.Resources;
 
 namespace green_craze_be_v1.Infrastructure.Services
 {
@@ -43,8 +42,6 @@ namespace green_craze_be_v1.Infrastructure.Services
         private async Task<Order> InitOrder(AppUser user, PaymentMethod paymentMethod,
             Address userAddress, Delivery delivery, CreateOrderRequest request)
         {
-            //var paymentStatus = paymentMethod.Code == PAYMENT_CODE.PAYPAL;
-
             var orderItems = new List<OrderItem>();
             decimal totalAmount = 0;
 
@@ -69,10 +66,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var transaction = new Transaction()
             {
                 PaymentMethod = paymentMethod.Code,
-                //PaidAt = paymentStatus ? _dateTimeService.Current : null,
-                TotalPay = totalAmount,
-                //PaypalOrderId = request.PaypalOrderId,
-                //PaypalOrderStatus = request.PaypalOrderStatus
+                TotalPay = totalAmount
             };
 
             var order = new Order()
@@ -134,6 +128,56 @@ namespace green_craze_be_v1.Infrastructure.Services
             }
         }
 
+        private async Task SendOrderMail(AppUser user, Order order)
+        {
+            var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(user.Id, true));
+            var orderDetail = new OrderConfirmationMail()
+            {
+                Email = address.Email,
+                Receiver = address.Receiver,
+                Phone = address.Phone,
+                Address = $"{address.Street}, {address?.Ward?.Name}, {address?.District?.Name}, {address?.Province?.Name}",
+                PaymentMethod = order.Transaction.PaymentMethod,
+                TotalPrice = order.TotalAmount
+            };
+
+            var req = new CreateMailRequest()
+            {
+                Email = user.Email,
+                Name = user.FirstName + " " + user.LastName,
+                Type = "order-confirmation.html",
+                Title = "Xác nhận đặt hàng",
+                OrderConfirmationMail = orderDetail
+            };
+
+            _mailService.SendMail(req);
+        }
+
+        private async Task NotifyOrder(AppUser user, Order order)
+        {
+            var notiRequest = new CreateNotificationRequest()
+            {
+                UserId = user.Id,
+                Image = order.OrderItems.FirstOrDefault()?.Variant.Product.Images.FirstOrDefault()?.Image,
+                Title = "Đặt hàng thành công",
+                Content = $"Đơn hàng #{order.Code} của bạn đã được hệ thống ghi nhận và đang được xử lý",
+                Type = NOTIFICATION_TYPE.ORDER,
+                Anchor = "/user/order/" + order.Code,
+            };
+            if (order.Transaction.PaymentMethod.ToLower() != "paypal")
+            {
+                await SendOrderMail(user, order);
+            }
+            else
+            {
+                notiRequest.Title = "Đơn hàng cần thanh toán";
+                notiRequest.Content = $"Đơn hàng #{order.Code} của bạn cần được thanh toán qua Paypal trước khi hệ thống có thể xử lý";
+                notiRequest.Anchor = "/checkout/payment/" + order.Code;
+            }
+
+            await _notificationService.CreateOrderNotification(notiRequest);
+        }
+
         public async Task<string> CreateOrder(CreateOrderRequest request)
         {
             try
@@ -164,46 +208,8 @@ namespace green_craze_be_v1.Infrastructure.Services
                     throw new Exception("Cannot handle to create order, an error has occured");
                 }
 
-                var notiRequest = new CreateNotificationRequest()
-                {
-                    UserId = user.Id,
-                    Image = order.OrderItems.FirstOrDefault()?.Variant.Product.Images.FirstOrDefault()?.Image,
-                    Title = "Đặt hàng thành công",
-                    Content = $"Đơn hàng #{order.Code} của bạn đã được hệ thống ghi nhận và đang được xử lý",
-                    Type = NOTIFICATION_TYPE.ORDER,
-                    Anchor = "/user/order/" + order.Code,
-                };
-                if (order.Transaction.PaymentMethod.ToLower() != "paypal")
-                {
-                    var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(user.Id, true));
-                    var orderDetail = new OrderConfirmationMail()
-                    {
-                        Email = address.Email,
-                        Receiver = address.Receiver,
-                        Phone = address.Phone,
-                        Address = $"{address.Street}, {address?.Ward?.Name}, {address?.District?.Name}, {address?.Province?.Name}",
-                        PaymentMethod = paymentMethod.Name,
-                        TotalPrice = order.TotalAmount
-                    };
+                await NotifyOrder(user, order);
 
-                    var req = new CreateMailRequest()
-                    {
-                        Email = user.Email,
-                        Name = user.FirstName + " " + user.LastName,
-                        Type = "order-confirmation.html",
-                        Title = "Xác nhận đặt hàng",
-                        OrderConfirmationMail = orderDetail
-                    };
-
-                    _mailService.SendMail(req);
-                }
-                else
-                {
-                    notiRequest.Title = "Đơn hàng cần thanh toán";
-                    notiRequest.Content = $"Đơn hàng #{order.Code} của bạn cần được thanh toán qua Paypal trước khi hệ thống có thể xử lý";
-                    notiRequest.Anchor = "/checkout/payment/" + order.Code;
-                }
-                await _notificationService.CreateOrderNotification(notiRequest);
                 await _unitOfWork.Commit();
 
                 return order.Code;
@@ -354,7 +360,9 @@ namespace green_craze_be_v1.Infrastructure.Services
                     throw new Exception("Cannot handle to update order, an error has occured");
                 }
                 await _unitOfWork.Commit();
+
                 var orderItem = await _unitOfWork.Repository<OrderItem>().GetEntityWithSpec(new OrderItemSpecification(order.OrderItems.FirstOrDefault().Id, order.Status));
+
                 await _notificationService.CreateOrderNotification(new CreateNotificationRequest()
                 {
                     UserId = order.User.Id,
@@ -364,6 +372,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                     Type = NOTIFICATION_TYPE.ORDER,
                     Anchor = "/user/order/" + order.Code,
                 });
+
                 return true;
             }
             catch
@@ -384,66 +393,60 @@ namespace green_craze_be_v1.Infrastructure.Services
             var orderDto = _mapper.Map<OrderDto>(order);
             orderDto.Items = listItems;
             orderDto.IsReview = listReview.Count == listItems.Count;
-            orderDto.ReviewedDate = listReview.Max(x => x.CreatedAt);
+            orderDto.ReviewedDate = listReview.Count > 0 ? listReview.Max(x => x.CreatedAt) : null;
             return orderDto;
+        }
+
+        private async Task NotifyCompletePaypalOrder(Order order)
+        {
+            await SendOrderMail(order.User, order);
+
+            var orderItems = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
+
+            await _notificationService.CreateOrderNotification(new CreateNotificationRequest()
+            {
+                UserId = order.User.Id,
+                Image = orderItems.FirstOrDefault()?.Variant.Product.Images.FirstOrDefault(x => x.IsDefault)?.Image,
+                Title = "Thanh toán thành công",
+                Content = $"Đơn hàng #{order.Code} của bạn đã được thanh toán, hệ thống đã ghi nhận và đang được xử lý",
+                Type = NOTIFICATION_TYPE.ORDER,
+                Anchor = "/user/order/" + order.Code,
+            });
         }
 
         public async Task<bool> CompletePaypalOrder(CompletePaypalOrderRequest request)
         {
+            var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(request.OrderId, request.UserId))
+            ?? throw new InvalidRequestException("Unexpected order id");
+
+            order.Transaction.PaidAt = _dateTimeService.Current;
+            order.Transaction.PaypalOrderId = request.PaypalOrderId;
+            order.Transaction.PaypalOrderStatus = request.PaypalOrderStatus;
+            order.PaymentStatus = true;
+            order.Status = ORDER_STATUS.PROCESSING;
             try
             {
                 await _unitOfWork.CreateTransaction();
-                var order = await _unitOfWork.Repository<Order>().GetEntityWithSpec(new OrderSpecification(request.OrderId, request.UserId))
-                ?? throw new InvalidRequestException("Unexpected order id");
-
-                order.Transaction.PaidAt = _dateTimeService.Current;
-                order.Transaction.PaypalOrderId = request.PaypalOrderId;
-                order.Transaction.PaypalOrderStatus = request.PaypalOrderStatus;
-                order.PaymentStatus = true;
-                order.Status = ORDER_STATUS.PROCESSING;
 
                 _unitOfWork.Repository<Order>().Update(order);
 
                 await _unitOfWork.Save();
-
-                var userAddress = order.Address;
-                var req = new CreateMailRequest()
-                {
-                    Email = order.User.Email,
-                    Name = order.User.FirstName + " " + order.User.LastName,
-                    Type = "order-confirmation.html",
-                    Title = "Xác nhận đặt hàng",
-                    OrderConfirmationMail = new OrderConfirmationMail()
-                    {
-                        Email = userAddress.Email,
-                        Receiver = userAddress.Receiver,
-                        Phone = userAddress.Phone,
-                        Address = $"{userAddress.Street}, {userAddress.Ward.Name}, {userAddress.District.Name}, {userAddress.Province.Name}",
-                        PaymentMethod = order.Transaction.PaymentMethod,
-                        TotalPrice = order.TotalAmount
-                    }
-                };
-                _mailService.SendMail(req);
-
-                var orderItems = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(order.Id));
-
-                await _notificationService.CreateOrderNotification(new CreateNotificationRequest()
-                {
-                    UserId = order.User.Id,
-                    Image = orderItems.FirstOrDefault()?.Variant.Product.Images.FirstOrDefault(x => x.IsDefault)?.Image,
-                    Title = "Thanh toán thành công",
-                    Content = $"Đơn hàng #{order.Code} của bạn đã được thanh toán, hệ thống đã ghi nhận và đang được xử lý",
-                    Type = NOTIFICATION_TYPE.ORDER,
-                    Anchor = "/user/order/" + order.Code,
-                });
-                _mailService.SendMail(req);
                 await _unitOfWork.Commit();
+            }
+            catch
+            {
+                await _unitOfWork.Rollback();
+                throw;
+            }
+
+            try
+            {
+                await NotifyCompletePaypalOrder(order);
 
                 return true;
             }
             catch
             {
-                await _unitOfWork.Rollback();
                 throw;
             }
         }

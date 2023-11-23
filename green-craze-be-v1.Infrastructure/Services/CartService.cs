@@ -25,7 +25,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             _currentUserService = currentUserService;
         }
 
-        public async Task<bool> AddVariantItemToCart(AddVariantItemToCartRequest request)
+        public async Task<bool> AddVariantItemToCart(CreateCartItemRequest request)
         {
             var cart = await _unitOfWork.Repository<Cart>().GetEntityWithSpec(new CartSpecification(request.UserId))
                 ?? throw new NotFoundException("Cannot find cart of current user");
@@ -46,7 +46,6 @@ namespace green_craze_be_v1.Infrastructure.Services
 
             if (cartItem == null)
             {
-
                 ci.Quantity = request.Quantity;
                 ci.Variant = variant;
                 cart.CartItems.Add(ci);
@@ -124,7 +123,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             return cartItemDto;
         }
 
-        public async Task<bool> UpdateCartItemQuantity(UpdateCartItemQuantityRequest request)
+        public async Task<bool> UpdateCartItemQuantity(UpdateCartItemRequest request)
         {
             if (request.Quantity <= 0)
                 throw new InvalidRequestException("Unexpected quantity, it must be a positive number");
