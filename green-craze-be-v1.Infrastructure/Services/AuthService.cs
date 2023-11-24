@@ -8,6 +8,7 @@ using green_craze_be_v1.Application.Model.Auth;
 using green_craze_be_v1.Application.Specification.User;
 using green_craze_be_v1.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
@@ -50,7 +51,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         {
             string accessToken = await _jwtService.CreateJWT(user.Id);
             string refreshToken = _jwtService.CreateRefreshToken();
-            DateTime refreshTokenExpiredTime = DateTime.Now.AddDays(7);
+            DateTime refreshTokenExpiredTime = DateTime.Now.AddDays(TOKEN_TYPE.REFRESH_TOKEN_EXPIRY_DAYS);
 
             var u = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(user.Id))
                 ?? throw new NotFoundException("Cannot find current user");
@@ -64,7 +65,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                     ExpiredAt = refreshTokenExpiredTime,
                     Type = TOKEN_TYPE.REFRESH_TOKEN,
                     CreatedAt = _dateTimeService.Current,
-                    CreatedBy = "System"
+                    CreatedBy = _currentUserService.UserId
                 });
             }
             else
@@ -162,20 +163,25 @@ namespace green_craze_be_v1.Infrastructure.Services
         public async Task<AuthDto> RefreshToken(RefreshTokenRequest request)
         {
             var userPrincipal = _jwtService.ValidateExpiredJWT(request.AccessToken)
-                ?? throw new UnauthorizedException("Invalid access token");
+                ?? throw new UnAuthorizedException("Invalid access token");
             var userId = userPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(userId))
                 ?? throw new NotFoundException("Cannot find current user");
 
             var userToken = user.AppUserTokens.FirstOrDefault(x => x.Type == TOKEN_TYPE.REFRESH_TOKEN);
-            if (user is null || userToken is null || userToken.Token != request.RefreshToken || userToken.ExpiredAt <= DateTime.Now)
+            if (userToken is null || userToken.Token != request.RefreshToken)
             {
-                throw new UnauthorizedException("Invalid access token or refresh token");
+                throw new SecurityTokenValidationException("Invalid refresh token");
+            }
+            if (userToken.ExpiredAt <= DateTime.Now)
+            {
+                throw new SecurityTokenValidationException("Refresh token has expired");
             }
             var newAccessToken = await _jwtService.CreateJWT(user.Id);
             var newRefreshToken = _jwtService.CreateRefreshToken();
             userToken.Token = newRefreshToken;
+            userToken.ExpiredAt = DateTime.Now.AddDays(TOKEN_TYPE.REFRESH_TOKEN_EXPIRY_DAYS);
             userToken.UpdatedAt = _dateTimeService.Current;
             userToken.UpdatedBy = _currentUserService.UserId;
             await _userManager.UpdateAsync(user);
@@ -210,7 +216,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                     user.AppUserTokens.Add(new AppUserToken()
                     {
                         Token = otp,
-                        ExpiredAt = _dateTimeService.Current.AddMinutes(5),
+                        ExpiredAt = _dateTimeService.Current.AddMinutes(TOKEN_TYPE.OTP_EXPIRY_MINUTES),
                         Type = TOKEN_TYPE.REGISTER_OTP,
                         CreatedAt = _dateTimeService.Current,
                         CreatedBy = "System"
@@ -318,7 +324,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var otp = _tokenService.GenerateOTP();
 
             userToken.Token = otp;
-            userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(5);
+            userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(TOKEN_TYPE.OTP_EXPIRY_MINUTES);
             userToken.UpdatedAt = _dateTimeService.Current;
             userToken.UpdatedBy = _currentUserService.UserId;
 
@@ -353,7 +359,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 user.AppUserTokens.Add(new AppUserToken()
                 {
                     Token = otp,
-                    ExpiredAt = _dateTimeService.Current.AddMinutes(5),
+                    ExpiredAt = _dateTimeService.Current.AddMinutes(TOKEN_TYPE.OTP_EXPIRY_MINUTES),
                     Type = TOKEN_TYPE.FORGOT_PASSWORD_OTP,
                     CreatedAt = _dateTimeService.Current,
                     CreatedBy = "System"
@@ -362,7 +368,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             else
             {
                 userToken.Token = otp;
-                userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(5);
+                userToken.ExpiredAt = _dateTimeService.Current.AddMinutes(TOKEN_TYPE.OTP_EXPIRY_MINUTES);
                 userToken.UpdatedAt = _dateTimeService.Current;
                 userToken.UpdatedBy = _currentUserService.UserId;
             }
@@ -399,6 +405,7 @@ namespace green_craze_be_v1.Infrastructure.Services
             var res = await _userManager.ResetPasswordAsync(user, token, request.Password);
             user.UpdatedAt = _dateTimeService.Current;
             user.UpdatedBy = _currentUserService.UserId;
+            user.EmailConfirmed = true;
             await _userManager.UpdateAsync(user);
             if (!res.Succeeded)
                 throw new Exception("Cannot reset your password, please contact administrator");
