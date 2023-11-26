@@ -149,13 +149,24 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> ToggleUserStatus(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId)
+            var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(userId))
                 ?? throw new InvalidRequestException("Unexpected userId");
             user.Status = user.Status == 1 ? 0 : 1;
             user.UpdatedAt = _dateTimeService.Current;
             user.UpdatedBy = _currentUserService.UserId;
-            var res = await _userManager.UpdateAsync(user);
-            if (!res.Succeeded)
+
+            var userToken = user.AppUserTokens.FirstOrDefault(x => x.Type == TOKEN_TYPE.REFRESH_TOKEN);
+            if (userToken != null)
+            {
+                userToken.Token = null;
+                userToken.ExpiredAt = null;
+                userToken.UpdatedAt = _dateTimeService.Current;
+                userToken.UpdatedBy = _currentUserService.UserId;
+            }
+
+            _unitOfWork.Repository<AppUser>().Update(user);
+            var res = await _unitOfWork.Save() > 0;
+            if (!res)
                 throw new Exception("Cannot handle to toggle status of user, an error has occured");
 
             return true;
@@ -267,7 +278,7 @@ namespace green_craze_be_v1.Infrastructure.Services
 
         public async Task<bool> DisableListStaffStatus(List<long> staffIds)
         {
-            List<string> userIds = new List<string>();
+            List<string> userIds = new();
             foreach (var staffId in staffIds)
             {
                 var staff = await _unitOfWork.Repository<Domain.Entities.Staff>().GetEntityWithSpec(new StaffSpecification(staffId))

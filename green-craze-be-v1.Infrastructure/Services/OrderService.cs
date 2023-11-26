@@ -39,9 +39,17 @@ namespace green_craze_be_v1.Infrastructure.Services
             _mailService = mailService;
         }
 
-        private async Task<Order> InitOrder(AppUser user, PaymentMethod paymentMethod,
-            Address userAddress, Delivery delivery, CreateOrderRequest request)
+        private async Task<Order> InitOrder(AppUser user, CreateOrderRequest request)
         {
+            var userAddress = user.Addresses.FirstOrDefault(x => x.IsDefault == true)
+                    ?? throw new NotFoundException("Cannot find default user's address");
+
+            var delivery = await _unitOfWork.Repository<Delivery>().GetById(request.DeliveryId)
+                ?? throw new InvalidRequestException("Unexpected deliveryId");
+
+            var paymentMethod = await _unitOfWork.Repository<PaymentMethod>().GetById(request.PaymentMethodId)
+                ?? throw new InvalidRequestException("Unexpected paymentMethodId");
+
             var orderItems = new List<OrderItem>();
             decimal totalAmount = 0;
 
@@ -78,7 +86,7 @@ namespace green_craze_be_v1.Infrastructure.Services
                 OrderItems = orderItems,
                 Note = request.Note,
                 ShippingCost = delivery.Price,
-                Tax = 0.1,
+                Tax = (double)ORDER_TAX.TAX,
                 Code = StringUtil.GenerateUniqueCode(),
                 Status = ORDER_STATUS.NOT_PROCESSED,
                 PaymentStatus = false,
@@ -186,16 +194,9 @@ namespace green_craze_be_v1.Infrastructure.Services
 
                 var user = await _unitOfWork.Repository<AppUser>().GetEntityWithSpec(new UserSpecification(request.UserId))
                     ?? throw new NotFoundException("Cannot find current user");
-                var userAddress = user.Addresses.FirstOrDefault(x => x.IsDefault == true)
-                    ?? throw new NotFoundException("Cannot find default user's address");
 
-                var delivery = await _unitOfWork.Repository<Delivery>().GetById(request.DeliveryId)
-                    ?? throw new InvalidRequestException("Unexpected deliveryId");
+                var order = await InitOrder(user, request);
 
-                var paymentMethod = await _unitOfWork.Repository<PaymentMethod>().GetById(request.PaymentMethodId)
-                    ?? throw new InvalidRequestException("Unexpected paymentMethodId");
-
-                var order = await InitOrder(user, paymentMethod, userAddress, delivery, request);
                 await _unitOfWork.Repository<Order>().Insert(order);
 
                 await UpdateProductQuantity(request.Items, order);
