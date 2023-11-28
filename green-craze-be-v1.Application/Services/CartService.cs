@@ -168,12 +168,12 @@ namespace green_craze_be_v1.Application.Services
 			return true;
 		}
 
-		public async Task<List<CartItemDto>> GetCartItemByIds(List<long> ids)
+		public async Task<List<CartItemDto>> GetCartItemByIds(List<long> ids, string userId)
 		{
 			var res = new List<CartItemDto>();
 			foreach (var id in ids)
 			{
-				var cartItem = await _unitOfWork.Repository<CartItem>().GetEntityWithSpec(new CartItemSpecification(id, _currentUserService.UserId))
+				var cartItem = await _unitOfWork.Repository<CartItem>().GetEntityWithSpec(new CartItemSpecification(id, userId))
 					?? throw new NotFoundException("Cannot find cart item");
 
 				res.Add(await GetCartItemDto(cartItem));

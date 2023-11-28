@@ -73,9 +73,9 @@ namespace green_craze_be_v1.Application.Services
 				request.PageIndex, total, request.PageSize);
 		}
 
-		public async Task<bool> UpdateAllNotification()
+		public async Task<bool> UpdateAllNotification(string userId)
 		{
-			var notifications = await _unitOfWork.Repository<Notification>().ListAsync(new NotificationSpecification(_currentUserService.UserId));
+			var notifications = await _unitOfWork.Repository<Notification>().ListAsync(new NotificationSpecification(userId));
 
 			notifications.ForEach(x =>
 			{
