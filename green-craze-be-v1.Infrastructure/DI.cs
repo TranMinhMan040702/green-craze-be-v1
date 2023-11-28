@@ -11,92 +11,63 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace green_craze_be_v1.Infrastructure
 {
-    public static class DI
-    {
-        public static void AddInfrastructureLayer(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddServices();
-            services.AddRepositories();
-            services.AddDbContextSetup(configuration);
-        }
+	public static class DI
+	{
+		public static void AddInfrastructureLayer(this IServiceCollection services, IConfiguration configuration)
+		{
+			services.AddServices();
+			services.AddRepositories();
+			services.AddDbContextSetup(configuration);
+		}
 
-        private static void AddRepositories(this IServiceCollection services)
-        {
-            services
-                .AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork))
-                .AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-                .AddScoped<IStatisticRepository, StatisticRepository>();
-        }
+		private static void AddRepositories(this IServiceCollection services)
+		{
+			services
+				.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork))
+				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+				.AddScoped<IStatisticRepository, StatisticRepository>();
+		}
 
-        public static WebApplication MigrateDatabase(this WebApplication webApp)
-        {
-            using (var scope = webApp.Services.CreateScope())
-            {
-                using (var appContext = scope.ServiceProvider.GetRequiredService<AppDBContext>())
-                {
-                    try
-                    {
-                        appContext.Database.Migrate();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw;
-                    }
-                }
-            }
-            return webApp;
-        }
+		public static WebApplication MigrateDatabase(this WebApplication webApp)
+		{
+			using (var scope = webApp.Services.CreateScope())
+			{
+				using (var appContext = scope.ServiceProvider.GetRequiredService<AppDBContext>())
+				{
+					try
+					{
+						appContext.Database.Migrate();
+					}
+					catch (Exception ex)
+					{
+						throw;
+					}
+				}
+			}
+			return webApp;
+		}
 
-        public static void AddDbContextSetup(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddDbContext<AppDBContext>(options =>
-                options.UseMySQL(configuration.GetConnectionString("AppDBContext")));
-            services.AddIdentity<AppUser, AppRole>(opts =>
-            {
-                opts.Password.RequireNonAlphanumeric = false;
-                opts.Password.RequiredLength = 1;
-                opts.Password.RequireDigit = false;
-                opts.Password.RequireLowercase = false;
-                opts.Password.RequireUppercase = false;
-            })
-            .AddEntityFrameworkStores<AppDBContext>()
-            .AddDefaultTokenProviders();
-        }
+		public static void AddDbContextSetup(this IServiceCollection services, IConfiguration configuration)
+		{
+			services.AddDbContext<AppDBContext>(options =>
+				options.UseMySQL(configuration.GetConnectionString("AppDBContext")));
+			services.AddIdentity<AppUser, AppRole>(opts =>
+			{
+				opts.Password.RequireNonAlphanumeric = false;
+				opts.Password.RequiredLength = 1;
+				opts.Password.RequireDigit = false;
+				opts.Password.RequireLowercase = false;
+				opts.Password.RequireUppercase = false;
+			})
+			.AddEntityFrameworkStores<AppDBContext>()
+			.AddDefaultTokenProviders();
+		}
 
-        private static void AddServices(this IServiceCollection services)
-        {
-            services
-                .AddScoped<ICurrentUserService, CurrentUserService>()
-                .AddScoped<IUploadService, UploadService>()
-                .AddScoped<IJwtService, JwtService>()
-                .AddScoped<IDateTimeService, DateTimeService>()
-                .AddScoped<IMailService, MailService>()
-                .AddScoped<ITokenService, TokenService>()
-                .AddScoped<IUnitService, UnitService>()
-                .AddScoped<INotificationService, NotificationService>()
-                .AddScoped<IBrandService, BrandService>()
-                .AddScoped<IVariantService, VariantService>()
-                .AddScoped<IAuthService, AuthService>()
-                .AddScoped<IUserService, UserService>()
-                .AddScoped<ICartService, CartService>()
-                .AddScoped<IDeliveryService, DeliveryService>()
-                .AddScoped<IPaymentMethodService, PaymentMethodService>()
-                .AddScoped<IOrderCancellationReasonService, OrderCancellationReasonService>()
-                .AddScoped<IUserFollowProductService, UserFollowProductService>()
-                .AddScoped<IOrderService, OrderService>()
-                .AddScoped<IUnitService, UnitService>()
-                .AddScoped<IProductCategoryService, ProductCategoryService>()
-                .AddScoped<IProductService, ProductService>()
-                .AddScoped<IProductImageService, ProductImageService>()
-                .AddScoped<ISaleService, SaleService>()
-                .AddScoped<IAddressService, AddressService>()
-                .AddScoped<IUnitService, UnitService>()
-                .AddScoped<ITransactionService, TransactionService>()
-                .AddScoped<IRoleService, RoleService>()
-                .AddScoped<IReviewService, ReviewService>()
-                .AddScoped<IInventoryService, InventoryService>()
-                .AddScoped<IReviewService, ReviewService>()
-                .AddScoped<IStatisticService, StatisticService>();
-        }
-    }
+		private static void AddServices(this IServiceCollection services)
+		{
+			services
+				.AddScoped<IUploadService, UploadService>()
+				.AddScoped<IMailService, MailService>();
+		}
+	}
 }

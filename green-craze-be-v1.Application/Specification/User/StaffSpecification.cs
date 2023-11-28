@@ -21,7 +21,7 @@ namespace green_craze_be_v1.Application.Specification.User
                 || x.Type.ToLower().Contains(key);
             }
             var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAccending)
+            if (request.IsSortAscending)
             {
                 if (columnName == nameof(Domain.Entities.AppUser.Email).ToLower())
                 {

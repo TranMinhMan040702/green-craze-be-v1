@@ -16,14 +16,11 @@ namespace green_craze_be_v1.Infrastructure.Repositories
             Context = context;
         }
 
-        private bool _disposed;
-        private string _errorMessage = string.Empty;
         private IDbContextTransaction _objTran;
 
         public IGenericRepository<T> Repository<T>() where T : class
         {
-            if (_repositories == null)
-                _repositories = new Hashtable();
+            _repositories ??= new Hashtable();
 
             var type = typeof(T).Name;
 

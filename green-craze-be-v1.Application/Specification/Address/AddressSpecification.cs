@@ -1,10 +1,4 @@
 ﻿using green_craze_be_v1.Application.Model.Address;
-using green_craze_be_v1.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Specification.Address
 {
@@ -19,8 +13,15 @@ namespace green_craze_be_v1.Application.Specification.Address
         }
 
         public AddressSpecification(GetAddressPagingRequest request, bool isPaging = false)
-            : base(x => x.User.Id == request.UserId)
         {
+            if (request.Status)
+            {
+                Criteria = x => x.Status == true && x.User.Id == request.UserId;
+            }
+            else
+            {
+                Criteria = x => x.User.Id == request.UserId;
+            }
             AddInclude(x => x.User);
             AddInclude(x => x.Province);
             AddInclude(x => x.District);

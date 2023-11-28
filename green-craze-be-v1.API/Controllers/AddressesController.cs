@@ -1,11 +1,8 @@
 ﻿using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Address;
-using green_craze_be_v1.Application.Model.Auth;
 using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Paging;
-using green_craze_be_v1.Domain.Entities;
-using green_craze_be_v1.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,4 +1,5 @@
 ﻿using green_craze_be_v1.Application.Model.Unit;
+using System.ComponentModel;
 
 namespace green_craze_be_v1.Application.Specification.Brand
 {
@@ -22,61 +23,11 @@ namespace green_craze_be_v1.Application.Specification.Brand
                 else
                     Criteria = x => true;
             }
-            var columnName = query.ColumnName.ToLower();
-            if (query.IsSortAccending)
-            {
-                if (columnName == nameof(Domain.Entities.Brand.Name).ToLower())
-                {
-                    AddOrderBy(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Brand.Code).ToLower())
-                {
-                    AddOrderBy(x => x.Code);
-                }
-                else if (columnName == nameof(Domain.Entities.Brand.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Brand.UpdatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.UpdatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Brand.Status).ToLower())
-                {
-                    AddOrderBy(x => x.Status);
-                }
-                else
-                {
-                    AddOrderBy(x => x.Id);
-                }
-            }
-            else
-            {
-                if (columnName == nameof(Domain.Entities.Brand.Name).ToLower())
-                {
-                    AddOrderByDescending(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Brand.Code).ToLower())
-                {
-                    AddOrderByDescending(x => x.Code);
-                }
-                else if (columnName == nameof(Domain.Entities.Brand.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Brand.UpdatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.UpdatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Brand.Status).ToLower())
-                {
-                    AddOrderByDescending(x => x.Status);
-                }
-                else
-                {
-                    AddOrderByDescending(x => x.Id);
-                }
-            }
+
+            if (string.IsNullOrEmpty(query.ColumnName))
+                query.ColumnName = "CreatedAt";
+            AddSorting(query.ColumnName, query.IsSortAscending);
+
             if (!isPaging) return;
             int skip = (query.PageIndex - 1) * query.PageSize;
             int take = query.PageSize;

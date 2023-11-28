@@ -7,5 +7,8 @@ using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Model.ProductCategory
 {
-    public class GetProductCategoryPagingRequest : PagingRequest { }
+    public class GetProductCategoryPagingRequest : PagingRequest 
+    { 
+        public long? ParentCategoryId { get; set; }
+    }
 }

@@ -28,7 +28,7 @@ namespace green_craze_be_v1.API.Middlewares
                 {
                     AccessDeniedException => (int)HttpStatusCode.Forbidden,
                     NotFoundException => (int)HttpStatusCode.NotFound,
-                    UnauthorizedException => (int)HttpStatusCode.Unauthorized,
+                    UnAuthorizedException => (int)HttpStatusCode.Unauthorized,
                     ValidationException => (int)HttpStatusCode.BadRequest,
                     InvalidRequestException => (int)HttpStatusCode.BadRequest,
                     _ => (int)HttpStatusCode.InternalServerError,
