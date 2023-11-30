@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/order-cancellation-reasons")]
     [ApiController]
     [Authorize(Roles = "ADMIN")]
     public class OrderCancellationReasonsController : ControllerBase

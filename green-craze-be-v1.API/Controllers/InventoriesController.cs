@@ -2,12 +2,14 @@
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Inventory;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "ADMIN, STAFF")]
     public class InventoriesController : ControllerBase
     {
         private readonly IInventoryService _inventoryService;

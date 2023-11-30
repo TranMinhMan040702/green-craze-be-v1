@@ -3,23 +3,19 @@ using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.Auth;
 using green_craze_be_v1.Application.Model.CustomAPI;
-using green_craze_be_v1.Domain.Entities;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthsController : ControllerBase
     {
         private readonly IAuthService _authService;
         private readonly ICurrentUserService _currentUserService;
 
-        public AuthController(IAuthService authService, ICurrentUserService currentUserService)
+        public AuthsController(IAuthService authService, ICurrentUserService currentUserService)
         {
             _authService = authService;
             _currentUserService = currentUserService;

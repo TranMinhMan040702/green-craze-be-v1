@@ -33,7 +33,6 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [AllowAnonymous]
         public async Task<IActionResult> GetProduct([FromRoute] long id)
         {
             var res = await _productService.GetProduct(id);

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/payment-methods")]
     [ApiController]
     [Authorize(Roles = "ADMIN")]
     public class PaymentMethodsController : ControllerBase
