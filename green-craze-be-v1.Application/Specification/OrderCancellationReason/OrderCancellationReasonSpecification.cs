@@ -16,48 +16,32 @@ namespace green_craze_be_v1.Application.Specification.OrderCancellationReason
             var keyword = request.Search;
             if (!string.IsNullOrEmpty(keyword))
             {
-                Criteria = x => x.Name.ToLower().Contains(keyword)
-                || x.Note.ToLower().Contains(keyword);
-            }
-            var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAccending)
-            {
-                if (columnName == nameof(Domain.Entities.OrderCancellationReason.Name).ToLower())
+                if (request.Status)
                 {
-                    AddOrderBy(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.Status).ToLower())
-                {
-                    AddOrderBy(x => x.Status);
+                    Criteria = x => x.Status && (x.Name.ToLower().Contains(keyword)
+                        || x.Note.ToLower().Contains(keyword));
                 }
                 else
                 {
-                    AddOrderBy(x => x.Id);
+                    Criteria = x => x.Name.ToLower().Contains(keyword)
+                        || x.Note.ToLower().Contains(keyword);
                 }
             }
             else
             {
-                if (columnName == nameof(Domain.Entities.OrderCancellationReason.Name).ToLower())
+                if (request.Status)
                 {
-                    AddOrderByDescending(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.OrderCancellationReason.Status).ToLower())
-                {
-                    AddOrderByDescending(x => x.Status);
+                    Criteria = x => x.Status;
                 }
                 else
                 {
-                    AddOrderByDescending(x => x.Id);
+                    Criteria = x => true;
                 }
             }
+
+            if (string.IsNullOrEmpty(request.ColumnName))
+                request.ColumnName = "CreatedAt";
+            AddSorting(request.ColumnName, request.IsSortAscending);
             if (!isPaging) return;
             int skip = (request.PageIndex - 1) * request.PageSize;
             int take = request.PageSize;

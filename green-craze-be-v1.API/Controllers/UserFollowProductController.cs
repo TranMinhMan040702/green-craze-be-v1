@@ -3,13 +3,14 @@ using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.UserFollowProduct;
-using green_craze_be_v1.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
 {
     [Route("api/user-follow-products")]
     [ApiController]
+    [Authorize]
     public class UserFollowProductController : ControllerBase
     {
         private readonly IUserFollowProductService _userFollowProductService;

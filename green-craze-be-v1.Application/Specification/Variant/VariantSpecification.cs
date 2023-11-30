@@ -26,7 +26,6 @@ namespace green_craze_be_v1.Application.Specification.Variant
             AddInclude(x => x.Product);
         }
 
-
         public VariantSpecification(GetVariantPagingRequest query, bool isPaging = false)
         {
             var keyword = query.Search;
@@ -35,48 +34,16 @@ namespace green_craze_be_v1.Application.Specification.Variant
             {
                 Criteria = x => x.Name == keyword;
             }
-            if (query.IsSortAccending)
-            {
-                if (query.ColumnName == nameof(Domain.Entities.Variant.Name))
-                {
-                    AddOrderBy(x => x.Name);
-                }
-                else if (query.ColumnName == nameof(Domain.Entities.Variant.CreatedAt))
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (query.ColumnName == nameof(Domain.Entities.Variant.UpdatedAt))
-                {
-                    AddOrderBy(x => x.UpdatedAt);
-                }
-                else
-                {
-                    AddOrderBy(x => x.Id);
-                }
-            }
-            else
-            {
-                if (query.ColumnName == nameof(Domain.Entities.Variant.Name))
-                {
-                    AddOrderByDescending(x => x.Name);
-                }
-                else if (query.ColumnName == nameof(Domain.Entities.Variant.CreatedAt))
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (query.ColumnName == nameof(Domain.Entities.Variant.UpdatedAt))
-                {
-                    AddOrderByDescending(x => x.UpdatedAt);
-                }
-                else
-                {
-                    AddOrderByDescending(x => x.Id);
-                }
-            }
+
+            AddInclude(x => x.Product);
+
+            if (string.IsNullOrEmpty(query.ColumnName))
+                query.ColumnName = "Id";
+            AddSorting(query.ColumnName, query.IsSortAscending);
+
             if (!isPaging) return;
             int skip = (query.PageIndex - 1) * query.PageSize;
             int take = query.PageSize;
-            AddInclude(x => x.Product);
             ApplyPaging(take, skip);
         }
     }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace green_craze_be_v1.Application.Specification.PaymentMethod
 {
@@ -12,58 +13,25 @@ namespace green_craze_be_v1.Application.Specification.PaymentMethod
         public PaymentMethodSpecification(GetPaymentMethodPagingRequest request, bool isPaging = false)
         {
             var keyword = request.Search;
+
             if (!string.IsNullOrEmpty(keyword))
             {
-                Criteria = x => x.Name.ToLower().Contains(keyword)
-                || x.Code.ToLower().Contains(keyword);
-            }
-            var columnName = request.ColumnName.ToLower();
-            if (request.IsSortAccending)
-            {
-                if (columnName == nameof(Domain.Entities.PaymentMethod.Name).ToLower())
-                {
-                    AddOrderBy(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.PaymentMethod.Code).ToLower())
-                {
-                    AddOrderBy(x => x.Code);
-                }
-                else if (columnName == nameof(Domain.Entities.PaymentMethod.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.PaymentMethod.Status).ToLower())
-                {
-                    AddOrderBy(x => x.Status);
-                }
+                if (request.Status)
+                    Criteria = x => (x.Name.Contains(keyword) || x.Code.Contains(keyword)) && x.Status == true;
                 else
-                {
-                    AddOrderBy(x => x.Id);
-                }
+                    Criteria = x => x.Name.Contains(keyword) || x.Code.Contains(keyword);
             }
             else
             {
-                if (columnName == nameof(Domain.Entities.PaymentMethod.Name).ToLower())
-                {
-                    AddOrderByDescending(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.PaymentMethod.Code).ToLower())
-                {
-                    AddOrderByDescending(x => x.Code);
-                }
-                else if (columnName == nameof(Domain.Entities.PaymentMethod.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.PaymentMethod.Status).ToLower())
-                {
-                    AddOrderByDescending(x => x.Status);
-                }
+                if (request.Status)
+                    Criteria = x => x.Status == true;
                 else
-                {
-                    AddOrderByDescending(x => x.Id);
-                }
+                    Criteria = x => true;
             }
+
+            if (string.IsNullOrEmpty(request.ColumnName))
+                request.ColumnName = "CreatedAt";
+            AddSorting(request.ColumnName, request.IsSortAscending);
             if (!isPaging) return;
             int skip = (request.PageIndex - 1) * request.PageSize;
             int take = request.PageSize;

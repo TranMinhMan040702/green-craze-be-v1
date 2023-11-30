@@ -1,21 +1,21 @@
-﻿using green_craze_be_v1.Application.Common.Mapper;
-using Microsoft.Extensions.DependencyInjection;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.IdentityModel.Tokens;
-using AutoMapper;
+using green_craze_be_v1.Application.Common.Extensions;
+using green_craze_be_v1.Application.Common.Mapper;
+using green_craze_be_v1.Application.Common.Options;
+using green_craze_be_v1.Application.Intefaces;
+using green_craze_be_v1.Application.Services;
 using Hellang.Middleware.ProblemDetails;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using green_craze_be_v1.Application.Common.Extensions;
-using green_craze_be_v1.Application.Common.Options;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
+using System.Text;
 
 namespace green_craze_be_v1.Application
 {
@@ -62,6 +62,8 @@ namespace green_craze_be_v1.Application
                     v.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
                 });
             services.AddValidators();
+            services.AddServices();
+            services.AddSwaggerGenWithJWTAuth();
         }
 
         private static void AddMapper(this IServiceCollection services)
@@ -87,6 +89,40 @@ namespace green_craze_be_v1.Application
         private static JWTConfigOptions GetJwtConfig(IConfiguration configuration)
         {
             return configuration.GetOptions<JWTConfigOptions>("Tokens");
+        }
+
+        private static void AddServices(this IServiceCollection services)
+        {
+            services
+                .AddScoped<ICurrentUserService, CurrentUserService>()
+                .AddScoped<IJwtService, JwtService>()
+                .AddScoped<IDateTimeService, DateTimeService>()
+                .AddScoped<ITokenService, TokenService>()
+                .AddScoped<IUnitService, UnitService>()
+                .AddScoped<INotificationService, NotificationService>()
+                .AddScoped<IBrandService, BrandService>()
+                .AddScoped<IVariantService, VariantService>()
+                .AddScoped<IAuthService, AuthService>()
+                .AddScoped<IUserService, UserService>()
+                .AddScoped<ICartService, CartService>()
+                .AddScoped<IDeliveryService, DeliveryService>()
+                .AddScoped<IPaymentMethodService, PaymentMethodService>()
+                .AddScoped<IOrderCancellationReasonService, OrderCancellationReasonService>()
+                .AddScoped<IUserFollowProductService, UserFollowProductService>()
+                .AddScoped<IOrderService, OrderService>()
+                .AddScoped<IUnitService, UnitService>()
+                .AddScoped<IProductCategoryService, ProductCategoryService>()
+                .AddScoped<IProductService, ProductService>()
+                .AddScoped<IProductImageService, ProductImageService>()
+                .AddScoped<ISaleService, SaleService>()
+                .AddScoped<IAddressService, AddressService>()
+                .AddScoped<IUnitService, UnitService>()
+                .AddScoped<ITransactionService, TransactionService>()
+                .AddScoped<IRoleService, RoleService>()
+                .AddScoped<IReviewService, ReviewService>()
+                .AddScoped<IInventoryService, InventoryService>()
+                .AddScoped<IReviewService, ReviewService>()
+                .AddScoped<IStatisticService, StatisticService>();
         }
 
         public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
@@ -134,6 +170,76 @@ namespace green_craze_be_v1.Application
                 });
 
             services.AddAuthorization();
+        }
+
+    }
+
+    static class SwaggerAuthExtension
+    {
+        private static readonly string AUTH_TYPE = "Bearer";
+
+        private static readonly OpenApiSecurityRequirement requirement = new()
+        {{
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference()
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = AUTH_TYPE
+                },
+                Scheme = "oauth2",
+                Name = AUTH_TYPE,
+                In = ParameterLocation.Header
+            },
+            Array.Empty<string>()
+        }};
+
+        private static readonly OpenApiSecurityScheme scheme = new()
+        {
+            Description = @"JWT authorization header using the Bearer sheme. \r\n\r\n
+                        Enter 'Bearer' [space] and then your token in the text input below.
+                        \r\n\r\nExample: 'Bearer 12345abcdef'",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = AUTH_TYPE
+        };
+
+        private static void AddJWTAuth(this SwaggerGenOptions option)
+        {
+            option.AddSecurityDefinition(AUTH_TYPE, scheme);
+            option.OperationFilter<SecurityRequirementsOperationFilter>();
+        }
+
+        public static void AddSwaggerGenWithJWTAuth(this IServiceCollection services)
+        {
+            services.AddSwaggerGen(opt => opt.AddJWTAuth());
+        }
+
+        private class SecurityRequirementsOperationFilter : IOperationFilter
+        {
+            private static bool HasAttribute(MethodInfo methodInfo, Type type, bool inherit)
+            {
+                var actionAttributes = methodInfo.GetCustomAttributes(inherit);
+                var controllerAttributes = methodInfo.DeclaringType.GetTypeInfo().GetCustomAttributes(inherit);
+                var actionAndControllerAttributes = actionAttributes.Union(controllerAttributes);
+
+                return actionAndControllerAttributes.Any(attr => attr.GetType() == type);
+            }
+            public void Apply(OpenApiOperation operation, OperationFilterContext context)
+            {
+                bool hasAuthorizeAttribute = HasAttribute(context.MethodInfo, typeof(AuthorizeAttribute), true);
+                bool hasAnonymousAttribute = HasAttribute(context.MethodInfo, typeof(AllowAnonymousAttribute), true);
+
+                bool isAuthorized = hasAuthorizeAttribute && !hasAnonymousAttribute;
+                if (isAuthorized)
+                {
+                    operation.Security = new List<OpenApiSecurityRequirement>
+                    {
+                        requirement
+                    };
+                }
+            }
         }
     }
 }

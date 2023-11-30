@@ -22,53 +22,11 @@ namespace green_craze_be_v1.Application.Specification.Unit
                 else
                     Criteria = x => true;
             }
-            var columnName = query.ColumnName.ToLower();
-            if (query.IsSortAccending)
-            {
-                if (columnName == nameof(Domain.Entities.Unit.Name).ToLower())
-                {
-                    AddOrderBy(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Unit.CreatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Unit.UpdatedAt).ToLower())
-                {
-                    AddOrderBy(x => x.UpdatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Unit.Status).ToLower())
-                {
-                    AddOrderBy(x => x.Status);
-                }
-                else
-                {
-                    AddOrderBy(x => x.Id);
-                }
-            }
-            else
-            {
-                if (columnName == nameof(Domain.Entities.Unit.Name).ToLower())
-                {
-                    AddOrderByDescending(x => x.Name);
-                }
-                else if (columnName == nameof(Domain.Entities.Unit.CreatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.CreatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Unit.UpdatedAt).ToLower())
-                {
-                    AddOrderByDescending(x => x.UpdatedAt);
-                }
-                else if (columnName == nameof(Domain.Entities.Unit.Status).ToLower())
-                {
-                    AddOrderByDescending(x => x.Status);
-                }
-                else
-                {
-                    AddOrderByDescending(x => x.Id);
-                }
-            }
+
+            if (string.IsNullOrEmpty(query.ColumnName))
+                query.ColumnName = "Id";
+            AddSorting(query.ColumnName, query.IsSortAscending);
+
             if (!isPaging) return;
             int skip = (query.PageIndex - 1) * query.PageSize;
             int take = query.PageSize;

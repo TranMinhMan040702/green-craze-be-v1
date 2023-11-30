@@ -4,7 +4,6 @@ using green_craze_be_v1.Application.Model.CustomAPI;
 using green_craze_be_v1.Application.Model.Paging;
 using green_craze_be_v1.Application.Model.Role;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
@@ -22,7 +21,7 @@ namespace green_craze_be_v1.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetListRole([FromQuery]GetRolePagingRequest request)
+        public async Task<IActionResult> GetListRole([FromQuery] GetRolePagingRequest request)
         {
             var roles = await _roleService.GetListRole(request);
 

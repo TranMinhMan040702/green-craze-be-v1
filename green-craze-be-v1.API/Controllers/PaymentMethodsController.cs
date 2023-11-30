@@ -1,10 +1,9 @@
 ﻿using green_craze_be_v1.Application.Dto;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Model.CustomAPI;
-using green_craze_be_v1.Application.Model.PaymentMethod;
 using green_craze_be_v1.Application.Model.Paging;
+using green_craze_be_v1.Application.Model.PaymentMethod;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace green_craze_be_v1.API.Controllers
