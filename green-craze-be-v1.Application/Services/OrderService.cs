@@ -153,7 +153,7 @@ namespace green_craze_be_v1.Application.Services
             {
                 Email = user.Email,
                 Name = user.FirstName + " " + user.LastName,
-                Type = "order-confirmation.html",
+                Type = MAIL_TYPE.ORDER_CONFIRMATION,
                 Title = "Xác nhận đặt hàng",
                 OrderConfirmationMail = orderDetail
             };

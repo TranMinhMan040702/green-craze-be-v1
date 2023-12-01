@@ -27,7 +27,7 @@ namespace green_craze_be_v1.Infrastructure.Services
         {
             var path = Path.Combine(_mailTemplate, request.Type);
             string body = string.Empty;
-            using (StreamReader reader = new StreamReader(path))
+            using (StreamReader reader = new(path))
             {
                 body = reader.ReadToEnd();
             }
