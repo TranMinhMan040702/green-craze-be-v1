@@ -9,258 +9,243 @@ using green_craze_be_v1.Domain.Entities;
 
 namespace green_craze_be_v1.Application.Services
 {
-	public class AddressService : IAddressService
-	{
-		private readonly IUnitOfWork _unitOfWork;
-		private readonly IMapper _mapper;
+    public class AddressService : IAddressService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-		public AddressService(IUnitOfWork unitOfWork, IMapper mapper)
-		{
-			_unitOfWork = unitOfWork;
-			_mapper = mapper;
-		}
+        public AddressService(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
 
-		public async Task<long> CreateAddress(CreateAddressRequest request)
-		{
-			try
-			{
-				await _unitOfWork.CreateTransaction();
+        public async Task<long> CreateAddress(CreateAddressRequest request)
+        {
+            try
+            {
+                await _unitOfWork.CreateTransaction();
 
-				var user = await _unitOfWork.Repository<AppUser>().GetById(request.UserId)
-					?? throw new NotFoundException("Cannot find current user");
+                var user = await _unitOfWork.Repository<AppUser>().GetById(request.UserId)
+                    ?? throw new NotFoundException("Cannot find current user");
 
-				var province = await _unitOfWork.Repository<Province>().GetById(request.ProvinceId)
-					?? throw new InvalidRequestException("Unexpected provinceId");
+                var province = await _unitOfWork.Repository<Province>().GetById(request.ProvinceId)
+                    ?? throw new InvalidRequestException("Unexpected provinceId");
 
-				var district = await _unitOfWork.Repository<District>().GetEntityWithSpec(new DistrictSpecification(request.DistrictId))
-					?? throw new InvalidRequestException("Unexpected districtId");
+                var district = await _unitOfWork.Repository<District>().GetEntityWithSpec(new DistrictSpecification(request.DistrictId))
+                    ?? throw new InvalidRequestException("Unexpected districtId");
 
-				var ward = await _unitOfWork.Repository<Ward>().GetEntityWithSpec(new WardSpecification(request.WardId))
-					?? throw new InvalidRequestException("Unexpected wardId");
+                var ward = await _unitOfWork.Repository<Ward>().GetEntityWithSpec(new WardSpecification(request.WardId))
+                    ?? throw new InvalidRequestException("Unexpected wardId");
 
-				if (ward.District.Id != district.Id || district.Province.Id != province.Id)
-					throw new InvalidRequestException("Cannot identify combined address, may be unexpected provinceId, districtId, wardId");
+                if (ward.District.Id != district.Id || district.Province.Id != province.Id)
+                    throw new InvalidRequestException("Cannot identify combined address, may be unexpected provinceId, districtId, wardId");
 
-				var address = _mapper.Map<Address>(request);
-				address.Province = province;
-				address.District = district;
-				address.Ward = ward;
-				address.User = user;
-				address.IsDefault = true;
+                var address = _mapper.Map<Address>(request);
+                address.Province = province;
+                address.District = district;
+                address.Ward = ward;
+                address.User = user;
+                address.IsDefault = true;
 
-				var addresses = await _unitOfWork.Repository<Address>().ListAsync(new AddressSpecification(user.Id, isDefault: true));
+                var addresses = await _unitOfWork.Repository<Address>().ListAsync(new AddressSpecification(user.Id, isDefault: true));
 
-				foreach (var a in addresses)
-				{
-					a.IsDefault = false;
-					_unitOfWork.Repository<Address>().Update(a);
-				}
+                foreach (var a in addresses)
+                {
+                    a.IsDefault = false;
+                    _unitOfWork.Repository<Address>().Update(a);
+                }
 
-				await _unitOfWork.Repository<Address>().Insert(address);
+                await _unitOfWork.Repository<Address>().Insert(address);
 
-				var isSuccess = await _unitOfWork.Save() > 0;
-				await _unitOfWork.Commit();
+                var isSuccess = await _unitOfWork.Save() > 0;
+                await _unitOfWork.Commit();
 
-				if (!isSuccess)
-				{
-					throw new Exception("Cannot handle to insert address for user, an error has occured");
-				}
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot handle to insert address for user, an error has occured");
+                }
 
-				return address.Id;
-			}
-			catch
-			{
-				await _unitOfWork.Rollback();
-				throw;
-			}
-		}
+                return address.Id;
+            }
+            catch
+            {
+                await _unitOfWork.Rollback();
+                throw;
+            }
+        }
 
-		public async Task<bool> DeleteAddress(long id, string userId)
-		{
-			var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, id))
-				?? throw new InvalidRequestException("Unexpected addressId");
-			if (address.IsDefault)
-				throw new InvalidRequestException("Cannot handle to delete default address, please set another address to default and try again");
+        public async Task<bool> DeleteAddress(long id, string userId)
+        {
+            var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, id))
+                ?? throw new InvalidRequestException("Unexpected addressId");
+            if (address.IsDefault)
+                throw new InvalidRequestException("Cannot handle to delete default address, please set another address to default and try again");
 
-			address.Status = false;
+            address.Status = false;
 
-			_unitOfWork.Repository<Address>().Update(address);
+            _unitOfWork.Repository<Address>().Update(address);
 
-			var isSuccess = await _unitOfWork.Save() > 0;
+            var isSuccess = await _unitOfWork.Save() > 0;
 
-			if (!isSuccess)
-			{
-				throw new Exception("Cannot handle to delete address, an error has occured");
-			}
+            if (!isSuccess)
+            {
+                throw new Exception("Cannot handle to delete address, an error has occured");
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		public async Task<AddressDto> GetAddress(long id, string userId)
-		{
-			var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, id))
-				?? throw new InvalidRequestException("Unexpected addressId");
+        public async Task<AddressDto> GetAddress(long id, string userId)
+        {
+            var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, id))
+                ?? throw new InvalidRequestException("Unexpected addressId");
 
-			return _mapper.Map<AddressDto>(address);
-		}
+            return _mapper.Map<AddressDto>(address);
+        }
 
-		public async Task<AddressDto> GetDefaultAddress(string userId)
-		{
-			var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, true));
-			if (address == null)
-				return null;
-			return _mapper.Map<AddressDto>(address);
-		}
+        public async Task<AddressDto> GetDefaultAddress(string userId)
+        {
+            var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, true));
+            if (address == null)
+                return null;
+            return _mapper.Map<AddressDto>(address);
+        }
 
-		public async Task<PaginatedResult<AddressDto>> GetListAddress(GetAddressPagingRequest request)
-		{
-			var spec = new AddressSpecification(request, isPaging: true);
-			var countSpec = new AddressSpecification(request);
+        public async Task<PaginatedResult<AddressDto>> GetListAddress(GetAddressPagingRequest request)
+        {
+            var spec = new AddressSpecification(request, isPaging: true);
+            var countSpec = new AddressSpecification(request);
 
-			var addresses = await _unitOfWork.Repository<Address>().ListAsync(spec);
-			var count = await _unitOfWork.Repository<Address>().CountAsync(countSpec);
-			//if (request.Status)
-			//{
-			//    addresses = addresses.Where(x => x.Status == true).ToList();
-			//}
-			var addressDtos = new List<AddressDto>();
-			addresses.ForEach(x => addressDtos.Add(_mapper.Map<AddressDto>(x)));
+            var addresses = await _unitOfWork.Repository<Address>().ListAsync(spec);
+            var count = await _unitOfWork.Repository<Address>().CountAsync(countSpec);
+            //if (request.Status)
+            //{
+            //    addresses = addresses.Where(x => x.Status == true).ToList();
+            //}
+            var addressDtos = new List<AddressDto>();
+            addresses.ForEach(x => addressDtos.Add(_mapper.Map<AddressDto>(x)));
 
-			return new PaginatedResult<AddressDto>(addressDtos, request.PageIndex, count, request.PageSize);
-		}
+            return new PaginatedResult<AddressDto>(addressDtos, request.PageIndex, count, request.PageSize);
+        }
 
-		public async Task<bool> SetAddressDefault(long id, string userId)
-		{
-			try
-			{
-				await _unitOfWork.CreateTransaction();
-				var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, id))
-					?? throw new InvalidRequestException("Unexpected addressId");
+        public async Task<bool> SetAddressDefault(long id, string userId)
+        {
+            try
+            {
+                await _unitOfWork.CreateTransaction();
+                var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(userId, id))
+                    ?? throw new InvalidRequestException("Unexpected addressId");
 
-				address.IsDefault = true;
+                address.IsDefault = true;
 
-				var addresses = await _unitOfWork.Repository<Address>().ListAsync(new AddressSpecification(userId, isDefault: true));
-				foreach (var a in addresses)
-				{
-					a.IsDefault = false;
-					_unitOfWork.Repository<Address>().Update(a);
-				}
+                var addresses = await _unitOfWork.Repository<Address>().ListAsync(new AddressSpecification(userId, isDefault: true));
+                foreach (var a in addresses)
+                {
+                    a.IsDefault = false;
+                    _unitOfWork.Repository<Address>().Update(a);
+                }
 
-				_unitOfWork.Repository<Address>().Update(address);
+                _unitOfWork.Repository<Address>().Update(address);
 
-				var isSuccess = await _unitOfWork.Save() > 0;
+                var isSuccess = await _unitOfWork.Save() > 0;
 
-				await _unitOfWork.Commit();
+                await _unitOfWork.Commit();
 
-				if (!isSuccess)
-				{
-					throw new Exception("Cannot handle to set default address, an error has occured");
-				}
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot handle to set default address, an error has occured");
+                }
 
-				return true;
-			}
-			catch
-			{
-				await _unitOfWork.Rollback();
-				throw;
-			}
-		}
+                return true;
+            }
+            catch
+            {
+                await _unitOfWork.Rollback();
+                throw;
+            }
+        }
 
-		public async Task<bool> UpdateAddress(UpdateAddressRequest request)
-		{
-			try
-			{
-				await _unitOfWork.CreateTransaction();
+        public async Task<bool> UpdateAddress(UpdateAddressRequest request)
+        {
+            try
+            {
+                await _unitOfWork.CreateTransaction();
 
-				var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(request.UserId, request.Id))
-					?? throw new InvalidRequestException("Unexpected addressId");
+                var address = await _unitOfWork.Repository<Address>().GetEntityWithSpec(new AddressSpecification(request.UserId, request.Id))
+                    ?? throw new InvalidRequestException("Unexpected addressId");
 
-				var province = await _unitOfWork.Repository<Province>().GetById(request.ProvinceId)
-					?? throw new InvalidRequestException("Unexpected provinceId");
+                var province = await _unitOfWork.Repository<Province>().GetById(request.ProvinceId)
+                    ?? throw new InvalidRequestException("Unexpected provinceId");
 
-				var district = await _unitOfWork.Repository<District>().GetEntityWithSpec(new DistrictSpecification(request.DistrictId))
-					?? throw new InvalidRequestException("Unexpected districtId");
+                var district = await _unitOfWork.Repository<District>().GetEntityWithSpec(new DistrictSpecification(request.DistrictId))
+                    ?? throw new InvalidRequestException("Unexpected districtId");
 
-				var ward = await _unitOfWork.Repository<Ward>().GetEntityWithSpec(new WardSpecification(request.WardId))
-					?? throw new InvalidRequestException("Unexpected wardId");
+                var ward = await _unitOfWork.Repository<Ward>().GetEntityWithSpec(new WardSpecification(request.WardId))
+                    ?? throw new InvalidRequestException("Unexpected wardId");
 
-				if (ward.District.Id != district.Id || district.Province.Id != province.Id)
-					throw new InvalidRequestException("Cannot identify combined address, may be unexpected provinceId, districtId, wardId");
-				var isDefault = address.IsDefault;
-				_mapper.Map(request, address);
+                if (ward.District.Id != district.Id || district.Province.Id != province.Id)
+                    throw new InvalidRequestException("Cannot identify combined address, may be unexpected provinceId, districtId, wardId");
+                var isDefault = address.IsDefault;
+                _mapper.Map(request, address);
 
-				address.Province = province;
-				address.District = district;
-				address.Ward = ward;
-				address.IsDefault = isDefault;
-				//if (!address.IsDefault)
-				//{
-				//    address.IsDefault = request.IsDefault;
+                address.Province = province;
+                address.District = district;
+                address.Ward = ward;
+                address.IsDefault = isDefault;
 
-				//    if (request.IsDefault)
-				//    {
-				//        var addresses = await _unitOfWork.Repository<Address>().ListAsync(new AddressSpecification(address.User.Id, isDefault: true));
+                _unitOfWork.Repository<Address>().Update(address);
 
-				//        foreach (var a in addresses)
-				//        {
-				//            a.IsDefault = false;
-				//            _unitOfWork.Repository<Address>().Update(a);
-				//        }
-				//    }
-				//}
+                var isSuccess = await _unitOfWork.Save() > 0;
+                await _unitOfWork.Commit();
 
-				_unitOfWork.Repository<Address>().Update(address);
+                if (!isSuccess)
+                {
+                    throw new Exception("Cannot handle to update address for current user, an error has occured");
+                }
 
-				var isSuccess = await _unitOfWork.Save() > 0;
-				await _unitOfWork.Commit();
+                return true;
+            }
+            catch
+            {
+                await _unitOfWork.Rollback();
+                throw;
+            }
+        }
 
-				if (!isSuccess)
-				{
-					throw new Exception("Cannot handle to update address for current user, an error has occured");
-				}
+        public async Task<List<DistrictDto>> GetListDistrictByProvince(long provinceId)
+        {
+            var province = await _unitOfWork.Repository<Province>().GetEntityWithSpec(new ProvinceSpecification(provinceId))
+                ?? throw new InvalidRequestException("Unexpected provinceId");
 
-				return true;
-			}
-			catch
-			{
-				await _unitOfWork.Rollback();
-				throw;
-			}
-		}
+            var districtDtos = new List<DistrictDto>();
 
-		public async Task<List<DistrictDto>> GetListDistrictByProvince(long provinceId)
-		{
-			var province = await _unitOfWork.Repository<Province>().GetEntityWithSpec(new ProvinceSpecification(provinceId))
-				?? throw new InvalidRequestException("Unexpected provinceId");
+            province.Districts.ToList().ForEach(x => districtDtos.Add(_mapper.Map<DistrictDto>(x)));
 
-			var districtDtos = new List<DistrictDto>();
+            return districtDtos;
+        }
 
-			province.Districts.ToList().ForEach(x => districtDtos.Add(_mapper.Map<DistrictDto>(x)));
+        public async Task<List<ProvinceDto>> GetListProvince()
+        {
+            var provinces = (await _unitOfWork.Repository<Province>().GetAll()).ToList();
 
-			return districtDtos;
-		}
+            var provinceDtos = new List<ProvinceDto>();
 
-		public async Task<List<ProvinceDto>> GetListProvince()
-		{
-			var provinces = (await _unitOfWork.Repository<Province>().GetAll()).ToList();
+            provinces.ForEach(x => provinceDtos.Add(_mapper.Map<ProvinceDto>(x)));
 
-			var provinceDtos = new List<ProvinceDto>();
+            return provinceDtos;
+        }
 
-			provinces.ForEach(x => provinceDtos.Add(_mapper.Map<ProvinceDto>(x)));
+        public async Task<List<WardDto>> GetListWardByDistrict(long districtId)
+        {
+            var district = await _unitOfWork.Repository<District>().GetEntityWithSpec(new DistrictSpecification(districtId))
+                ?? throw new InvalidRequestException("Unexpected districtId");
 
-			return provinceDtos;
-		}
+            var wardDtos = new List<WardDto>();
 
-		public async Task<List<WardDto>> GetListWardByDistrict(long districtId)
-		{
-			var district = await _unitOfWork.Repository<District>().GetEntityWithSpec(new DistrictSpecification(districtId))
-				?? throw new InvalidRequestException("Unexpected districtId");
+            district.Wards.ToList().ForEach(x => wardDtos.Add(_mapper.Map<WardDto>(x)));
 
-			var wardDtos = new List<WardDto>();
-
-			district.Wards.ToList().ForEach(x => wardDtos.Add(_mapper.Map<WardDto>(x)));
-
-			return wardDtos;
-		}
-	}
+            return wardDtos;
+        }
+    }
 }

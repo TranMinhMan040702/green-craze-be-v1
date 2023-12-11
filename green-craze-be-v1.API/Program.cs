@@ -2,6 +2,7 @@ using green_craze_be_v1.API.Middlewares;
 using green_craze_be_v1.Application;
 using green_craze_be_v1.Application.Common.SignalR;
 using green_craze_be_v1.Infrastructure;
+using Hangfire;
 using Hellang.Middleware.ProblemDetails;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,8 +49,8 @@ app.UseRouting();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 app.MapHub<AppHub>("/app-hub");
 app.MigrateDatabase();
+app.UseHangfireDashboard("/dashboard");
 app.Run();

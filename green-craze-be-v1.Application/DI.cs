@@ -5,6 +5,8 @@ using green_craze_be_v1.Application.Common.Mapper;
 using green_craze_be_v1.Application.Common.Options;
 using green_craze_be_v1.Application.Intefaces;
 using green_craze_be_v1.Application.Services;
+using Hangfire;
+using Hangfire.MySql;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MySqlConnector;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
@@ -21,6 +24,25 @@ namespace green_craze_be_v1.Application
 {
     public static class DI
     {
+
+        private static string GetHangFireConnectionString(IConfiguration configuration)
+        {
+            var connectionStr = configuration.GetConnectionString("HangfireDB");
+            MySqlConnectionStringBuilder builder = new(connectionStr);
+            builder.ConnectionString = connectionStr;
+
+            var databaseName = builder.Database;
+            builder.Database = "sys";
+
+            using var connection = new MySqlConnection(builder.ConnectionString);
+            connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = "CREATE DATABASE IF NOT EXISTS " + databaseName;
+            command.ExecuteNonQuery();
+
+            return connectionStr;
+        }
+
         [Obsolete]
         public static void AddApplicationLayer(this IServiceCollection services, IConfiguration configuration)
         {
@@ -64,6 +86,28 @@ namespace green_craze_be_v1.Application
             services.AddValidators();
             services.AddServices();
             services.AddSwaggerGenWithJWTAuth();
+
+            var connectionString = GetHangFireConnectionString(configuration);
+            services.AddHangfire(cfg => cfg
+                   .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                   .UseSimpleAssemblyNameTypeSerializer()
+                   .UseRecommendedSerializerSettings()
+                   .UseStorage(
+                        new MySqlStorage(
+                            connectionString,
+                            new MySqlStorageOptions
+                            {
+                                QueuePollInterval = TimeSpan.FromSeconds(10),
+                                JobExpirationCheckInterval = TimeSpan.FromHours(1),
+                                CountersAggregateInterval = TimeSpan.FromMinutes(5),
+                                PrepareSchemaIfNecessary = true,
+                                DashboardJobListLimit = 25000,
+                                TransactionTimeout = TimeSpan.FromMinutes(1),
+                                TablesPrefix = "Hangfire",
+                            }
+                        )
+                    ));
+            services.AddHangfireServer();
         }
 
         private static void AddMapper(this IServiceCollection services)
@@ -98,6 +142,7 @@ namespace green_craze_be_v1.Application
                 .AddScoped<IJwtService, JwtService>()
                 .AddScoped<IDateTimeService, DateTimeService>()
                 .AddScoped<ITokenService, TokenService>()
+                .AddScoped<IBackgroundJobService, BackgroundJobService>()
                 .AddScoped<IUnitService, UnitService>()
                 .AddScoped<INotificationService, NotificationService>()
                 .AddScoped<IBrandService, BrandService>()

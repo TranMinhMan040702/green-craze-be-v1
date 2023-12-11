@@ -66,6 +66,7 @@ namespace green_craze_be_v1.API.Controllers
         [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
+            request.Type = TOKEN_TYPE.FORGOT_PASSWORD_OTP;
             var isSuccess = await _authService.ResetPassword(request);
 
             return Ok(new APIResponse<bool>(isSuccess, StatusCodes.Status204NoContent));

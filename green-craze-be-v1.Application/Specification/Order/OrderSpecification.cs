@@ -1,10 +1,4 @@
 ﻿using green_craze_be_v1.Application.Model.Order;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace green_craze_be_v1.Application.Specification.Order
 {
@@ -140,7 +134,7 @@ namespace green_craze_be_v1.Application.Specification.Order
                     }
                 }
             }
-            if(request.ColumnName.ToLower() == nameof(Domain.Entities.Order.Transaction.PaymentMethod).ToLower())
+            if (request.ColumnName.ToLower() == nameof(Domain.Entities.Order.Transaction.PaymentMethod).ToLower())
             {
                 if (request.IsSortAscending)
                     AddOrderBy(x => x.Transaction.PaymentMethod);

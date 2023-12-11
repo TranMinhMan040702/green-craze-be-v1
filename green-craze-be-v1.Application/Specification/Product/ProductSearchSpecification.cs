@@ -1,10 +1,5 @@
 ﻿using green_craze_be_v1.Application.Common.Enums;
 using green_craze_be_v1.Application.Model.Product;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace green_craze_be_v1.Application.Specification.Product
 {
@@ -12,7 +7,7 @@ namespace green_craze_be_v1.Application.Specification.Product
     {
         public ProductSearchSpecification(SearchProductPagingRequest query, bool isPaging = false)
         {
-            Criteria = x => x.Name.Contains(query.Search);
+            Criteria = x => x.Name.Contains(query.Search) && x.Status != PRODUCT_STATUS.INACTIVE;
 
             if (string.IsNullOrEmpty(query.ColumnName))
                 query.ColumnName = "Name";

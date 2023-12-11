@@ -13,7 +13,8 @@ namespace green_craze_be_v1.API.Middlewares
 
         public ExceptionMiddleware(RequestDelegate next, ProblemDetailsFactory problemDetailsFactory)
         {
-            _next = next; _problemDetailsFactory = problemDetailsFactory;
+            _next = next;
+            _problemDetailsFactory = problemDetailsFactory;
         }
 
         public async Task Invoke(HttpContext context)
@@ -39,6 +40,7 @@ namespace green_craze_be_v1.API.Middlewares
 
                 string strJson = JsonSerializer.Serialize(problemDetails);
                 context.Response.Headers.Add("Content-Type", "application/json");
+                context.Response.StatusCode = statusCode;
                 await context.Response.WriteAsync(strJson);
             }
         }

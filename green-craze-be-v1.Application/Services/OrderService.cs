@@ -16,6 +16,7 @@ using green_craze_be_v1.Application.Specification.Review;
 using green_craze_be_v1.Application.Specification.User;
 using green_craze_be_v1.Application.Specification.Variant;
 using green_craze_be_v1.Domain.Entities;
+using Hangfire;
 
 namespace green_craze_be_v1.Application.Services
 {
@@ -77,6 +78,7 @@ namespace green_craze_be_v1.Application.Services
                 TotalPay = totalAmount
             };
 
+
             var order = new Order()
             {
                 User = user,
@@ -106,6 +108,9 @@ namespace green_craze_be_v1.Application.Services
 
                 var q = item.Quantity * variant.Quantity;
 
+                if (product.ActualInventory < q)
+                    throw new Exception("Unexpected quantity");
+
                 var docket = new Docket()
                 {
                     Code = StringUtil.GenerateUniqueCode(),
@@ -118,6 +123,7 @@ namespace green_craze_be_v1.Application.Services
                 await _unitOfWork.Repository<Docket>().Insert(docket);
 
                 product.Quantity -= q;
+                product.ActualInventory -= q;
                 product.Sold += q;
 
                 _unitOfWork.Repository<Product>().Update(product);
@@ -172,7 +178,7 @@ namespace green_craze_be_v1.Application.Services
                 Type = NOTIFICATION_TYPE.ORDER,
                 Anchor = "/user/order/" + order.Code,
             };
-            if (order.Transaction.PaymentMethod.ToLower() != "paypal")
+            if (order.Transaction.PaymentMethod != PAYMENT_CODE.PAYPAL)
             {
                 await SendOrderMail(user, order);
             }
@@ -181,6 +187,8 @@ namespace green_craze_be_v1.Application.Services
                 notiRequest.Title = "Đơn hàng cần thanh toán";
                 notiRequest.Content = $"Đơn hàng #{order.Code} của bạn cần được thanh toán qua Paypal trước khi hệ thống có thể xử lý";
                 notiRequest.Anchor = "/checkout/payment/" + order.Code;
+
+                BackgroundJob.Schedule<IBackgroundJobService>(x => x.CancelOrder(order.Id), TimeSpan.FromMinutes(1));
             }
 
             await _notificationService.CreateOrderNotification(notiRequest);
@@ -295,23 +303,34 @@ namespace green_craze_be_v1.Application.Services
 
         private void ValidateOrderStatus(Order order, string status)
         {
-            if (order.Status == ORDER_STATUS.NOT_PROCESSED && order.PaymentStatus == false && order.Transaction.PaymentMethod == PAYMENT_CODE.PAYPAL)
+            // Cannot update order while it's not paid by user through PayPal
+            if (order.Status == ORDER_STATUS.NOT_PROCESSED
+                && status != ORDER_STATUS.CANCELLED
+                && order.PaymentStatus == false
+                && order.Transaction.PaymentMethod == PAYMENT_CODE.PAYPAL)
             {
-                throw new InvalidRequestException("Cannot update this order status, until it was paid by user through PayPal");
+                throw new InvalidRequestException("Cannot update this order status, it wasn't paid by user through PayPal");
+            }
+
+            //  Cannot cancel order while it's paid
+            if (status == ORDER_STATUS.CANCELLED
+                && order.PaymentStatus == true)
+            {
+                throw new InvalidRequestException("Cannot update this order status, it was paid by user before");
             }
 
             // Cannot update order while it's delivered
             if (order.Status == ORDER_STATUS.DELIVERED)
                 throw new InvalidRequestException("Unexpected order status, cannot update order while it's delivered");
 
-            if (order.Status == ORDER_STATUS.CANCELLED
-                && (!_currentUserService.IsInRole(USER_ROLE.ADMIN) && !_currentUserService.IsInRole(USER_ROLE.STAFF)))
-                throw new InvalidRequestException("Unexpected order status, user cannot update order while it's cancelled");
+            // Cannot update order while it's cancelled
+            if (order.Status == ORDER_STATUS.CANCELLED)
+                throw new InvalidRequestException("Unexpected order status, order was cancelled");
 
             // Customer cannot cancel order while it's processing, only admin and staff can do that
             if (order.Status != ORDER_STATUS.NOT_PROCESSED
                 && status == ORDER_STATUS.CANCELLED
-                && (!_currentUserService.IsInRole(USER_ROLE.ADMIN) && !_currentUserService.IsInRole(USER_ROLE.STAFF)))
+                && !(_currentUserService.IsInRole(USER_ROLE.ADMIN) || _currentUserService.IsInRole(USER_ROLE.STAFF)))
                 throw new InvalidRequestException("Unexpected order status, cannot cancel order while it's processing");
         }
 
@@ -431,7 +450,8 @@ namespace green_craze_be_v1.Application.Services
             var orderDto = _mapper.Map<OrderDto>(order);
             orderDto.Items = listItems;
             orderDto.IsReview = listReview.Count == listItems.Count;
-            orderDto.ReviewedDate = listReview.Count > 0 ? listReview.Max(x => x.CreatedAt) : null;
+            orderDto.ReviewedDate = listReview.Count == listItems.Count ? listReview.Max(x => x.CreatedAt) : null;
+
             return orderDto;
         }
 
