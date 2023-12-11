@@ -63,7 +63,9 @@ namespace green_craze_be_v1.Application.Services
                 order.Status = ORDER_STATUS.CANCELLED;
                 order.OtherCancelReason = "Không thanh toán đúng thời hạn";
 
-                await UpdateProduct(order.OrderItems.Select(x => new CreateOrderItemRequest()
+                var orderItems = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(orderId));
+
+                await UpdateProduct(orderItems.Select(x => new CreateOrderItemRequest()
                 {
                     Quantity = -1 * x.Quantity,
                     VariantId = x.Variant.Id
@@ -84,8 +86,6 @@ namespace green_craze_be_v1.Application.Services
                     await _unitOfWork.Rollback();
                     throw;
                 }
-
-                var orderItems = await _unitOfWork.Repository<OrderItem>().ListAsync(new OrderItemSpecification(orderId));
 
                 var notiRequest = new CreateNotificationRequest()
                 {

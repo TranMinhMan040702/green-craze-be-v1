@@ -188,7 +188,7 @@ namespace green_craze_be_v1.Application.Services
                 notiRequest.Content = $"Đơn hàng #{order.Code} của bạn cần được thanh toán qua Paypal trước khi hệ thống có thể xử lý";
                 notiRequest.Anchor = "/checkout/payment/" + order.Code;
 
-                BackgroundJob.Schedule<IBackgroundJobService>(x => x.CancelOrder(order.Id), TimeSpan.FromMinutes(1));
+                BackgroundJob.Schedule<IBackgroundJobService>(x => x.CancelOrder(order.Id), TimeSpan.FromMinutes(3));
             }
 
             await _notificationService.CreateOrderNotification(notiRequest);
